@@ -131,693 +131,1040 @@ main, always keeping it up to date.
 [Dashboard]: https://dashboard.render.com/
 # Mod7
 
+  
 # API DOCUMENTATION
 
-## Create a Project
+## AUTH ENDPOINTS
 
+### Sign Up
+Creates a new user account.
+
+Require Authentication: false
+
+Request:
+* Method: POST
+* URL: /api/auth/signup
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "email": "user@example.com",
+  "first_name": "John",
+  "last_name": "Doe",
+  "password": "password123"
+}
+```
+
+Successful Response:
+* Status Code: 201
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "id": 1,
+  "email": "user@example.com",
+  "first_name": "John",
+  "last_name": "Doe"
+}
+```
+
+Error Response:
+* Status Code: 400
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Validation error",
+  "errors": {
+    "email": "Email is required",
+    "email": "Email must be unique",
+    "first_name": "First name is required",
+    "last_name": "Last name is required",
+    "password": "Password must be at least 6 characters"
+  }
+}
+```
+
+### Log In
+Logs in an existing user.
+
+Require Authentication: false
+
+Request:
+* Method: POST
+* URL: /api/auth/login
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+Successful Response:
+* Status Code: 200
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "id": 1,
+  "email": "user@example.com",
+  "first_name": "John",
+  "last_name": "Doe",
+  "token": "your-auth-token"
+}
+```
+
+Error Response:
+* Status Code: 401
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Invalid credentials"
+}
+```
+
+### Get Current User
+Returns the currently logged-in user's information.
+
+Require Authentication: true
+
+Request:
+* Method: GET
+* URL: /api/auth/me
+
+Successful Response:
+* Status Code: 200
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "id": 1,
+  "email": "user@example.com",
+  "first_name": "John",
+  "last_name": "Doe"
+}
+```
+
+Error Response:
+* Status Code: 401
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Authentication required"
+}
+```
+
+
+## PROJECTS ENDPOINTS
+
+### Create a Project
 Creates and returns a new project.
 
 Require Authentication: true
 
 Request:
-- Method: POST
-- URL: /api/projects/new
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "name": "Marketing Campaign",
-      "description": "This project focuses on the Q1 social media campaign.",
-      "owner_id": 10
-    }
-    ```
+* Method: POST
+* URL: /api/projects
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "name": "Marketing Campaign",
+  "description": "This project focuses on the Q1 social media campaign."
+}
+```
 
 Successful Response:
-- Status Code: 201
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "id": 101,
-      "name": "Marketing Campaign",
-      "description": "This project focuses on the Q1 social media campaign.",
-      "owner_id": 10,
-      "created_at": "2024-12-15T10:00:00Z",
-      "updated_at": "2024-12-15T10:00:00Z"
-    }
-    ```
+* Status Code: 201
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "id": 101,
+  "name": "Marketing Campaign",
+  "description": "This project focuses on the Q1 social media campaign.",
+  "owner_id": 10,
+  "created_at": "2024-12-15T10:00:00Z",
+  "updated_at": "2024-12-15T10:00:00Z"
+}
+```
 
 Error Response:
-- Status Code: 400
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "message": "Validation error",
-      "errors": {
-        "name": "Name is required",
-        "description": "Description is required",
-        "owner_id": "Owner is required"
-      }
-    }
-    ```
+* Status Code: 400
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Validation error",
+  "errors": {
+    "name": "Name is required",
+    "description": "Description is required"
+  }
+}
+```
 
-## Get All Projects
-
-Returns all projects.
+### Get All Projects
+Returns all projects the current user has access to.
 
 Require Authentication: true
-Authorization: User must have access to the project
 
 Request:
-- Method: GET
-- URL: /api/projects
-- Query Parameters:
-    - owner_id (optional): Filter projects by owner's user ID
+* Method: GET
+* URL: /api/projects
 
 Successful Response:
-- Status Code: 200
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    [
-      {
-        "id": 101,
-        "name": "Marketing Campaign",
-        "description": "This project focuses on the Q1 social media campaign.",
-        "owner_id": 10,
-        "created_at": "2024-12-15T10:00:00Z",
-        "updated_at": "2024-12-15T10:00:00Z"
-      },
-      {
-        "id": 102,
-        "name": "Website Redesign",
-        "description": "Revamp the company website for a modern look.",
-        "owner_id": 12,
-        "created_at": "2024-12-14T09:30:00Z",
-        "updated_at": "2024-12-14T09:30:00Z"
-      }
-    ]
-    ```
+* Status Code: 200
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+[
+  {
+    "id": 101,
+    "name": "Marketing Campaign",
+    "description": "This project focuses on the Q1 social media campaign.",
+    "owner_id": 10,
+    "created_at": "2024-12-15T10:00:00Z",
+    "updated_at": "2024-12-15T10:00:00Z"
+  },
+  {
+    "id": 102,
+    "name": "Website Redesign",
+    "description": "Revamp the company website for a modern look.",
+    "owner_id": 12,
+    "created_at": "2024-12-14T09:30:00Z",
+    "updated_at": "2024-12-14T09:30:00Z"
+  }
+]
+```
 
-## Get Single Project
-
+### Get Single Project
 Returns a specific project by ID.
 
 Require Authentication: true
 Authorization: User must have access to the project
 
 Request:
-- Method: GET
-- URL: /api/projects/:id
+* Method: GET
+* URL: /api/projects/:id
 
 Successful Response:
-- Status Code: 200
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "id": 101,
-      "name": "Marketing Campaign",
-      "description": "This project focuses on the Q1 social media campaign.",
-      "owner_id": 10,
-      "created_at": "2024-12-15T10:00:00Z",
-      "updated_at": "2024-12-15T10:00:00Z"
-    }
-    ```
+* Status Code: 200
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "id": 101,
+  "name": "Marketing Campaign",
+  "description": "This project focuses on the Q1 social media campaign.",
+  "owner_id": 10,
+  "created_at": "2024-12-15T10:00:00Z",
+  "updated_at": "2024-12-15T10:00:00Z"
+}
+```
 
 Error Response:
-- Status Code: 404
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "message": "Project couldn't be found"
-    }
-    ```
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Project couldn't be found"
+}
+```
 
-## Update a Project
-
+### Update a Project
 Updates and returns an existing project.
 
 Require Authentication: true
 Authorization: User must be the owner
 
 Request:
-- Method: PUT
-- URL: /api/projects/:id
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "name": "Marketing Strategy Campaign",
-      "description": "Focus updated to include multi-channel advertising."
-    }
-    ```
+* Method: PUT
+* URL: /api/projects/:id
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "name": "Marketing Strategy Campaign",
+  "description": "Focus updated to include multi-channel advertising."
+}
+```
 
 Successful Response:
-- Status Code: 200
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "id": 101,
-      "name": "Marketing Strategy Campaign",
-      "description": "Focus updated to include multi-channel advertising.",
-      "owner_id": 10,
-      "created_at": "2024-12-15T10:00:00Z",
-      "updated_at": "2024-12-15T12:00:00Z"
-    }
-    ```
+* Status Code: 200
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "id": 101,
+  "name": "Marketing Strategy Campaign",
+  "description": "Focus updated to include multi-channel advertising.",
+  "owner_id": 10,
+  "created_at": "2024-12-15T10:00:00Z",
+  "updated_at": "2024-12-15T12:00:00Z"
+}
+```
 
 Error Response:
-- Status Code: 400/404
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "message": "Project couldn't be found"
-    }
-    ```
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Project couldn't be found"
+}
+```
 
-## Delete a Project
-
+### Delete a Project
 Deletes an existing project.
 
 Require Authentication: true
 Authorization: User must be the owner
 
 Request:
-- Method: DELETE
-- URL: /api/projects/:id
+* Method: DELETE
+* URL: /api/projects/:id
 
 Successful Response:
-- Status Code: 204
+* Status Code: 204
 
 Error Response:
-- Status Code: 404
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "message": "Project couldn't be found"
-    }
-    ```
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Project couldn't be found"
+}
+```
 
-# SPRINTS ENDPOINTS
+### Add User to Project
+Adds a user to a project.
 
-## Create a Sprint
+Require Authentication: true
+Authorization: User must be the project owner
 
+Request:
+* Method: POST
+* URL: /api/projects/:projectId/users
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "user_id": 15
+}
+```
+
+Successful Response:
+* Status Code: 200
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "User successfully added to project"
+}
+```
+
+Error Response:
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "User or project couldn't be found"
+}
+```
+
+### Remove User from Project
+Removes a user from a project.
+
+Require Authentication: true
+Authorization: User must be the project owner
+
+Request:
+* Method: DELETE
+* URL: /api/projects/:projectId/users/:userId
+
+Successful Response:
+* Status Code: 200
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "User successfully removed from project"
+}
+```
+
+Error Response:
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "User or project couldn't be found"
+}
+```
+
+
+
+## SPRINTS ENDPOINTS
+
+### Create a Sprint
 Creates and returns a new sprint for a project.
 
 Require Authentication: true
 Authorization: User must have access to the project
 
 Request:
-- Method: POST
-- URL: /api/projects/:projectId/sprints
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "name": "New Sprint",
-      "startDate": "2023-06-15",
-      "endDate": "2023-06-28"
-    }
-    ```
+* Method: POST
+* URL: /api/projects/:projectId/sprints
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "name": "Sprint 1",
+  "start_date": "2024-01-15",
+  "end_date": "2024-01-28"
+}
+```
 
 Successful Response:
-- Status Code: 201
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "id": 2,
-      "projectId": 1,
-      "name": "New Sprint",
-      "startDate": "2023-06-15",
-      "endDate": "2023-06-28"
-    }
-    ```
+* Status Code: 201
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "id": 1,
+  "project_id": 101,
+  "name": "Sprint 1",
+  "start_date": "2024-01-15",
+  "end_date": "2024-01-28",
+  "created_at": "2024-01-15T10:00:00Z",
+  "updated_at": "2024-01-15T10:00:00Z"
+}
+```
 
 Error Response:
-- Status Code: 400
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "message": "Validation error",
-      "errors": {
-        "name": "Name is required",
-        "startDate": "Start date is required",
-        "endDate": "End date is required"
-      }
-    }
-    ```
+* Status Code: 400
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Validation error",
+  "errors": {
+    "name": "Name is required",
+    "start_date": "Start date is required",
+    "end_date": "End date is required"
+  }
+}
+```
 
-## Get All Sprints
-
+### Get All Sprints for Project
 Returns all sprints for a specific project.
 
 Require Authentication: true
 Authorization: User must have access to the project
 
 Request:
-- Method: GET
-- URL: /api/projects/:projectId/sprints
+* Method: GET
+* URL: /api/projects/:projectId/sprints
 
 Successful Response:
-- Status Code: 200
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "sprints": [
-        {
-          "id": 1,
-          "projectId": 1,
-          "name": "Sprint 1",
-          "startDate": "2023-06-01",
-          "endDate": "2023-06-14"
-        }
-      ]
-    }
-    ```
+* Status Code: 200
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+[
+  {
+    "id": 1,
+    "project_id": 101,
+    "name": "Sprint 1",
+    "start_date": "2024-01-15",
+    "end_date": "2024-01-28",
+    "created_at": "2024-01-15T10:00:00Z",
+    "updated_at": "2024-01-15T10:00:00Z"
+  },
+  {
+    "id": 2,
+    "project_id": 101,
+    "name": "Sprint 2",
+    "start_date": "2024-01-29",
+    "end_date": "2024-02-11",
+    "created_at": "2024-01-15T10:00:00Z",
+    "updated_at": "2024-01-15T10:00:00Z"
+  }
+]
+```
 
 Error Response:
-- Status Code: 404
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "message": "Project couldn't be found or access denied"
-    }
-    ```
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Project couldn't be found"
+}
+```
 
-## Update a Sprint
-
+### Update a Sprint
 Updates and returns an existing sprint.
 
 Require Authentication: true
 Authorization: User must have access to the project
 
 Request:
-- Method: PUT
-- URL: /api/sprints/:sprintId
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "name": "Updated Sprint Name",
-      "startDate": "2023-06-16",
-      "endDate": "2023-06-29"
-    }
-    ```
+* Method: PUT
+* URL: /api/projects/:projectId/sprints/:sprintId
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "name": "Sprint 1 - Revised",
+  "start_date": "2024-01-16",
+  "end_date": "2024-01-29"
+}
+```
 
 Successful Response:
-- Status Code: 200
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "id": 1,
-      "projectId": 1,
-      "name": "Updated Sprint Name",
-      "startDate": "2023-06-16",
-      "endDate": "2023-06-29"
-    }
-    ```
+* Status Code: 200
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "id": 1,
+  "project_id": 101,
+  "name": "Sprint 1 - Revised",
+  "start_date": "2024-01-16",
+  "end_date": "2024-01-29",
+  "created_at": "2024-01-15T10:00:00Z",
+  "updated_at": "2024-01-15T11:00:00Z"
+}
+```
 
 Error Response:
-- Status Code: 404
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "message": "Sprint couldn't be found or access denied"
-    }
-    ```
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Sprint couldn't be found"
+}
+```
 
-## Delete a Sprint
-
+### Delete a Sprint
 Deletes an existing sprint.
 
 Require Authentication: true
 Authorization: User must have access to the project
 
 Request:
-- Method: DELETE
-- URL: /api/sprints/:sprintId
+* Method: DELETE
+* URL: /api/projects/:projectId/sprints/:sprintId
 
 Successful Response:
-- Status Code: 200
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "message": "Successfully deleted"
-    }
-    ```
+* Status Code: 204
 
 Error Response:
-- Status Code: 404
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "message": "Sprint couldn't be found or access denied"
-    }
-    ```
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Sprint couldn't be found"
+}
+```
 
-# TASKS ENDPOINTS
 
-## Create a Task
+## FEATURES ENDPOINTS
 
-Creates and returns a new task.
-
-Require Authentication: true
-
-Request:
-- Method: POST
-- URL: /api/tasks
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "feature_id": "integer",
-      "title": "string",
-      "description": "string (optional)",
-      "status": "string",
-      "due_date": "date (optional)",
-      "priority": "string (optional)",
-      "assigned_to": "integer (optional)"
-    }
-    ```
-
-Successful Response:
-- Status Code: 201
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "id": 201,
-      "feature_id": 10,
-      "title": "Design Homepage",
-      "description": "Create wireframes for the homepage.",
-      "status": "In Progress",
-      "due_date": "2024-12-20",
-      "priority": "High",
-      "assigned_to": 12,
-      "created_by": 10,
-      "created_at": "2024-12-15T10:00:00Z",
-      "updated_at": "2024-12-15T10:00:00Z"
-    }
-    ```
-
-Error Response:
-- Status Code: 400
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "message": "Validation error",
-      "errors": {
-        "feature_id": "Feature ID is required",
-        "title": "Title is required",
-        "status": "Status is required"
-      }
-    }
-    ```
-
-## Get All Tasks
-
-Returns all tasks for a user.
-
-Require Authentication: true
-
-Request:
-- Method: GET
-- URL: /api/tasks
-
-Successful Response:
-- Status Code: 200
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "tasks": [
-        {
-          "id": 201,
-          "feature_id": 10,
-          "title": "Design Homepage",
-          "description": "Create wireframes for the homepage.",
-          "status": "In Progress",
-          "due_date": "2024-12-20",
-          "priority": "High",
-          "assigned_to": 12,
-          "created_by": 10,
-          "created_at": "2024-12-15T10:00:00Z",
-          "updated_at": "2024-12-15T10:00:00Z"
-        }
-      ]
-    }
-    ```
-
-# FEATURES ENDPOINTS
-
-## Create a Feature
-
+### Create a Feature
 Creates and returns a new feature for a project.
 
 Require Authentication: true
 Authorization: User must have access to the project
 
 Request:
-- Method: POST
-- URL: /api/features
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "project_id": "integer",
-      "name": "string",
-      "position": "integer",
-      "sprint_id": "integer (optional)"
-    }
-    ```
+* Method: POST
+* URL: /api/projects/:projectId/features
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "name": "User Authentication Module",
+  "position": 1,
+  "sprint_id": 5
+}
+```
 
 Successful Response:
-- Status Code: 201
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "id": 301,
-      "project_id": 1,
-      "name": "User Authentication Module",
-      "position": 1,
-      "created_by": 10,
-      "sprint_id": 5,
-      "created_at": "2024-12-15T10:00:00Z",
-      "updated_at": "2024-12-15T10:00:00Z"
-    }
-    ```
+* Status Code: 201
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "id": 301,
+  "project_id": 101,
+  "name": "User Authentication Module",
+  "position": 1,
+  "sprint_id": 5,
+  "created_by": 10,
+  "created_at": "2024-12-15T10:00:00Z",
+  "updated_at": "2024-12-15T10:00:00Z"
+}
+```
 
 Error Response:
-- Status Code: 400
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "message": "Validation error",
-      "errors": {
-        "project_id": "Project ID is required",
-        "name": "Name is required",
-        "position": "Position is required"
-      }
-    }
-    ```
+* Status Code: 400
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Validation error",
+  "errors": {
+    "name": "Name is required",
+    "position": "Position is required"
+  }
+}
+```
 
-## Get All Features
-
-Returns all features for a project.
+### Get All Features for Project
+Returns all features for a specific project.
 
 Require Authentication: true
 Authorization: User must have access to the project
 
 Request:
-- Method: GET
-- URL: /api/features
-- Query Parameters:
-    - project_id (optional): Filter features by project ID
+* Method: GET
+* URL: /api/projects/:projectId/features
 
 Successful Response:
-- Status Code: 200
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "features": [
-        {
-          "id": 301,
-          "project_id": 1,
-          "name": "User Authentication Module",
-          "position": 1,
-          "created_by": 10,
-          "sprint_id": 5,
-          "created_at": "2024-12-15T10:00:00Z",
-          "updated_at": "2024-12-15T10:00:00Z"
-        },
-        {
-          "id": 302,
-          "project_id": 1,
-          "name": "Profile Page Development",
-          "position": 2,
-          "created_by": 12,
-          "sprint_id": 5,
-          "created_at": "2024-12-16T12:00:00Z",
-          "updated_at": "2024-12-16T12:00:00Z"
-        }
-      ]
-    }
-    ```
+* Status Code: 200
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+[
+  {
+    "id": 301,
+    "project_id": 101,
+    "name": "User Authentication Module",
+    "position": 1,
+    "sprint_id": 5,
+    "created_by": 10,
+    "created_at": "2024-12-15T10:00:00Z",
+    "updated_at": "2024-12-15T10:00:00Z"
+  },
+  {
+    "id": 302,
+    "project_id": 101,
+    "name": "Profile Page Development",
+    "position": 2,
+    "sprint_id": 5,
+    "created_by": 12,
+    "created_at": "2024-12-16T12:00:00Z",
+    "updated_at": "2024-12-16T12:00:00Z"
+  }
+]
+```
 
-## Get Single Feature
+Error Response:
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Project couldn't be found"
+}
+```
 
+### Get Single Feature
 Returns a specific feature by ID.
 
 Require Authentication: true
 Authorization: User must have access to the project
 
 Request:
-- Method: GET
-- URL: /api/features/:id
+* Method: GET
+* URL: /api/projects/:projectId/features/:featureId
 
 Successful Response:
-- Status Code: 200
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "id": 301,
-      "project_id": 1,
-      "name": "User Authentication Module",
-      "position": 1,
-      "created_by": 10,
-      "sprint_id": 5,
-      "created_at": "2024-12-15T10:00:00Z",
-      "updated_at": "2024-12-15T10:00:00Z"
-    }
-    ```
+* Status Code: 200
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "id": 301,
+  "project_id": 101,
+  "name": "User Authentication Module",
+  "position": 1,
+  "sprint_id": 5,
+  "created_by": 10,
+  "created_at": "2024-12-15T10:00:00Z",
+  "updated_at": "2024-12-15T10:00:00Z"
+}
+```
 
 Error Response:
-- Status Code: 404
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "message": "Feature couldn't be found"
-    }
-    ```
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Feature couldn't be found"
+}
+```
 
-## Update a Feature
-
+### Update a Feature
 Updates and returns an existing feature.
 
 Require Authentication: true
 Authorization: User must have access to the project
 
 Request:
-- Method: PUT
-- URL: /api/features/:id
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "name": "string (optional)",
-      "position": "integer (optional)",
-      "sprint_id": "integer (optional)"
-    }
-    ```
+* Method: PUT
+* URL: /api/projects/:projectId/features/:featureId
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "name": "Updated User Authentication",
+  "position": 2,
+  "sprint_id": 6
+}
+```
 
 Successful Response:
-- Status Code: 200
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "id": 301,
-      "project_id": 1,
-      "name": "Updated User Authentication",
-      "position": 1,
-      "created_by": 10,
-      "sprint_id": 6,
-      "created_at": "2024-12-15T10:00:00Z",
-      "updated_at": "2024-12-16T14:00:00Z"
-    }
-    ```
+* Status Code: 200
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "id": 301,
+  "project_id": 101,
+  "name": "Updated User Authentication",
+  "position": 2,
+  "sprint_id": 6,
+  "created_by": 10,
+  "created_at": "2024-12-15T10:00:00Z",
+  "updated_at": "2024-12-16T14:00:00Z"
+}
+```
 
-## Delete a Feature
+Error Response:
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Feature couldn't be found"
+}
+```
 
+### Delete a Feature
 Deletes an existing feature.
 
 Require Authentication: true
 Authorization: User must have access to the project
 
 Request:
-- Method: DELETE
-- URL: /api/features/:id
+* Method: DELETE
+* URL: /api/projects/:projectId/features/:featureId
 
 Successful Response:
-- Status Code: 200
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "message": "Feature successfully deleted"
-    }
-    ```
+* Status Code: 204
 
 Error Response:
-- Status Code: 404
-- Headers:
-    - Content-Type: application/json
-- Body:
-    ```json
-    {
-      "message": "Feature couldn't be found"
-    }
-    ```
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Feature couldn't be found"
+}
+```
+
+
+## TASKS ENDPOINTS
+
+### Create a Task
+Creates and returns a new task for a feature.
+
+Require Authentication: true
+Authorization: User must have access to the project
+
+Request:
+* Method: POST
+* URL: /api/features/:featureId/tasks
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "title": "Design Homepage",
+  "description": "Create wireframes for the homepage",
+  "status": "Not Started",
+  "due_date": "2024-12-20",
+  "priority": "High",
+  "assigned_to": 12
+}
+```
+
+Successful Response:
+* Status Code: 201
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "id": 201,
+  "feature_id": 301,
+  "title": "Design Homepage",
+  "description": "Create wireframes for the homepage",
+  "status": "Not Started",
+  "due_date": "2024-12-20",
+  "priority": "High",
+  "assigned_to": 12,
+  "created_by": 10,
+  "created_at": "2024-12-15T10:00:00Z",
+  "updated_at": "2024-12-15T10:00:00Z"
+}
+```
+
+Error Response:
+* Status Code: 400
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Validation error",
+  "errors": {
+    "title": "Title is required",
+    "status": "Status must be one of: Not Started, In Progress, Completed"
+  }
+}
+```
+
+### Get All Tasks for Feature
+Returns all tasks for a specific feature.
+
+Require Authentication: true
+Authorization: User must have access to the project
+
+Request:
+* Method: GET
+* URL: /api/features/:featureId/tasks
+
+Successful Response:
+* Status Code: 200
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+[
+  {
+    "id": 201,
+    "feature_id": 301,
+    "title": "Design Homepage",
+    "description": "Create wireframes for the homepage",
+    "status": "Not Started",
+    "due_date": "2024-12-20",
+    "priority": "High",
+    "assigned_to": 12,
+    "created_by": 10,
+    "created_at": "2024-12-15T10:00:00Z",
+    "updated_at": "2024-12-15T10:00:00Z"
+  },
+  {
+    "id": 202,
+    "feature_id": 301,
+    "title": "Implement Login Form",
+    "description": "Create login form with validation",
+    "status": "In Progress",
+    "due_date": "2024-12-22",
+    "priority": "Medium",
+    "assigned_to": 13,
+    "created_by": 10,
+    "created_at": "2024-12-15T11:00:00Z",
+    "updated_at": "2024-12-15T11:00:00Z"
+  }
+]
+```
+
+Error Response:
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Feature couldn't be found"
+}
+```
+
+### Get Single Task
+Returns a specific task by ID.
+
+Require Authentication: true
+Authorization: User must have access to the project
+
+Request:
+* Method: GET
+* URL: /api/features/:featureId/tasks/:taskId
+
+Successful Response:
+* Status Code: 200
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "id": 201,
+  "feature_id": 301,
+  "title": "Design Homepage",
+  "description": "Create wireframes for the homepage",
+  "status": "Not Started",
+  "due_date": "2024-12-20",
+  "priority": "High",
+  "assigned_to": 12,
+  "created_by": 10,
+  "created_at": "2024-12-15T10:00:00Z",
+  "updated_at": "2024-12-15T10:00:00Z"
+}
+```
+
+Error Response:
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Task couldn't be found"
+}
+```
+
+### Update a Task
+Updates and returns an existing task.
+
+Require Authentication: true
+Authorization: User must have access to the project
+
+Request:
+* Method: PUT
+* URL: /api/features/:featureId/tasks/:taskId
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "title": "Design Homepage - Updated",
+  "description": "Create wireframes for the homepage with mobile version",
+  "status": "In Progress",
+  "due_date": "2024-12-21",
+  "priority": "High",
+  "assigned_to": 12
+}
+```
+
+Successful Response:
+* Status Code: 200
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "id": 201,
+  "feature_id": 301,
+  "title": "Design Homepage - Updated",
+  "description": "Create wireframes for the homepage with mobile version",
+  "status": "In Progress",
+  "due_date": "2024-12-21",
+  "priority": "High",
+  "assigned_to": 12,
+  "created_by": 10,
+  "created_at": "2024-12-15T10:00:00Z",
+  "updated_at": "2024-12-15T12:00:00Z"
+}
+```
+
+Error Response:
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Task couldn't be found"
+}
+```
+
+### Delete a Task
+Deletes an existing task.
+
+Require Authentication: true
+Authorization: User must have access to the project
+
+Request:
+* Method: DELETE
+* URL: /api/features/:featureId/tasks/:taskId
+
+Successful Response:
+* Status Code: 204
+
+Error Response:
+* Status Code: 404
+* Headers:
+  * Content-Type: application/json
+* Body:
+```json
+{
+  "message": "Task couldn't be found"
+}
+```
