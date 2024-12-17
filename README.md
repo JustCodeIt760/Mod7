@@ -529,7 +529,7 @@ Request:
 - Body:
     ```json
     {
-      "list_id": "integer",
+      "feature_id": "integer",
       "title": "string",
       "description": "string (optional)",
       "status": "string",
@@ -547,7 +547,7 @@ Successful Response:
     ```json
     {
       "id": 201,
-      "list_id": 10,
+      "feature_id": 10,
       "title": "Design Homepage",
       "description": "Create wireframes for the homepage.",
       "status": "In Progress",
@@ -569,7 +569,7 @@ Error Response:
     {
       "message": "Validation error",
       "errors": {
-        "list_id": "List ID is required",
+        "feature_id": "Feature ID is required",
         "title": "Title is required",
         "status": "Status is required"
       }
@@ -596,7 +596,7 @@ Successful Response:
       "tasks": [
         {
           "id": 201,
-          "list_id": 10,
+          "feature_id": 10,
           "title": "Design Homepage",
           "description": "Create wireframes for the homepage.",
           "status": "In Progress",
