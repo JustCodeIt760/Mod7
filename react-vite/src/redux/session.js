@@ -1,3 +1,5 @@
+import Cookies from 'js-cookie';
+
 const SET_USER = 'session/setUser';
 const REMOVE_USER = 'session/removeUser';
 
@@ -25,7 +27,10 @@ export const thunkAuthenticate = () => async (dispatch) => {
 export const thunkLogin = (credentials) => async dispatch => {
   const response = await fetch("/api/auth/login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "XSRF-Token": Cookies.get("XSRF-TOKEN")
+    },
     body: JSON.stringify(credentials)
   });
 
