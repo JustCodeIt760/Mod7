@@ -131,11 +131,7 @@ main, always keeping it up to date.
 [Dashboard]: https://dashboard.render.com/
 # Mod7
 
-
-
 # API DOCUMENTATION
-
-# PROJECTS ENDPOINTS
 
 ## Create a Project
 
@@ -145,7 +141,7 @@ Require Authentication: true
 
 Request:
 - Method: POST
-- URL: /api/projects
+- URL: /api/projects/new
 - Headers:
     - Content-Type: application/json
 - Body:
