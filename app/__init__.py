@@ -5,11 +5,15 @@ from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 from flask_login import LoginManager
 from models import db, User
-from app.api import api
+from api import api
 from seeds import seed_commands  # Remove the .
 from config import Config  # Remove the .
+from api.routes.auth_routes import auth_routes
 
 app = Flask(__name__)
+
+# Register blueprints
+app.register_blueprint(auth_routes, url_prefix='/api/auth')
 
 # Setup login manager
 login = LoginManager(app)
