@@ -1,0 +1,55 @@
+form {
+  display: grid;
+  gap: 1rem;
+  padding: 2rem;
+  min-width: 300px;
+}
+
+h1 {
+  text-align: center;
+  margin-top: 1rem;
+  color: #1f2937;
+}
+
+label {
+  display: grid;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+input {
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+button[type="submit"] {
+  background: linear-gradient(45deg, #2563eb, #4f46e5);
+  color: white;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+}
+
+button[type="submit"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+p {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}

@@ -1,0 +1,314 @@
+/* Base Layout */
+.landing-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+/* Hero Section */
+.hero-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 90%;
+  padding: clamp(2rem, 5vh, 4rem) 2rem;
+  gap: clamp(2rem, 5vw, 4rem);
+  min-height: calc(100vh - 80px);
+  align-items: start;
+  padding-top: max(100px, 12vh);
+}
+
+/* Hero Content */
+.hero-content {
+  display: grid;
+  gap: clamp(1rem, 3vh, 2rem);
+  align-content: start;
+  position: relative;
+  height: min-content;
+  max-width: 600px;
+  justify-self: center;
+  grid-row: 1;
+  grid-column: 1 / -1;
+  z-index: 2;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
+  padding: 2rem;
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+
+h1 {
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  font-weight: 800;
+  background: linear-gradient(45deg, #2563eb, #4f46e5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.hero-subtitle {
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  color: #4b5563;
+  line-height: 1.6;
+  max-width: 45ch;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Hero Image Section */
+.hero-image {
+  width: 100%;
+  display: grid;
+  align-items: start;
+  max-height: calc(100vh - 140px);
+  overflow: hidden;
+  justify-self: center;
+  max-width: 800px;
+  grid-row: 2;
+  grid-column: 1 / -1;
+  z-index: 1;
+  margin-top: -4rem;
+}
+
+.board-preview {
+  background: white;
+  border-radius: 12px;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 250px;
+  gap: 1rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  max-height: 100%;
+}
+
+/* Scrollbar Styling */
+.board-preview::-webkit-scrollbar {
+  height: 6px;
+}
+
+.board-preview::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 3px;
+}
+
+.board-preview::-webkit-scrollbar-thumb {
+  background: #2563eb;
+  border-radius: 3px;
+}
+
+/* Column Layout */
+.column {
+  background: #f8f9fa;
+  padding: clamp(0.75rem, 2vw, 1rem);
+  border-radius: 8px;
+  display: grid;
+  gap: clamp(0.5rem, 1.5vh, 0.75rem);
+  height: fit-content;
+  scroll-snap-align: start;
+}
+
+.column-header {
+  font-weight: 600;
+  color: #4b5563;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.task-card {
+  background: white;
+  padding: clamp(0.5rem, 1.5vw, 0.75rem);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  font-size: clamp(0.75rem, 1.5vw, 0.875rem);
+  transition: all 0.2s ease;
+}
+
+.task-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Features Section */
+.features-section {
+  background: white;
+  padding: clamp(2rem, 6vh, 4rem) clamp(1rem, 3vw, 2rem);
+  display: grid;
+  gap: clamp(2rem, 6vh, 4rem);
+}
+
+.features-section h2 {
+  text-align: center;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  color: #1f2937;
+  max-width: min(1200px, 90vw);
+  margin: 0 auto;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1rem, 3vw, 2rem);
+  max-width: min(1200px, 90vw);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.feature-card {
+  display: grid;
+  gap: clamp(0.75rem, 2vh, 1rem);
+  text-align: center;
+  padding: clamp(1.5rem, 4vw, 2rem);
+  border-radius: 12px;
+  background: #f8f9fa;
+  transition: transform 0.2s ease;
+  height: 100%;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+}
+
+.feature-card i {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: #2563eb;
+}
+
+.feature-card h3 {
+  color: #1f2937;
+  font-size: clamp(1.1rem, 2vw, 1.25rem);
+}
+
+.feature-card p {
+  color: #4b5563;
+  line-height: 1.6;
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
+  max-width: 35ch;
+  margin: 0 auto;
+}
+
+/* Button Layout */
+.hero-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+  gap: clamp(0.5rem, 2vw, 1rem);
+  margin-top: clamp(1rem, 3vh, 2rem);
+}
+
+/* Button Styles */
+.primary-button,
+.secondary-button {
+  padding: clamp(0.5rem, 2vh, 0.75rem) clamp(1rem, 3vw, 1.5rem);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.primary-button {
+  background: linear-gradient(45deg, #2563eb, #4f46e5);
+  color: white;
+  border: none;
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.secondary-button {
+  background: white;
+  color: #2563eb;
+  border: 2px solid #2563eb;
+}
+
+.secondary-button:hover {
+  background: #2563eb;
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .hero-section {
+    gap: 2rem;
+    width: 95%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .hero-section {
+    grid-template-columns: 1fr;
+    text-align: center;
+    max-width: 800px;
+    padding-top: max(80px, 10vh);
+  }
+
+  .hero-content {
+    position: relative;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+
+  .hero-subtitle {
+    margin: 0 auto;
+  }
+
+  .hero-image {
+    max-height: none;
+    overflow: visible;
+    width: 100%;
+    margin-top: -2rem;
+  }
+
+  .board-preview {
+    grid-auto-columns: minmax(min(250px, 85vw), 1fr);
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    gap: clamp(1.5rem, 4vh, 2rem);
+    padding-top: max(60px, 8vh);
+    width: 100%;
+  }
+
+  .board-preview {
+    scroll-padding: 1rem;
+  }
+
+  .hero-content {
+    padding: 1rem;
+  }
+
+  .hero-image {
+    margin-top: -1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-section {
+    padding: max(40px, 6vh) 1rem;
+  }
+}
