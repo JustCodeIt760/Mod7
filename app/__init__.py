@@ -9,11 +9,13 @@ from api import api
 from seeds import seed_commands  # Remove the .
 from config import Config  # Remove the .
 from api.routes.auth_routes import auth_routes
+from api.project_routes import project_routes
 
 app = Flask(__name__)
 
 # Register blueprints
 app.register_blueprint(auth_routes, url_prefix='/api/auth')
+app.register_blueprint(project_routes, url_prefix='/api/projects')
 
 # Setup login manager
 login = LoginManager(app)
