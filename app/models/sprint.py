@@ -5,6 +5,9 @@ from datetime import datetime
 class Sprint(db.Model):
     __tablename__ = "sprints"
 
+    if environment == "production":
+        __table_args__ = {"schema": SCHEMA}
+
     id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(
         db.Integer, db.ForeignKey("projects.id"), nullable=False
@@ -12,6 +15,10 @@ class Sprint(db.Model):
     name = db.Column(db.String, nullable=False)
     _start_date = db.Column(db.DateTime)
     _end_date = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     project = db.relationship("Project", back_populates="sprints")
     features = db.relationship("Feature", back_populates="sprints")
@@ -48,6 +55,43 @@ class Sprint(db.Model):
                 return int(total_hours)
         return None
 
+    @classmethod
+    def create_sprint(cls, project_id, name, start_date=None, end_date=None):
+        sprint = cls(
+            project_id=project_id,
+            name=name,
+            start_date=start_date,
+            end_date=end_date,
+        )
+
+        db.session.add(sprint)
+        db.session.commit()
+        return sprint
+
+    def update_sprint(self, name, start_date, end_date):
+        try:
+            self.name = name
+            self.start_date = start_date
+            self.end_date = end_date
+            db.session.commit()
+            return self
+        except ValueError as e:
+            db.session.rollback()
+            raise e
+
+    @classmethod
+    def get_all_sprints_for_project(cls, project_id):
+        return cls.query.filter_by(project_id=project_id)
+
+    @classmethod
+    def delete_sprint(cls, id):
+        sprint = cls.query.get(id)
+        if sprint:
+            db.session.delete(sprint)
+            db.session.commit()
+            return True
+        return False
+
     def to_dict(self):
         duration = self.duration
         duration_string = None
@@ -67,4 +111,6 @@ class Sprint(db.Model):
             ),
             "end_date": self._end_date.isoformat() if self._end_date else None,
             "duration": duration_string,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
         }
