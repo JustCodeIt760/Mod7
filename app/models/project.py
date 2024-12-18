@@ -2,16 +2,6 @@ from .db import db
 from datetime import datetime
 
 # Association Tables for Many-to-Many
-projects_sprints = db.Table('projects_sprints',
-    db.Column('project_id', db.Integer, db.ForeignKey('projects.id'), primary_key=True),
-    db.Column('sprint_id', db.Integer, db.ForeignKey('sprints.id'), primary_key=True)
-)
-
-projects_features = db.Table('projects_features',
-    db.Column('project_id', db.Integer, db.ForeignKey('projects.id'), primary_key=True),
-    db.Column('feature_id', db.Integer, db.ForeignKey('features.id'), primary_key=True)
-)
-
 projects_users = db.Table('projects_users',
     db.Column('project_id', db.Integer, db.ForeignKey('projects.id'), primary_key=True),
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True)
@@ -30,16 +20,11 @@ class Project(db.Model):
 
     # Relationships
     owner = db.relationship('User', back_populates='projects')
-    sprints = db.relationship('Sprint', secondary=projects_sprints, back_populates='projects')
-    features = db.relationship('Feature', secondary=projects_features, back_populates='projects')
-    users = db.relationship('User', secondary=projects_users, back_populates='projects')
+    sprints = db.relationship('Sprint', back_populates='projects')
+    features = db.relationship('Feature', back_populates='projects')
+    users = db.relationship('User', back_populates='projects')
 
-    # Constructor
-    def __init__(self, name, description, owner_id, due_date):
-        self.name = name
-        self.description = description
-        self.owner_id = owner_id
-        self.due_date = due_date
+
 
     # Convert Model to Dictionary
     def to_dict(self):
