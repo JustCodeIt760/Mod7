@@ -15,7 +15,7 @@ app.config.from_object(Config)
 
 # Application Security
 CORS(app)
-CSRFProtect(app)
+# CSRFProtect(app)
 
 db.init_app(app)
 Migrate(app, db)

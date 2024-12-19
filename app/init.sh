@@ -13,18 +13,20 @@ while ! nc -z db 5432; do
 done
 echo "PostgreSQL started successfully!"
 
-# Run migrations first
-echo "Running database migrations..."
-#flask --app __init__.py db upgrade
+# Clean start - remove old migrations
+echo "Cleaning old migrations..."
+rm -rf migrations/
+flask db init
+
+# Create and run migrations
+echo "Creating and running migrations..."
+flask db migrate -m "initial migration"
+flask db upgrade
 echo "Migrations completed!"
 
-# Try to clear seeds, but don't fail if tables don't exist
-echo "Clearing existing seed data..."
-flask --app __init__.py seed undo || echo "No existing data to clear"
-
-# Run seeds
-echo "Running database seeds..."
-flask --app __init__.py seed all
+# Seeds (no need to undo since we just recreated tables)
+echo "Running seeds..."
+flask seed all
 echo "Seeds completed!"
 
 echo "Starting Gunicorn server..."
