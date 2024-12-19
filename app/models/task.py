@@ -1,5 +1,6 @@
 from .db import db, environment, SCHEMA, add_prefix_for_prod
 from datetime import datetime
+from sqlalchemy.orm import validates
 
 
 class Task(db.Model):
@@ -14,10 +15,12 @@ class Task(db.Model):
     )
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String)
-    status = db.Column(db.String, default="In Progress")
+    status = db.Column(db.String, default="Not Started")
     priority = db.Column(db.Integer, default=0)
-    assigned_to = db.Column(db.Integer)
-    _created_by = db.Column(db.Integer, nullable=False)
+    assigned_to = db.Column(db.Integer, db.ForeignKey("users.id"))
+    _created_by = db.Column(
+        db.Integer, db.ForeignKey("users.id"), nullable=False
+    )
     _start_date = db.Column(db.DateTime)
     _due_date = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -111,7 +114,7 @@ class Task(db.Model):
             return True
         return False
 
-    VALID_STATUSES = ["In Progress", "Overdue", "Completed"]
+    VALID_STATUSES = ["Not Started", "In Progress", "Overdue", "Completed"]
 
     @validates("status")
     def validates_status(self, key, status):

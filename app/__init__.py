@@ -8,14 +8,17 @@ from models import db, User
 from api import api
 from seeds import seed_commands  # Remove the .
 from config import Config  # Remove the .
-from api.routes.auth_routes import auth_routes
-from api.project_routes import project_routes
+
 
 app = Flask(__name__)
+app.config.from_object(Config)
 
-# Register blueprints
-app.register_blueprint(auth_routes, url_prefix='/api/auth')
-app.register_blueprint(project_routes, url_prefix='/api/projects')
+# Application Security
+CORS(app)
+CSRFProtect(app)
+
+db.init_app(app)
+Migrate(app, db)
 
 # Setup login manager
 login = LoginManager(app)
@@ -27,16 +30,10 @@ def load_user(id):
     return User.query.get(int(id))
 
 
+app.register_blueprint(api, url_prefix="/api")
+
 # Tell flask about our seed commands
 app.cli.add_command(seed_commands)
-
-app.config.from_object(Config)
-app.register_blueprint(api, url_prefix="/api")
-db.init_app(app)
-Migrate(app, db)
-
-# Application Security
-CORS(app)
 
 
 # Since we are deploying with Docker and Flask,

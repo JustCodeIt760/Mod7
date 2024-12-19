@@ -1,47 +1,63 @@
-from .db import db
+from .db import db, environment, SCHEMA, add_prefix_for_prod
 from datetime import datetime
 
 # Association Tables for Many-to-Many
-projects_users = db.Table('projects_users',
-    db.Column('project_id', db.Integer, db.ForeignKey('projects.id'), primary_key=True),
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True)
+project_users = db.Table(
+    "project_users",
+    db.Column(
+        "project_id",
+        db.Integer,
+        db.ForeignKey("projects.id"),
+        primary_key=True,
+    ),
+    db.Column(
+        "user_id", db.Integer, db.ForeignKey("users.id"), primary_key=True
+    ),
 )
 
+
 class Project(db.Model):
-    __tablename__ = 'projects'
+    __tablename__ = "projects"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    owner_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     due_date = db.Column(db.DateTime, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Relationships
-    owner = db.relationship('User', back_populates='projects')
-    sprints = db.relationship('Sprint', back_populates='projects')
-    features = db.relationship('Feature', back_populates='projects')
-    users = db.relationship('User', back_populates='projects')
-
-
+    owner = db.relationship("User", back_populates="projects")
+    sprints = db.relationship("Sprint", back_populates="project")
+    features = db.relationship("Feature", back_populates="project")
+    users = db.relationship(
+        "User", secondary="project_users", back_populates="projects"
+    )
 
     # Convert Model to Dictionary
     def to_dict(self):
         return {
-            'id': self.id,
-            'name': self.name,
-            'description': self.description,
-            'owner_id': self.owner_id,
-            'due_date': self.due_date.isoformat(),
-            'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat()
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "owner_id": self.owner_id,
+            "due_date": self.due_date.isoformat(),
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
         }
 
     # Create method (used by route logic)
     @classmethod
     def create_project(cls, name, description, owner_id, due_date):
-        new_project = cls(name=name, description=description, owner_id=owner_id, due_date=due_date)
+        new_project = cls(
+            name=name,
+            description=description,
+            owner_id=owner_id,
+            due_date=due_date,
+        )
         db.session.add(new_project)
         db.session.commit()
         return new_project
@@ -72,5 +88,5 @@ class Project(db.Model):
         if project:
             db.session.delete(project)
             db.session.commit()
-            return {'message': 'Project deleted successfully'}
-        return {'message': 'Project not found'}, 404
+            return {"message": "Project deleted successfully"}
+        return {"message": "Project not found"}, 404

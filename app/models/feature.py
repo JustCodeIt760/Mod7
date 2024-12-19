@@ -1,5 +1,6 @@
-from .db import db
+from .db import db, environment, SCHEMA, add_prefix_for_prod
 from datetime import datetime
+from sqlalchemy.orm import validates
 
 
 class Feature(db.Model):
@@ -24,6 +25,7 @@ class Feature(db.Model):
 
     project = db.relationship("Project", back_populates="features")
     sprint = db.relationship("Sprint", back_populates="features")
+    tasks = db.relationship("Task", back_populates="feature")
 
     @classmethod
     def create_feature(
@@ -72,6 +74,8 @@ class Feature(db.Model):
 
     def assign_to_sprint(self, sprint_id):
         if sprint_id:
+            from .sprint import Sprint
+
             sprint = Sprint.query.get(sprint_id)
             if sprint and sprint.project_id != self.project_id:
                 raise ValueError("Sprint must belong to same project")

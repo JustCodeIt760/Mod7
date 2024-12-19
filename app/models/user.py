@@ -26,7 +26,7 @@ class User(db.Model, UserMixin):
         "Task", foreign_keys="Task._created_by", backref="creator"
     )
     assigned_tasks = db.relationship(
-        "Task", foreign_keys="Task.assigned_to", backref="asignee"
+        "Task", foreign_keys="Task.assigned_to", backref="assignee"
     )
 
     @property
