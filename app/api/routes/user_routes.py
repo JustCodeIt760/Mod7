@@ -1,21 +1,11 @@
 from flask import Blueprint, jsonify
 from flask_login import login_required
-from models import User
+from models import User, Project
 
 user_routes = Blueprint("users", __name__)
 
 
-@user_routes.route("/")
-@login_required
-def users():
-    """
-    Query for all users and returns them in a list of user dictionaries
-    """
-    users = User.query.all()
-    return {"users": [user.to_dict() for user in users]}
-
-
-@user_routes.route("/<int:id>")
+@user_routes.route("users/<int:id>")
 @login_required
 def user(id):
     """
@@ -23,3 +13,12 @@ def user(id):
     """
     user = User.query.get(id)
     return user.to_dict()
+
+
+@user_routes.route("/projects/<int:project_id>/users")
+@login_required
+def project_users(project_id):
+    project = Project.query.get(project_id)
+
+    if not current_user.has_project_access(project_id):
+        return {"errors": {"message": "Unauthorized"}}, 403
