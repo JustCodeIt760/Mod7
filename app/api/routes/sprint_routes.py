@@ -1,20 +1,28 @@
 from flask import Blueprint, jsonify, request
 from models import Sprint, Project
 from flask_login import login_required, current_user
+from functools import wraps
 
 sprint_routes = Blueprint("sprints", __name__)
 
 
+def require_project_access(f):
+    @wraps(f)
+    def decorated_function(project_id, *args, **kwargs):
+        project = Project.query.get(project_id)
+        if not project:
+            return {"message": "Project couldn't be found"}, 404
+        if not current_user.has_project_access(project_id):
+            return {"message": "Unauthorized"}, 403
+        return f(project_id, *args, **kwargs)
+
+    return decorated_function
+
+
 @sprint_routes.route("/projects/<int:project_id>/sprints")
 @login_required
+@require_project_access
 def get_all_sprints_project(project_id):
-
-    project = Project.query.get(project_id)
-    if not project:
-        return {"message": "Project couldn't be found"}, 404
-
-    if not current_user.has_project_access(project_id):
-        return {"message": "Unauthorized"}, 403
 
     sprints = Sprint.get_all_sprints_for_project(project_id).all()
 
@@ -23,14 +31,8 @@ def get_all_sprints_project(project_id):
 
 @sprint_routes.route("/projects/<int:project_id>/sprints", methods=["POST"])
 @login_required
+@require_project_access
 def create_sprint(project_id):
-
-    project = Project.query.get(project_id)
-    if not project:
-        return {"message": "Project couldn't be found"}, 404
-
-    if not current_user.has_project_access(project_id):
-        return {"message": "Unauthorized"}, 403
 
     data = request.json
 
@@ -62,13 +64,8 @@ def create_sprint(project_id):
     "/projects/<int:project_id>/sprints/<int:sprint_id>", methods=["PUT"]
 )
 @login_required
+@require_project_access
 def update_sprint(project_id, sprint_id):
-    project = Project.query.get(project_id)
-    if not project:
-        return {"message": "Project couldn't be found"}, 404
-
-    if not current_user.has_project_access(project_id):
-        return {"message": "Unauthorized"}, 403
 
     sprint = Sprint.query.get(sprint_id)
     if not sprint:
@@ -96,24 +93,15 @@ def update_sprint(project_id, sprint_id):
     "/projects/<int:project_id>/sprints/<int:sprint_id>", methods=["DELETE"]
 )
 @login_required
+@require_project_access
 def delete_sprint(project_id, sprint_id):
-    project = Project.query.get(project_id)
-    if not project:
-        return {"message": "Project couldn't be found"}, 404
-
-    if not current_user.has_project_access(project_id):
-        return {"message": "Unauthorized"}, 403
 
     sprint = Sprint.query.get(sprint_id)
 
     if not sprint:
         return {"message": "Sprint couldn't be found"}, 404
 
-    try:
-        Sprint.delete_sprint(sprint_id)
+    if Sprint.delete_sprint(sprint_id):
         return {"message": "Sprint successfully deleted"}, 200
-    except ValueError as e:
-        return {
-            "message": "Error",
-            "errors": {"model_error": str(e)},
-        }, 400
+    else:
+        return {"message": "Delete failed"}, 400
