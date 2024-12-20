@@ -7,6 +7,7 @@ project_routes = Blueprint("projects", __name__)
 
 
 @project_routes.route("", methods=["GET"])
+@project_routes.route("/", methods=["GET"])
 @login_required
 def get_all_projects():
     """
@@ -19,6 +20,7 @@ def get_all_projects():
 
 
 @project_routes.route("/<int:id>", methods=["GET"])
+@project_routes.route("/<int:id>/", methods=["GET"])
 @login_required
 def get_project(id):
     """
@@ -31,6 +33,7 @@ def get_project(id):
 
 
 @project_routes.route("", methods=["POST"])
+@project_routes.route("/", methods=["POST"])
 @login_required
 def create_project():
     """
@@ -51,6 +54,7 @@ def create_project():
 
 
 @project_routes.route("/<int:id>", methods=["PUT"])
+@project_routes.route("/<int:id>/", methods=["PUT"])
 @login_required
 def update_project(id):
     """
@@ -75,16 +79,20 @@ def update_project(id):
 
 
 @project_routes.route("/<int:id>", methods=["DELETE"])
+@project_routes.route("/<int:id>/", methods=["DELETE"])
 @login_required
-def delete_project(id):
+def delete_project_route(id):  # Renamed to avoid naming conflict
     """
     Delete a project
     """
-    project = Project.get_project_by_id(id, current_user.id)
-    if not project:
-        return {"errors": ["Project not found"]}, 404
+    try:
+        success = Project.delete_project(id, current_user.id)
+        if not success:
+            return {"errors": ["Project not found"]}, 404
 
-    project.delete_project(
-        id, current_user.id
-    )  # Using the delete method from the model
-    return {"message": "Successfully deleted"}, 200
+        return {"message": "Successfully deleted"}, 200
+    except Exception as e:
+        # Log the error here if you have logging set up
+        return {
+            "errors": ["An error occurred while deleting the project"]
+        }, 500
