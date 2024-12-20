@@ -5,7 +5,7 @@ set -e
 
 echo "Starting initialization script..."
 
-# Wait for database to be ready
+# Wait for database
 echo "Waiting for postgres..."
 while ! nc -z db 5432; do
   echo "Postgres is unavailable - sleeping"
@@ -13,20 +13,21 @@ while ! nc -z db 5432; do
 done
 echo "PostgreSQL started successfully!"
 
-# Run migrations
-echo "Running database migrations..."
-flask --app __init__.py db upgrade
-echo "Migrations completed!"
+# Clean start - remove old migrations
+#echo "Cleaning old migrations..."
+#rm -rf migrations/
+#flask db init
 
-# Undo existing seeds first
-echo "Clearing existing seed data..."
-flask --app __init__.py seed undo
-echo "Clear completed!"
+# Create and run migrations
+#echo "Creating and running migrations..."
+#flask db migrate -m "initial migration"
+#flask db upgrade
+#echo "Migrations completed!"
 
-# Run seeds
-echo "Running database seeds..."
-flask --app __init__.py seed all
-echo "Seeds completed!"
+# Seeds (no need to undo since we just recreated tables)
+#echo "Running seeds..."
+#flask seed all
+#echo "Seeds completed!"
 
 echo "Starting Gunicorn server..."
 exec gunicorn --bind 0.0.0.0:5000 "__init__:app"

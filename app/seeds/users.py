@@ -2,24 +2,34 @@ from models import db, User, environment, SCHEMA
 from sqlalchemy.sql import text
 
 
-# Adds a demo user, you can add other users here if you want
 def seed_users():
-    demo = User(username="Demo", email="demo@aa.io", password="password")
-    marnie = User(username="marnie", email="marnie@aa.io", password="password")
-    bobbie = User(username="bobbie", email="bobbie@aa.io", password="password")
+    demo = User(
+        username="Demo",
+        email="demo@aa.io",
+        password="password",
+        first_name="Demo",
+        last_name="User",
+    )
+    sarah = User(
+        username="sarah",
+        email="sarah@aa.io",
+        password="password",
+        first_name="Sarah",
+        last_name="Smith",
+    )
+    mike = User(
+        username="mike",
+        email="mike@aa.io",
+        password="password",
+        first_name="Mike",
+        last_name="Johnson",
+    )
 
-    db.session.add(demo)
-    db.session.add(marnie)
-    db.session.add(bobbie)
+    db.session.add_all([demo, sarah, mike])
     db.session.commit()
+    return [demo, sarah, mike]  # Return for use in other seeds
 
 
-# Uses a raw SQL query to TRUNCATE or DELETE the users table. SQLAlchemy doesn't
-# have a built in function to do this. With postgres in production TRUNCATE
-# removes all the data from the table, and RESET IDENTITY resets the auto
-# incrementing primary key, CASCADE deletes any dependent entities.  With
-# sqlite3 in development you need to instead use DELETE to remove all data and
-# it will reset the primary keys for you as well.
 def undo_users():
     if environment == "production":
         db.session.execute(
@@ -27,5 +37,4 @@ def undo_users():
         )
     else:
         db.session.execute(text("DELETE FROM users"))
-
     db.session.commit()

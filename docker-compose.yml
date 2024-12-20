@@ -17,6 +17,7 @@ services:
       - '5000:5000'
     volumes:
       - ./app:/app
+      - ./react-app/build:/app/react-app/build # Add this if needed
     depends_on:
       db:
         condition: service_healthy
