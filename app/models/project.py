@@ -7,7 +7,7 @@ project_users = db.Table(
     db.Column(
         "project_id",
         db.Integer,
-        db.ForeignKey("projects.id"),
+        db.ForeignKey("projects.id", ondelete="CASCADE"),
         primary_key=True,
     ),
     db.Column(
@@ -31,10 +31,16 @@ class Project(db.Model):
 
     # Relationships
     owner = db.relationship("User", back_populates="projects")
-    sprints = db.relationship("Sprint", back_populates="project")
-    features = db.relationship("Feature", back_populates="project")
+    sprints = db.relationship(
+        "Sprint", cascade="all, delete-orphan", back_populates="project"
+    )
+    features = db.relationship(
+        "Feature", cascade="all, delete-orphan", back_populates="project"
+    )
     users = db.relationship(
-        "User", secondary="project_users", back_populates="projects"
+        "User",
+        secondary="project_users",
+        back_populates="projects",
     )
 
     # Convert Model to Dictionary
@@ -82,11 +88,20 @@ class Project(db.Model):
         return self
 
     # Delete method (remove project)
+
     @classmethod
     def delete_project(cls, id, owner_id):
-        project = cls.query.filter_by(id=id, owner_id=owner_id).first()
-        if project:
+        """
+        Delete a project and return whether it was successful
+        """
+        try:
+            project = cls.query.filter_by(id=id, owner_id=owner_id).first()
+            if not project:
+                return False
+
             db.session.delete(project)
             db.session.commit()
-            return {"message": "Project deleted successfully"}
-        return {"message": "Project not found"}, 404
+            return True
+        except Exception as e:
+            db.session.rollback()
+            raise e  # Let the route handler deal with the error
