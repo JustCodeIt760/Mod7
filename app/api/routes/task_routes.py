@@ -8,21 +8,25 @@ task_routes = Blueprint("tasks", __name__)
 
 def require_project_access(f):
     @wraps(f)
-    def decorated_function(feature_id, *args, **kwargs):
+    def decorated_function(project_id, feature_id, *args, **kwargs):
         feature = Feature.query.get(feature_id)
         if not feature:
             return {"message": "Feature couldn't be found"}, 404
-        project = Project.query.get(feature.project_id)
+        project = Project.query.get(project_id)
         if not project:
             return {"message": "Project couldn't be found"}, 404
-        if not current_user.has_project_access(project.id):
+        if feature.project_id != project_id:
+            return {"message": "Feature couldn't be found"}, 404
+        if not current_user.has_project_access(project_id):
             return {"message": "Unauthorized"}, 403
         return f(feature_id, *args, **kwargs)
 
     return decorated_function
 
 
-@task_routes.route("/features/<int:feature_id>/tasks")
+@task_routes.route(
+    "/projects/<int:project_id>/features/<int:feature_id>/tasks"
+)
 @login_required
 @require_project_access
 def get_all_tasks_feature(feature_id):
@@ -33,7 +37,10 @@ def get_all_tasks_feature(feature_id):
     return jsonify([task.to_dict() for task in tasks])
 
 
-@task_routes.route("/features/<int:feature_id>/tasks", methods=["POST"])
+@task_routes.route(
+    "/projects/<int:project_id>/features/<int:feature_id>/tasks",
+    methods=["POST"],
+)
 @login_required
 @require_project_access
 def create_task(feature_id):
@@ -73,7 +80,9 @@ def create_task(feature_id):
         }, 400
 
 
-@task_routes.route("/features/<int:feature_id>/tasks/<int:task_id>")
+@task_routes.route(
+    "/projects/<int:project_id>/features/<int:feature_id>/tasks/<int:task_id>"
+)
 @login_required
 @require_project_access
 def get_task(feature_id, task_id):
@@ -88,7 +97,8 @@ def get_task(feature_id, task_id):
 
 
 @task_routes.route(
-    "/features/<int:feature_id>/tasks/<int:task_id>", methods=["PUT"]
+    "/projects/<int:project_id>/features/<int:feature_id>/tasks/<int:task_id>",
+    methods=["PUT"],
 )
 @login_required
 @require_project_access
@@ -123,7 +133,8 @@ def update_task(feature_id, task_id):
 
 
 @task_routes.route(
-    "/features/<int:feature_id>/tasks/<int:task_id>", methods=["DELETE"]
+    "/projects/<int:project_id>/features/<int:feature_id>/tasks/<int:task_id>",
+    methods=["DELETE"],
 )
 @login_required
 @require_project_access

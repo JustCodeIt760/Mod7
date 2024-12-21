@@ -11,7 +11,7 @@ api = Blueprint("api", __name__)
 
 api.register_blueprint(auth_routes, url_prefix="/auth")
 api.register_blueprint(project_routes, url_prefix="/projects")
-api.register_blueprint(feature_routes, url_prefix="/features")
+api.register_blueprint(feature_routes, url_prefix="")
 api.register_blueprint(sprint_routes, url_prefix="")
 api.register_blueprint(task_routes, url_prefix="")
 api.register_blueprint(user_routes, url_prefix="")
