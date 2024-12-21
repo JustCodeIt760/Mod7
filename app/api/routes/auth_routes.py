@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from models import User, db
 from forms import LoginForm
 from forms import SignUpForm
@@ -39,7 +39,7 @@ def logout():
     Logs a user out
     """
     logout_user()
-    return {"message": "User logged out"}
+    return jsonify({"message": "User logged out"})
 
 
 @auth_routes.route("/signup", methods=["POST"])

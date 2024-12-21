@@ -16,7 +16,7 @@ def get_all_projects():
     projects = Project.get_all_projects(
         current_user.id
     )  # Using the class method for getting projects
-    return {"projects": [project.to_dict() for project in projects]}
+    return jsonify({"projects": [project.to_dict() for project in projects]})
 
 
 @project_routes.route("/<int:id>", methods=["GET"])
@@ -29,7 +29,7 @@ def get_project(id):
     project = Project.get_project_by_id(id, current_user.id)
     if not project:
         return {"errors": ["Project not found"]}, 404
-    return project.to_dict()
+    return jsonify(project.to_dict())
 
 
 @project_routes.route("", methods=["POST"])

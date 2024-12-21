@@ -26,7 +26,7 @@ def get_all_sprints_project(project_id):
 
     sprints = Sprint.get_all_sprints_for_project(project_id).all()
 
-    return [sprint.to_dict() for sprint in sprints]
+    return jsonify([sprint.to_dict() for sprint in sprints])
 
 
 @sprint_routes.route("/projects/<int:project_id>/sprints", methods=["POST"])

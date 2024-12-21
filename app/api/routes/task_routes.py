@@ -5,6 +5,7 @@ from functools import wraps
 
 task_routes = Blueprint("tasks", __name__)
 
+
 def require_project_access(f):
     @wraps(f)
     def decorated_function(feature_id, *args, **kwargs):
@@ -17,7 +18,9 @@ def require_project_access(f):
         if not current_user.has_project_access(project.id):
             return {"message": "Unauthorized"}, 403
         return f(feature_id, *args, **kwargs)
+
     return decorated_function
+
 
 @task_routes.route("/features/<int:feature_id>/tasks")
 @login_required
@@ -27,7 +30,7 @@ def get_all_tasks_feature(feature_id):
     Get all tasks for a feature
     """
     tasks = Task.get_all_tasks_for_feature(feature_id).all()
-    return [task.to_dict() for task in tasks]
+    return jsonify([task.to_dict() for task in tasks])
 
 
 @task_routes.route("/features/<int:feature_id>/tasks", methods=["POST"])
@@ -81,7 +84,7 @@ def get_task(feature_id, task_id):
     if not task or task.feature_id != feature_id:
         return {"message": "Task couldn't be found"}, 404
 
-    return task.to_dict()
+    return jsonify(task.to_dict())
 
 
 @task_routes.route(
