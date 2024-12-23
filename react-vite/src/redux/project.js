@@ -149,21 +149,101 @@ export const thunkRemoveProject = (projectId) => async (dispatch) => {
     dispatch(setLoading(false));
   }
 };
-//Initial State
+
+// Initial state object defining the structure of the project state
 const initialState = {
-  allProjects: {},
-  singleProject: null,
-  isLoading: false,
-  errors: null,
+  allProjects: {}, // Object to store all projects, keyed by project ID
+  singleProject: null, // Currently selected/active project
+  isLoading: false, // Flag to track loading state
+  errors: null, // Store any error messages
 };
 
-//Reducer
-function projectReducer(state = initialState, action) {
-  switch (action.type) {
-    default:
-      return state;
-  }
-}
+// Reducer function to handle state changes based on dispatched actions
+const projectReducer = (state = initialState, action) => {
+  // Object containing handler functions for different action types
+  const handlers = {
+    // Handler for loading multiple projects
+    [LOAD_PROJECTS]: (state, action) => {
+      // Create a copy of the current state to avoid direct mutation
+      const newState = { ...state };
+      // Iterate through each project in the payload
+      action.payload.forEach((project) => {
+        // Add each project to allProjects object, using project ID as key
+        newState.allProjects[project.id] = project;
+      });
+      // Return the updated state
+      return newState;
+    },
+
+    // Handler for setting a single project
+    [SET_PROJECT]: (state, action) => {
+      // Create a copy of the current state
+      const newState = { ...state };
+      // Set the single project to the payload
+      newState.singleProject = action.payload;
+      // If a project is provided, update/add it to allProjects
+      if (action.payload) {
+        newState.allProjects[action.payload.id] = action.payload;
+      }
+      // Return the updated state
+      return newState;
+    },
+
+    // Handler for adding a new project
+    [ADD_PROJECT]: (state, action) => {
+      // Create a copy of the current state
+      const newState = { ...state };
+      // Add the new project to allProjects using its ID as key
+      newState.allProjects[action.payload.id] = action.payload;
+      // Return the updated state
+      return newState;
+    },
+
+    // Handler for updating an existing project
+    [UPDATE_PROJECT]: (state, action) => {
+      // Create a copy of the current state
+      const newState = { ...state };
+      // Update the project in allProjects using its ID
+      newState.allProjects[action.payload.id] = action.payload;
+      // Return the updated state
+      return newState;
+    },
+
+    // Handler for removing a project
+    [REMOVE_PROJECT]: (state, action) => {
+      // Create a copy of the current state
+      const newState = { ...state };
+      // Remove the project from allProjects using its ID
+      delete newState.allProjects[action.payload];
+      // Return the updated state
+      return newState;
+    },
+
+    // Handler for setting loading state
+    [SET_LOADING]: (state, action) => {
+      // Create a copy of the current state
+      const newState = { ...state };
+      // Update the isLoading flag
+      newState.isLoading = action.payload;
+      // Return the updated state
+      return newState;
+    },
+
+    // Handler for setting error state
+    [SET_ERRORS]: (state, action) => {
+      // Create a copy of the current state
+      const newState = { ...state };
+      // Update the errors
+      newState.errors = action.payload;
+      // Return the updated state
+      return newState;
+    }
+  };
+
+  // Check if a handler exists for the current action type
+  // If it does, call the handler; otherwise, return the current state
+  return handlers[action.type] ? handlers[action.type](state, action) : state;
+};
 //Selectors
 
 export default projectReducer;
