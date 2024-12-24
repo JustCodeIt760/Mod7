@@ -90,7 +90,6 @@ def update_feature(project_id, feature_id):
             "errors": {"model_error": str(e)}
         }, 400
 
-
 @feature_routes.route("/projects/<int:project_id>/features/<int:feature_id>", methods=['DELETE'])
 @login_required
 @require_project_access
