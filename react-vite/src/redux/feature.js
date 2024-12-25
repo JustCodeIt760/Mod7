@@ -17,27 +17,27 @@ const SET_LOADING = 'features/setLoading';
 const SET_ERRORS = 'features/setErrors';
 
 //Actions
-export const loadFeatures = (featuresData) => ({
+export const loadFeatures = featuresData => ({
   type: LOAD_FEATURES,
   payload: featuresData,
 });
 
-export const setFeature = (feature) => ({
+export const setFeature = feature => ({
   type: SET_FEATURE,
   payload: feature,
 });
 
-export const addFeature = (feature) => ({
+export const addFeature = feature => ({
   type: ADD_FEATURE,
   payload: feature,
 });
 
-export const updateFeature = (feature) => ({
+export const updateFeature = feature => ({
   type: UPDATE_FEATURE,
   payload: feature,
 });
 
-export const removeFeature = (featureId) => ({
+export const removeFeature = featureId => ({
   type: REMOVE_FEATURE,
   payload: featureId,
 });
@@ -52,23 +52,23 @@ export const setFeaturesBySprint = (projectId, sprintId, features) => ({
   payload: { projectId, sprintId, features },
 });
 
-export const setParkingLot = (featureId) => ({
+export const setParkingLot = featureId => ({
   type: SET_PARKING_LOT,
   payload: featureId,
 });
 
-export const setLoading = (isLoading) => ({
+export const setLoading = isLoading => ({
   type: SET_LOADING,
   payload: isLoading,
 });
 
-export const setErrors = (errors) => ({
+export const setErrors = errors => ({
   type: SET_ERRORS,
   payload: errors,
 });
 
 //Thunks
-export const thunkLoadFeatures = (projectId) => async (dispatch) => {
+export const thunkLoadFeatures = projectId => async dispatch => {
   dispatch(setLoading(true));
 
   try {
@@ -107,7 +107,7 @@ export const thunkSetFeature =
     }
   };
 
-export const thunkAddFeature = (projectId, featureData) => async (dispatch) => {
+export const thunkAddFeature = (projectId, featureData) => async dispatch => {
   dispatch(setLoading(true));
   try {
     const response = await csrfFetch(`/projects/${projectId}/features`, {
@@ -127,7 +127,7 @@ export const thunkAddFeature = (projectId, featureData) => async (dispatch) => {
 };
 
 export const thunkUpdateFeature =
-  (projectId, featureData) => async (dispatch) => {
+  (projectId, featureData) => async dispatch => {
     dispatch(setLoading(true));
     try {
       const response = await csrfFetch(
@@ -149,30 +149,29 @@ export const thunkUpdateFeature =
     }
   };
 
-export const thunkRemoveFeature =
-  (projectId, featureId) => async (dispatch) => {
-    dispatch(setLoading(true));
-    try {
-      const response = await csrfFetch(
-        `/projects/${projectId}/features/${featureId}`,
-        {
-          method: 'DELETE',
-        }
-      );
-      dispatch(removeFeature(featureId));
-      dispatch(setErrors(null));
-      return true;
-    } catch (err) {
-      dispatch(setErrors(err.errors || baseError));
-      return null;
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
+export const thunkRemoveFeature = (projectId, featureId) => async dispatch => {
+  dispatch(setLoading(true));
+  try {
+    const response = await csrfFetch(
+      `/projects/${projectId}/features/${featureId}`,
+      {
+        method: 'DELETE',
+      }
+    );
+    dispatch(removeFeature(featureId));
+    dispatch(setErrors(null));
+    return true;
+  } catch (err) {
+    dispatch(setErrors(err.errors || baseError));
+    return null;
+  } finally {
+    dispatch(setLoading(false));
+  }
+};
 
 //! this needs checked to see if we can reuse the API endpoint for update or if we need a special one. patch vs put for two endpoints or?
 export const thunkMoveFeature =
-  (projectId, featureId, sprintId) => async (dispatch) => {
+  (projectId, featureId, sprintId) => async dispatch => {
     dispatch(setLoading(true));
 
     try {
@@ -195,26 +194,138 @@ export const thunkMoveFeature =
     }
   };
 
-export const thunkSetParkingLot =
-  (projectId, featureId) => async (dispatch) => {
-    dispatch(setLoading(true));
+export const thunkSetParkingLot = (projectId, featureId) => async dispatch => {
+  dispatch(setLoading(true));
 
-    try {
-      const response = await csrfFetch(
-        `/projects/${projectId}/features/${featureId}`,
-        {
-          method: 'PUT',
-          body: JSON.stringify({ sprint_id: null }),
-        }
-      );
-      const updatedFeature = await response.json();
-      dispatch(updateFeature(updatedFeature));
-      dispatch(setErrors(null));
-      return updatedFeature;
-    } catch (err) {
-      dispatch(setErrors(err.errors || baseError));
-      return null;
-    } finally {
-      dispatch(setLoading(false));
-    }
+  try {
+    const response = await csrfFetch(
+      `/projects/${projectId}/features/${featureId}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({ sprint_id: null }),
+      }
+    );
+    const updatedFeature = await response.json();
+    dispatch(updateFeature(updatedFeature));
+    dispatch(setErrors(null));
+    return updatedFeature;
+  } catch (err) {
+    dispatch(setErrors(err.errors || baseError));
+    return null;
+  } finally {
+    dispatch(setLoading(false));
+  }
+};
+
+//Reducer
+
+const initialState = {
+  allFeatures: {},
+  featuresBySprint: {},
+  currentFeature: null,
+  isLoading: false,
+  errors: null,
+};
+
+const featureReducer = (state = initialState, action) => {
+  const handlers = {
+    [LOAD_FEATURES]: (state, action) => {
+      const newState = { ...state };
+      action.payload.forEach(feature => {
+        newState.allFeatures[feature.id] = feature;
+      });
+      return newState;
+    },
+    [SET_FEATURE]: (state, action) => {
+      const newState = { ...state };
+      newState.currentFeature = action.payload;
+      if (action.payload) {
+        newState.allFeatures[action.payload.id] = action.payload;
+      }
+      return newState;
+    },
+    [ADD_FEATURE]: (state, action) => {
+      const newState = { ...state };
+      newState.allFeatures[action.payload.id] = action.payload;
+      return newState;
+    },
+    [UPDATE_FEATURE]: (state, action) => {
+      const newState = { ...state };
+      newState.allFeatures[action.payload.id] = action.payload;
+      return newState;
+    },
+    [REMOVE_FEATURE]: (state, action) => {
+      const newState = { ...state };
+      delete newState.allFeatures[action.payload.id];
+      return newState;
+    },
+    [MOVE_FEATURE]: (state, action) => {
+      const newState = { ...state };
+      const { featureId, sprintId } = action.payload;
+      //! updated the feature in allfeatures if it exists
+      if (newState.allFeatures[featureId]) {
+        newState.allFeatures[featureId] = {
+          ...newState.allFeatures[featureId],
+          sprint_id: sprintId,
+        };
+      }
+      //! updated current feature if it matches the move feature
+      if (newState.currentFeature?.id === featureId) {
+        newState.currentFeature = {
+          ...newState.currentFeature,
+          sprint_id: sprintId,
+        };
+      }
+      return newState;
+    },
+    [SET_FEATURES_BY_SPRINT]: (state, action) => {
+      const newState = { ...state };
+      const { projectId, sprintId, features } = action.payload;
+
+      //! initialize proj if not exists
+      if (!newState.featuresBySprint[projectId]) {
+        newState.featuresBySprint[projectId] = {};
+
+        //! set features for specific sprint
+        newState.featuresBySprint[projectId][sprintId] = features;
+
+        //! update all featues with the new features
+        features.forEach(feature => {
+          newState.allFeatures[feature.id] = feature;
+        });
+        return newState;
+      }
+    },
+    [SET_PARKING_LOT]: (state, action) => {
+      const newState = { ...state };
+      const featureId = action.payload;
+
+      if (newState.allFEatures[featureId]) {
+        newState.allFeatures[featureId] = {
+          ...newState.allFeatures[featueId],
+          sprint_id: null,
+        };
+      }
+      if (newState.currentFeature?.Id === featureId) {
+        newState.currentFeature = {
+          ...newState.currentFeature,
+          sprint_id: null,
+        };
+      }
+      return newState;
+    },
+
+    [SET_LOADING]: (state, action) => {
+      const newState = { ...state };
+      newState.isLoading = action.payload;
+      return newState;
+    },
+
+    [SET_ERRORS]: (state, action) => {
+      const newState = { ...state };
+      newState.errors = action.payload;
+      return newState;
+    },
   };
+  return handlers[action.type] ? handlers[action.type](state, action) : state;
+};

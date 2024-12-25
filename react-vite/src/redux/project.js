@@ -214,7 +214,7 @@ const projectReducer = (state = initialState, action) => {
       // Create a copy of the current state
       const newState = { ...state };
       // Remove the project from allProjects using its ID
-      delete newState.allProjects[action.payload];
+      delete newState.allProjects[action.payload.id];
       // Return the updated state
       return newState;
     },
