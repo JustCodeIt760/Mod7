@@ -299,10 +299,10 @@ const featureReducer = (state = initialState, action) => {
     [SET_PARKING_LOT]: (state, action) => {
       const newState = { ...state };
       const featureId = action.payload;
-
+//! sets feature's sprint_id to null moving it into the parking lot and updates both the all feats and current feats if needed. 
       if (newState.allFEatures[featureId]) {
         newState.allFeatures[featureId] = {
-          ...newState.allFeatures[featueId],
+          ...newState.allFeatures[featureId],
           sprint_id: null,
         };
       }
