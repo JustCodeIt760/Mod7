@@ -37,6 +37,16 @@ def get_all_tasks_feature(feature_id):
     return jsonify([task.to_dict() for task in tasks])
 
 
+@task_routes.route("/tasks")
+@login_required
+def get_user_tasks():
+    """
+    Get all tasks assigned to the current user
+    """
+    tasks = Task.query.filter(Task.assigned_to == current_user.id).all()
+    return jsonify([task.to_dict() for task in tasks])
+
+
 @task_routes.route(
     "/projects/<int:project_id>/features/<int:feature_id>/tasks",
     methods=["POST"],

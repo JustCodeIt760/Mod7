@@ -76,7 +76,7 @@ export const thunkSetTask = (taskId) => async (dispatch, getState) => {
   }
   // utilize thunk to get fresh data and update if it changes. speed of store + accuracy of new data
   try {
-    const response = await csrfFetch(`/api/tasks${taskId}`);
+    const response = await csrfFetch(`/api/tasks/${taskId}`);
     const data = await response.json();
     dispatch({
       type: SET_TASK,
@@ -90,23 +90,28 @@ export const thunkSetTask = (taskId) => async (dispatch, getState) => {
   }
 };
 
-const thunkAddTask = (taskData) => async (dispatch) => {
-  dispatch(setLoading(true));
-  try {
-    const response = await csrfFetch('/api/tasks', {
-      method: 'POST',
-      body: JSON.stringify(projectData),
-    });
-    const newTask = await response.json();
-    dispatch(addTask(newTask));
-    dispatch(setErrors(null));
-    return newTask;
-  } catch (error) {
-    dispatch(setErrors(error.errors || baseError));
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
+export const thunkAddTask =
+  (projectId, featureId, taskData) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await csrfFetch(
+        `/projects/${projectId}/features/${featureId}/tasks`,
+        {
+          method: 'POST',
+          body: JSON.stringify(taskData),
+        }
+      );
+      const newTask = await response.json();
+      dispatch(addTask(newTask));
+      dispatch(setErrors(null));
+      return newTask;
+    } catch (error) {
+      dispatch(setErrors(error.errors || baseError));
+      return null;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 
 export const thunkUpdateTask = (taskData) => async (dispatch) => {
   dispatch(setLoading(true));
