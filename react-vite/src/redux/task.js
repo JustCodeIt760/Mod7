@@ -74,12 +74,9 @@ export const thunkSetTask = (taskId) => async (dispatch, getState) => {
     dispatch(setLoading(true));
     // using getState() to quickly pull the task by ID if it exists from our store
     const state = getState();
-    const cashedTask = state.tasks.allTasks[task.id];
-    if (cashedTask) {
-        dispatch({
-            type: SET_TASK,
-            payload: cashedTask,
-        });
+    const cachedTask = state.tasks.allTasks[task.id];
+    if (cachedTask) {
+        dispatch(setTask(cachedTask));
     }
     // utilize thunk to get fresh data and update if it changes. speed of store + accuracy of new data
     try {
@@ -99,7 +96,7 @@ export const thunkSetTask = (taskId) => async (dispatch, getState) => {
 
 
 
-const thunkAddTask = (tasksData) => async (dispatch) => {
+const thunkAddTask = (taskData) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
         const response = await csrfFetch('/api/tasks', {
@@ -127,6 +124,9 @@ export const thunkUpdateTask = (taskData) => async (dispatch) => {
         });
         const updatedTask = await response.json();
         dispatch(updateTask(updatedTask));
+        dispatch(setErrors(null));
+        return updatedTask;
+    } catch (error) {
         dispatch(setErrors(error.errors || baseError));
         return null;
     } finally {
@@ -163,6 +163,90 @@ const initialState = {
 
 //REDUCER FUNCS
 const taskReducer = (state = initialState, action) => {
+    const handlers ={
+        [LOAD_TASKS]: (state, action) => {
+            //Handler for loading tasks
+            const newState = {...state};
+            //Iterate through each task in the payload and add it to the allTasks object
+            action.payload.forEach((task) => {
+                //Add each project to allProjects object
+                newState.allTasks[task.id] = task;
+            });
+            //Return the updated state
+            return newState;
+        },
 
+        // Handler for setting a single task
+        [SET_TASK]: (state, action) => {
+            //Create a copy of the current state
+            const newState = {...state};
+            //Set the single task to the action payload
+            newState.singleTask = action.payload;
+            // If a project is provided, update/add it to the allTasks object
+            if (action.payload){
+                newState.allTasks[action.payload.id] = action.payload;
+            }
+            //Return the updated state
+            return newState;
+        },
+        
+        //Handler for adding a task
+        [ADD_TASK]: (state, action) => {
+            //Create a copy of the current state
+            const newState = {...state};
+            //Add the new task to the allTasks using the task ID as the key
+            newState.allTasks[action.payload.id] = action.payload;
+            //Return the updated state
+            return newState;
+        },
+
+
+        //Handler for updating a task
+        [UPDATE_TASK]: (state, action) => {
+            //Create a copy of the current state
+            const newState = {...state};
+            //Update the task in allTasks object
+            newState.allTasks[action.payload.id] = action.payload;
+            //return the updated state
+            return newState;
+        },
+
+        //Handler for removing a task
+        [REMOVE_TASK]: (state, action) => {
+            //Create a copy of the current state
+            const newState = {...state};
+            //Remove the task from allTasks object
+            delete newState.allTasks[action.payload];
+            //Return the updated state
+            return newState;
+        },
+
+        //Handler for setting loading state
+        [SET_LOADING]: (state, action) => {
+            //Create a copy of the current state
+            const newState = {...state};
+            //Update isLoading to the flag;
+            newState.isLoading = action.payload;
+            //Return the updated state
+            return newState;
+        },
+        
+
+        //Handler for setting errors
+        [SET_ERROR]: (state, action) => {
+            //Create a copy of the current state
+            const newState = {...state};
+            //Update errors to the action payload
+            newState.errors = action.payload;
+            //Return the updated state
+            return newState;
+        }
+    };
+
+    //Check if a handler exists for the action type
+    //If it does, call the handler; otherwise, return the current state
+    return handlers[action.type] ? handlers[action.type](state, action) : state;
 };
 
+
+export default taskReducer;
