@@ -218,3 +218,118 @@ export const thunkSetParkingLot =
       dispatch(setLoading(false));
     }
   };
+
+//Reducer
+
+const initialState = {
+  allFeatures: {},
+  featuresBySprint: {},
+  currentFeature: null,
+  isLoading: false,
+  errors: null,
+};
+
+const featureReducer = (state = initialState, action) => {
+  const handlers = {
+    [LOAD_FEATURES]: (state, action) => {
+      const newState = { ...state };
+      action.payload.forEach((feature) => {
+        newState.allFeatures[feature.id] = feature;
+      });
+      return newState;
+    },
+    [SET_FEATURE]: (state, action) => {
+      const newState = { ...state };
+      newState.currentFeature = action.payload;
+      if (action.payload) {
+        newState.allFeatures[action.payload.id] = action.payload;
+      }
+      return newState;
+    },
+    [ADD_FEATURE]: (state, action) => {
+      const newState = { ...state };
+      newState.allFeatures[action.payload.id] = action.payload;
+      return newState;
+    },
+    [UPDATE_FEATURE]: (state, action) => {
+      const newState = { ...state };
+      newState.allFeatures[action.payload.id] = action.payload;
+      return newState;
+    },
+    [REMOVE_FEATURE]: (state, action) => {
+      const newState = { ...state };
+      delete newState.allFeatures[action.payload.id];
+      return newState;
+    },
+    [MOVE_FEATURE]: (state, action) => {
+      const newState = { ...state };
+      const { featureId, sprintId } = action.payload;
+      //! updated the feature in allfeatures if it exists
+      if (newState.allFeatures[featureId]) {
+        newState.allFeatures[featureId] = {
+          ...newState.allFeatures[featureId],
+          sprint_id: sprintId,
+        };
+      }
+      //! updated current feature if it matches the move feature
+      if (newState.currentFeature?.id === featureId) {
+        newState.currentFeature = {
+          ...newState.currentFeature,
+          sprint_id: sprintId,
+        };
+      }
+      return newState;
+    },
+    [SET_FEATURES_BY_SPRINT]: (state, action) => {
+      const newState = { ...state };
+      const { projectId, sprintId, features } = action.payload;
+
+      //! initialize proj if not exists
+      if (!newState.featuresBySprint[projectId]) {
+        newState.featuresBySprint[projectId] = {};
+
+        //! set features for specific sprint
+        newState.featuresBySprint[projectId][sprintId] = features;
+
+        //! update all featues with the new features
+        features.forEach((feature) => {
+          newState.allFeatures[feature.id] = feature;
+        });
+        return newState;
+      }
+    },
+    [SET_PARKING_LOT]: (state, action) => {
+      const newState = { ...state };
+      const featureId = action.payload;
+      //! sets feature's sprint_id to null moving it into the parking lot and updates both the all feats and current feats if needed.
+      if (newState.allFEatures[featureId]) {
+        newState.allFeatures[featureId] = {
+          ...newState.allFeatures[featureId],
+          sprint_id: null,
+        };
+      }
+      if (newState.currentFeature?.Id === featureId) {
+        newState.currentFeature = {
+          ...newState.currentFeature,
+          sprint_id: null,
+        };
+      }
+      return newState;
+    },
+
+    [SET_LOADING]: (state, action) => {
+      const newState = { ...state };
+      newState.isLoading = action.payload;
+      return newState;
+    },
+
+    [SET_ERRORS]: (state, action) => {
+      const newState = { ...state };
+      newState.errors = action.payload;
+      return newState;
+    },
+  };
+  return handlers[action.type] ? handlers[action.type](state, action) : state;
+};
+
+export default featureReducer;
