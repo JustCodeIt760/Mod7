@@ -332,4 +332,44 @@ const featureReducer = (state = initialState, action) => {
   return handlers[action.type] ? handlers[action.type](state, action) : state;
 };
 
+// Selectors
+export const selectAllFeatures = (state) => state.features.allFeatures;
+export const selectCurrentFeature = (state) => state.features.currentFeature;
+export const selectIsLoading = (state) => state.features.isLoading;
+export const selectErrors = (state) => state.features.errors;
+export const selectFeaturesBySprint = (state) =>
+  state.features.featuresBySprint;
+
+export const selectFeatureById = (featureId) => (state) =>
+  state.features.allFeatures[featureId];
+
+export const selectFeaturesBySprintId = (projectId, sprintId) => (state) =>
+  Object.values(state.features.allFeatures).filter(
+    (feature) =>
+      feature.project_id === projectId && feature.sprint_id === sprintId
+  );
+
+export const selectParkingLotFeatures = (projectId) => (state) =>
+  Object.values(state.features.allFeatures).filter(
+    (feature) => feature.project_id === projectId && !feature.sprint_id
+  );
+
+export const selectFeaturesByStatus = (status) => (state) =>
+  Object.values(state.features.allFeatures).filter(
+    (feature) => feature.status === status
+  );
+
+export const selectFeaturesByAssignee = (userId) => (state) =>
+  Object.values(state.features.allFeatures).filter(
+    (feature) => feature.assigned_to === userId
+  );
+
+export const selectFeatureCompletion = (featureId) => (state) => {
+  const feature = state.features.allFeatures[featureId];
+  if (!feature || !feature.tasks) return 0;
+
+  const completedTasks = feature.tasks.filter((task) => task.completed).length;
+  return (completedTasks / feature.tasks.length) * 100;
+};
+
 export default featureReducer;

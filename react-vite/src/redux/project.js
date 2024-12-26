@@ -239,5 +239,37 @@ const projectReducer = (state = initialState, action) => {
   return handlers[action.type] ? handlers[action.type](state, action) : state;
 };
 //Selectors
+export const selectAllProjects = (state) => state.projects.allProjects;
+export const selectCurrentProject = (state) => state.projects.singleProject;
+export const selectIsLoading = (state) => state.projects.isLoading;
+export const selectErrors = (state) => state.projects.errors;
+
+export const selectProjectById = (projectId) => (state) =>
+  state.projects.allProjects[projectId];
+
+export const selectOwnedProjects = (userId) => (state) =>
+  Object.values(state.projects.allProjects).filter(
+    (project) => project.owner_id === userId
+  );
+
+export const selectMemberProjects = (userId) => (state) =>
+  Object.values(state.projects.allProjects).filter((project) =>
+    project.members?.includes(userId)
+  );
+
+export const selectProjectsByStatus = (status) => (state) =>
+  Object.values(state.projects.allProjects).filter(
+    (project) => project.status === status
+  );
+
+export const selectProjectsDueWithinDays = (days) => (state) => {
+  const futureDate = new Date();
+  futureDate.setDate(futureDate.getDate() + days);
+
+  return Object.values(state.projects.allProjects).filter((project) => {
+    const dueDate = new Date(project.due_date);
+    return dueDate <= futureDate && dueDate >= new Date();
+  });
+};
 
 export default projectReducer;
