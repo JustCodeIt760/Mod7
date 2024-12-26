@@ -45,7 +45,16 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password, password)
 
     def has_project_access(self, project_id):
-        return any(project.id == project_id for project in self.projects)
+        # Check if user is owner
+        is_owner = any(
+            project.id == project_id and project.owner_id == self.id
+            for project in self.projects
+        )
+
+        # Check if user is member
+        is_member = any(project.id == project_id for project in self.projects)
+
+        return is_owner or is_member
 
     def is_project_owner(self, project_id):
         return any(project.id == project_id for project in self.owned_projects)

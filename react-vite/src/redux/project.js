@@ -161,7 +161,7 @@ const projectReducer = (state = initialState, action) => {
       // Create a copy of the current state to avoid direct mutation
       const newState = { ...state };
       // Iterate through each project in the payload
-      action.payload.forEach((project) => {
+      action.payload.projects.forEach((project) => {
         // Add each project to allProjects object, using project ID as key
         newState.allProjects[project.id] = project;
       });

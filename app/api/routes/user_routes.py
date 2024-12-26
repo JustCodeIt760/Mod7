@@ -20,5 +20,18 @@ def user(id):
 def project_users(project_id):
     project = Project.query.get(project_id)
 
+    # Check if project exists
+    if not project:
+        return {"errors": {"message": "Project couldn't be found"}}, 404
+
+    # Check authorization
     if not current_user.has_project_access(project_id):
         return {"errors": {"message": "Unauthorized"}}, 403
+
+    # If authorized, return project users
+    users = [user.to_dict() for user in project.members]
+    # Don't forget to include owner if they're not in members
+    if project.owner not in project.members:
+        users.append(project.owner.to_dict())
+
+    return {"users": users}

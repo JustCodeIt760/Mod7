@@ -17,6 +17,16 @@ const removeUser = () => ({
   type: REMOVE_USER,
 });
 
+const setLoading = (isLoading) => ({
+  type: SET_LOADING,
+  payload: isLoading,
+});
+
+const setErrors = (errors) => ({
+  type: SET_ERRORS,
+  payload: errors,
+});
+
 export const thunkAuthenticate = () => async (dispatch) => {
   dispatch(setLoading(true));
   try {

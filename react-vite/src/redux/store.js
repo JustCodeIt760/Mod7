@@ -7,11 +7,16 @@ import {
 import thunk from 'redux-thunk';
 import sessionReducer from './session';
 import projectReducer from './project';
+import taskReducer from './task';
+import sprintReducer from './sprint';
+import featureReducer from './feature';
 
 const rootReducer = combineReducers({
   session: sessionReducer,
   projects: projectReducer,
-  tasks: tasksReducer,
+  features: featureReducer,
+  sprints: sprintReducer,
+  tasks: taskReducer,
 });
 
 let enhancer;

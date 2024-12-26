@@ -174,7 +174,6 @@ export const thunkRemoveFeature =
 export const thunkMoveFeature =
   (projectId, featureId, sprintId) => async (dispatch) => {
     dispatch(setLoading(true));
-
     try {
       const response = await csrfFetch(
         `/projects/${projectId}/features/${featureId}`,
@@ -233,7 +232,8 @@ const featureReducer = (state = initialState, action) => {
   const handlers = {
     [LOAD_FEATURES]: (state, action) => {
       const newState = { ...state };
-      action.payload.forEach((feature) => {
+      const features = Array.isArray(action.payload) ? action.payload : [];
+      features.forEach((feature) => {
         newState.allFeatures[feature.id] = feature;
       });
       return newState;
