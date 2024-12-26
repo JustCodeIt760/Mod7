@@ -74,19 +74,13 @@ export const thunkSetProject = (projectId) => async (dispatch, getState) => {
   const state = getState();
   const cachedProject = state.projects.allProjects[projectId];
   if (cachedProject) {
-    dispatch({
-      type: SET_PROJECT,
-      payload: cachedProject,
-    });
+    dispatch(setProject(cachedProject));
   }
   // utilize thunk to get fresh data and update if it changes. speed of store + accuracy of new data
   try {
     const response = await csrfFetch(`/projects/${projectId}`);
     const data = await response.json();
-    dispatch({
-      type: SET_PROJECT,
-      payload: data,
-    });
+    dispatch(setProject(data));
     dispatch(setErrors(null));
   } catch (err) {
     dispatch(setErrors(err.errors || baseError));
@@ -237,7 +231,7 @@ const projectReducer = (state = initialState, action) => {
       newState.errors = action.payload;
       // Return the updated state
       return newState;
-    }
+    },
   };
 
   // Check if a handler exists for the current action type
