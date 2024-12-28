@@ -22,7 +22,8 @@ const setLoading = (isLoading) => ({
   payload: isLoading,
 });
 
-const setErrors = (errors) => ({
+// exported to be used publicly to reset errors in component - SG
+export const setErrors = (errors) => ({
   type: SET_ERRORS,
   payload: errors,
 });
@@ -55,7 +56,10 @@ export const thunkLogin = (credentials) => async (dispatch) => {
     dispatch(setErrors(null));
     return data;
   } catch (err) {
-    dispatch(setErrors(err.errors || baseError));
+    console.log('Full error:', err);
+
+    const errorResponse = await err.json();
+    dispatch(setErrors(errorResponse.errors || baseError));
     return null;
   } finally {
     dispatch(setLoading(false));
