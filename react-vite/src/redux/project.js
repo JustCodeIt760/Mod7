@@ -130,14 +130,14 @@ export const thunkUpdateProject = (projectData) => async (dispatch) => {
 export const thunkRemoveProject = (projectId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    const response = await csrfFetch(`/projects/${projectId}`, {
+    await csrfFetch(`/projects/${projectId}`, {
       method: 'DELETE',
     });
     dispatch(removeProject(projectId));
     dispatch(setErrors(null));
     return true;
-  } catch (err) {
-    dispatch(setErrors(err.errors || baseError));
+  } catch (error) {
+    dispatch(setErrors(error.errors || baseError));
     return null;
   } finally {
     dispatch(setLoading(false));
