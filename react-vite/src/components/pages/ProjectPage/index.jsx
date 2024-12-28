@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { thunkSetProject } from '../../../redux/project';
 import FeatureList from '../../features/FeatureList';
+import SideNav from '../../SideNav';
 import styles from './ProjectPage.module.css';
 
 const ProjectPage = () => {
@@ -20,7 +21,7 @@ const ProjectPage = () => {
 
   return (
     <div className={styles.projectPage}>
-      <div className={styles.sidebar} />
+      <SideNav />
 
       <main className={styles.mainContent}>
         <header className={styles.projectHeader}>
@@ -44,4 +45,4 @@ const ProjectPage = () => {
   );
 };
 
-export default ProjectPage;
+export default ProjectPage; 
