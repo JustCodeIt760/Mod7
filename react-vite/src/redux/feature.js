@@ -149,26 +149,22 @@ export const thunkUpdateFeature =
     }
   };
 
-export const thunkRemoveFeature =
-  (projectId, featureId) => async (dispatch) => {
-    dispatch(setLoading(true));
-    try {
-      const response = await csrfFetch(
-        `/projects/${projectId}/features/${featureId}`,
-        {
-          method: 'DELETE',
-        }
-      );
-      dispatch(removeFeature(featureId));
-      dispatch(setErrors(null));
-      return true;
-    } catch (err) {
-      dispatch(setErrors(err.errors || baseError));
-      return null;
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
+export const thunkRemoveFeature = (featureId) => async (dispatch) => {
+  dispatch(setLoading(true));
+  try {
+    await csrfFetch(`/api/features/${featureId}`, {
+      method: 'DELETE',
+    });
+    dispatch(removeFeature(featureId));
+    dispatch(setErrors(null));
+    return true;
+  } catch (error) {
+    dispatch(setErrors(error.errors || baseError));
+    return false;
+  } finally {
+    dispatch(setLoading(false));
+  }
+};
 
 //! this needs checked to see if we can reuse the API endpoint for update or if we need a special one. patch vs put for two endpoints or?
 export const thunkMoveFeature =

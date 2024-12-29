@@ -5,6 +5,7 @@ import styles from './SideNav.module.css';
 
 const SideNav = () => {
   const [isProjectsOpen, setIsProjectsOpen] = useState(false);
+
   const projects = useSelector((state) => state.projects?.allProjects || {});
 
   return (

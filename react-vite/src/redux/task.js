@@ -70,7 +70,7 @@ export const thunkSetTask = (taskId) => async (dispatch, getState) => {
   dispatch(setLoading(true));
   // using getState() to quickly pull the task by ID if it exists from our store
   const state = getState();
-  const cachedTask = state.tasks.allTasks[task.id];
+  const cachedTask = state.tasks.allTasks[taskId];
   if (cachedTask) {
     dispatch(setTask(cachedTask));
   }
@@ -135,7 +135,7 @@ export const thunkUpdateTask = (taskData) => async (dispatch) => {
 export const thunkRemoveTask = (taskId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    const response = await csrfFetch(`/api/tasks/${taskId}`, {
+    await csrfFetch(`/api/tasks/${taskId}`, {
       method: 'DELETE',
     });
     dispatch(removeTask(taskId));
