@@ -7,6 +7,8 @@ from flask_login import current_user, login_user, logout_user, login_required
 auth_routes = Blueprint("auth", __name__)
 
 
+# including both "" and "/" to catch both "/auth" and "/auth/" routes
+@auth_routes.route("")
 @auth_routes.route("/")
 def authenticate():
     """
