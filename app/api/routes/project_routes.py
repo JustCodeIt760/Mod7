@@ -32,8 +32,8 @@ def get_project(id):
     return jsonify(project.to_dict())
 
 
-@project_routes.route("", methods=["POST"])
-@project_routes.route("/", methods=["POST"])
+@project_routes.route("", methods=["POST"])  # /projects
+@project_routes.route("/", methods=["POST"])  # /projects/
 @login_required
 def create_project():
     """

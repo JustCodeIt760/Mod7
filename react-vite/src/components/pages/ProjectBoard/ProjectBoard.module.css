@@ -1,0 +1,35 @@
+.projectBoardContainer {
+  padding: 20px;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.placeholderLayout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  min-height: 500px;
+}
+
+.parkingLot,
+.sprintSection {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.placeholderCard {
+  background: white;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+  border: 1px dashed #ccc;
+  color: #666;
+}
+
+h2 {
+  margin-bottom: 15px;
+  color: #333;
+}

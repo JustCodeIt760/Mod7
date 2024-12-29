@@ -1,7 +1,7 @@
 .sideNav {
   width: 200px;
   height: calc(100vh - 60px);
-  background-color: #f8f9fa;  
+  background-color: #f8f9fa;
   border-right: 1px solid #e0e0e0;
   position: fixed;
   top: 60px;
@@ -13,7 +13,7 @@
 .navLinks {
   display: flex;
   flex-direction: column;
-  gap: 25px;  
+  gap: 25px;
   margin-top: 80px;
   align-items: center;
   text-align: center;
@@ -21,7 +21,7 @@
 
 .navItem {
   text-decoration: none;
-  color: #2c3e50; 
+  color: #2c3e50;
   padding: 12px;
   border-radius: 8px;
   transition: all 0.2s ease;
@@ -31,25 +31,25 @@
 }
 
 .navItem:hover {
-  background-color: #e3e8ec; 
+  background-color: #e3e8ec;
   transform: translateY(-2px);
 }
 
 .navItem.active {
-  background-color: #3498db; 
+  background-color: #3498db;
   color: white;
   font-weight: bold;
 }
 
 .projectsSection {
-  margin: 0; 
+  margin: 0;
   width: 80%;
-  align-self: center; 
+  align-self: center;
 }
 
 .projectsHeader {
   display: flex;
-  justify-content: center; 
+  justify-content: center;
   align-items: center;
   padding: 12px;
   cursor: pointer;
@@ -60,7 +60,7 @@
 }
 
 .projectsHeader span:first-child {
-  margin-right: 20px;  
+  margin-right: 20px;
 }
 
 .projectsHeader:hover {
@@ -72,7 +72,7 @@
   overflow-y: auto;
   margin-top: 8px;
   border-radius: 8px;
-  background-color: white; 
+  background-color: white;
 }
 
 .projectItem {
@@ -87,7 +87,7 @@
 
 .projectItem:hover {
   background-color: #e3e8ec;
-  transform: translateX(5px);  /* Slight slide effect */
+  transform: translateX(5px); /* Slight slide effect */
 }
 
 .arrow {
