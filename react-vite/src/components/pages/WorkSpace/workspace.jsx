@@ -1,10 +1,10 @@
-import styles from './Dashboard.module.css';
+import styles from './Workspace.module.css';
 
-function Dashboard() {
+function Workspace() {
   return (
     <div className={styles.dashboardContainer}>
-      <h1>Dashboard</h1>
-      <p>Welcome to your project dashboard! 🚀</p>
+      <h1>WorkSpace</h1>
+      <p>Welcome to your workspace! 🚀</p>
       <div className={styles.placeholderSection}>
         <h2>Coming Soon</h2>
         <ul>
@@ -17,4 +17,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default Workspace;

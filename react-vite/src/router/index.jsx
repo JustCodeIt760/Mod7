@@ -1,10 +1,10 @@
 import { createBrowserRouter } from 'react-router-dom';
 import LandingPage from '../components/LandingPage/LandingPage';
-import Dashboard from '../components/pages/Dashboard';
-import ProjectBoard from '../components/pages/ProjectBoard';
+import Dashboard from '../components/Pages/WorkSpace/workspace';
+import ProjectBoard from '../components/Pages/ProjectBoard';
 import Layout from './Layout';
-import ProjectsPage from '../components/pages/ProjectsPage';
-import ProjectPage from '../components/pages/ProjectPage';
+import ProjectsPage from '../components/Pages/ProjectsPage';
+import ProjectPage from '../components/Pages/ProjectPage';
 
 export const router = createBrowserRouter([
   {
