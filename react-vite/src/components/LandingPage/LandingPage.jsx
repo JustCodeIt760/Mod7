@@ -1,10 +1,11 @@
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { selectUser } from '../../redux/session';
 import './LandingPage.css';
 
 function LandingPage() {
   const navigate = useNavigate();
-  const sessionUser = useSelector(state => state.session.user);
+  const user = useSelector(selectUser);
 
   const handleSignUp = () => {
     navigate('/signup');
@@ -14,15 +15,21 @@ function LandingPage() {
     const featuresSection = document.getElementById('features');
     featuresSection.scrollIntoView({ behavior: 'smooth' });
   };
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <div className="landing-page">
       <section className="hero-section">
         <div className="hero-content">
           <h1>Organize Your Work</h1>
-          <p className="hero-subtitle">A powerful tool for managing tasks, projects, & teamwork effortlessly</p>
+          <p className="hero-subtitle">
+            A powerful tool for managing tasks, projects, & teamwork
+            effortlessly
+          </p>
           <div className="hero-buttons">
-            {!sessionUser && (
+            {!user && (
               <button className="primary-button" onClick={handleSignUp}>
                 Sign up Free
               </button>

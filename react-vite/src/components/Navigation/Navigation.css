@@ -6,44 +6,42 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   padding: 0.5rem;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   z-index: 1000;
 }
 
 .navbar {
-  width: 100%;
-  background-color: white;
-  border-bottom: 1px solid #e5e5e5;
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
+  height: 70px;
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
   z-index: 1000;
 }
 
 .nav-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 100%;
+  padding: 0 20px;
 }
 
 .nav-left {
-  display: flex;
-  align-items: center;
+  margin-left: 60px;
 }
 
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 20px;
 }
 
 .logo {
   text-decoration: none;
-  color: #333;
-  font-size: 1.5rem;
+  color: #2c3e50;
   font-weight: bold;
 }
 
@@ -51,20 +49,19 @@
   background: linear-gradient(45deg, #2563eb, #4f46e5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-size: 1.8rem;
 }
 
 .nav-button {
   text-decoration: none;
-  color: #4b5563;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
+  color: #2c3e50;
+  padding: 8px 16px;
   border-radius: 4px;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s;
 }
 
 .nav-button:hover {
-  background-color: #f3f4f6;
-  color: #2563eb;
+  background-color: #f5f5f5;
 }
 
 button.nav-button {
@@ -77,4 +74,10 @@ button.nav-button {
 /* Add margin to the main content to account for fixed navbar */
 main {
   margin-top: 4rem;
+}
+
+/* Update SideNav top position to match new navbar height */
+.sideNav {
+  top: 70px;
+  height: calc(100vh - 70px);
 }
