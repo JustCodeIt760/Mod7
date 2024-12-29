@@ -1,29 +1,29 @@
 version: '3.8'
 
 services:
-  # Flask backend service
   backend:
     build:
-      context: ./app # Change this to ./app
-      dockerfile: Dockerfile # Just Dockerfile since context is app directory
+      context: ./app
+      dockerfile: Dockerfile
     container_name: backend
+    command: flask run -h 0.0.0.0 -p 5000
     environment:
-      - FLASK_APP=__init__.py # Change this to match what worked
-      - FLASK_DEBUG=1 # Use this instead of FLASK_ENV
+      - FLASK_APP=__init__.py
+      - FLASK_DEBUG=1
       - SECRET_KEY=${SECRET_KEY}
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      - SCHEMA=${SCHEMA} # Add this if you're using schema
+      - SCHEMA=${SCHEMA}
       - REFRESH_DB=${REFRESH_DB:-false}
+      - PYTHONPATH=/app
     ports:
       - '5000:5000'
     volumes:
       - ./app:/app
-      - ./react-app/build:/app/react-app/build # Add this if needed
+      - ./react-app/build:/app/react-app/build
     depends_on:
       db:
         condition: service_healthy
 
-  # React frontend service
   frontend:
     build:
       context: ./react-vite
@@ -36,7 +36,6 @@ services:
     depends_on:
       - backend
 
-  # PostgreSQL database service
   db:
     image: postgres:14-alpine
     environment:

@@ -23,14 +23,9 @@ const FeatureList = ({ projectId }) => {
 
   return (
     <div className={styles.featureList}>
-      <div className={styles.header}>
-        <h2>Features</h2>
-        <button className={styles.addButton}>Add Feature</button>
-      </div>
-
       {features.length === 0 ? (
         <div className={styles.empty}>
-          No features yet. Click "Add Feature" to create one.
+          No features yet.
         </div>
       ) : (
         <div className={styles.grid}>

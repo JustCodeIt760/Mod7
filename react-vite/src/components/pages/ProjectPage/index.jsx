@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { thunkSetProject } from '../../../redux/project';
 import FeatureList from '../../features/FeatureList';
-import SideNav from '../../SideNav';
 import styles from './ProjectPage.module.css';
 
 const ProjectPage = () => {
@@ -21,22 +20,17 @@ const ProjectPage = () => {
 
   return (
     <div className={styles.projectPage}>
-      <SideNav />
-
-      <main className={styles.mainContent}>
+      <div className={styles.contentArea}>
         <header className={styles.projectHeader}>
           <h1>{project.name}</h1>
-          <p>{project.description}</p>
-          <div className={styles.projectMeta}>
-            <span>Due: {new Date(project.due_date).toLocaleDateString()}</span>
-            <span>Owner: {project.owner?.username}</span>
-          </div>
         </header>
 
-        <div className={styles.featuresContainer}>
-          <FeatureList projectId={projectId} />
-        </div>
-      </main>
+        <main className={styles.mainContent}>
+          <div className={styles.featuresContainer}>
+            <FeatureList projectId={projectId} />
+          </div>
+        </main>
+      </div>
 
       <div className={styles.sprintSection}>
         {/* Sprint section will be implemented later */}
@@ -45,4 +39,4 @@ const ProjectPage = () => {
   );
 };
 
-export default ProjectPage; 
+export default ProjectPage;
