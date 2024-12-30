@@ -71,13 +71,18 @@ class Project(db.Model):
 
     # Read method (fetch all projects for a specific user)
     @classmethod
-    def get_all_projects(cls, owner_id):
-        return cls.query.filter_by(owner_id=owner_id).all()
+    def get_all_projects(cls, user_id):
+        return cls.query.filter(
+            db.or_(cls.owner_id == user_id, cls.users.any(id=user_id))
+        ).all()
 
     # Get a single project by ID
     @classmethod
-    def get_project_by_id(cls, id, owner_id):
-        return cls.query.filter_by(id=id, owner_id=owner_id).first()
+    def get_project_by_id(cls, id, user_id):
+        return cls.query.filter(
+            cls.id == id,
+            db.or_(cls.owner_id == user_id, cls.users.any(id=user_id)),
+        ).first()
 
     # Update method (modify project)
     def update_project(self, name, description, due_date):
