@@ -2,7 +2,6 @@ import { createBrowserRouter } from 'react-router-dom';
 import LandingPage from '../components/LandingPage/LandingPage';
 import Dashboard from '../components/Pages/WorkSpace/workspace';
 import Workspace from '../components/Pages/WorkSpace/workspace';
-import ProjectBoard from '../components/Pages/ProjectBoard';
 import Layout from './Layout';
 import ProjectPage from '../components/Pages/ProjectPage';
 import SprintDetailsPage from '../components/Pages/SprintDetailsPage';
@@ -31,9 +30,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'projects/:projectId/sprints/:sprintId',
-        element: (
-            <SprintTimeline />
-        ),
+        element: <SprintTimeline />,
       },
     ],
   },
