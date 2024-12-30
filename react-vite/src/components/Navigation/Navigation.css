@@ -1,13 +1,16 @@
 .profile-dropdown {
   position: absolute;
-  right: 0;
   top: 100%;
+  right: 0;
+  margin-top: 8px;
   background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 0.5rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  width: 250px;
+  overflow: hidden;
   z-index: 1000;
+  padding: 0;
+  border: 1px solid #ddd;
 }
 
 .navbar {
@@ -80,4 +83,82 @@ main {
 .sideNav {
   top: 70px;
   height: calc(100vh - 70px);
+}
+
+.profile-button-container {
+  position: relative;
+}
+
+.profile-button {
+  background: none;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.profile-button:hover {
+  background-color: #f0f0f0;
+}
+
+.profile-button i {
+  font-size: 28px;
+  color: #2c3e50;
+}
+
+.profile-info {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-icon {
+  font-size: 38px;
+  color: #2c3e50;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.username {
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: #2c3e50;
+}
+
+.email {
+  font-size: 1rem;
+  color: #666;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 0;
+}
+
+.logout-button {
+  width: 100%;
+  padding: 16px 20px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #e74c3c;
+  font-weight: 500;
+  font-size: 1.1rem;
+  transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+  background-color: #f8f9fa;
 }
