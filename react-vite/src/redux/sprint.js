@@ -209,8 +209,8 @@ const sprintReducer = (state = initialState, action) => {
 
     [REMOVE_SPRINT]: (state, action) => {
       const newState = { ...state };
-      const { [action.payload]: removedSprint, ...remainingSprints } =
-        newState.allSprints;
+      const { ...remainingSprints } = newState.allSprints;
+      delete remainingSprints[action.payload];
       newState.allSprints = remainingSprints;
       return newState;
     },
