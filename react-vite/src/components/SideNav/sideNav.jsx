@@ -14,8 +14,8 @@ const SideNav = () => {
   return (
     <nav className={styles.sideNav}>
       <div className={styles.navLinks}>
-        <NavLink to="/" className={styles.navItem}>Home</NavLink>
-        <NavLink to="/workspace" className={styles.navItem}>WorkSpace</NavLink>
+        <NavLink to="/" className={styles.navItem}>WorkSpace</NavLink>
+        <NavLink to="/workspace" className={styles.navItem}>Tasks</NavLink>
         <NavLink to="/sprints" className={styles.navItem}>Sprints</NavLink>
         
         <div className={styles.projectsSection}>
