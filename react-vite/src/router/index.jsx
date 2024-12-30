@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import LandingPage from '../components/LandingPage/LandingPage';
-import Dashboard from '../components/Pages/WorkSpace/workspace';
+import Workspace from '../components/Pages/WorkSpace/workspace';
 import ProjectBoard from '../components/Pages/ProjectBoard';
 import Layout from './Layout';
 import ProjectsPage from '../components/Pages/ProjectsPage';
@@ -15,16 +15,8 @@ export const router = createBrowserRouter([
         element: <LandingPage />,
       },
       {
-        path: 'dashboard',
-        element: <Dashboard />,
-      },
-      {
         path: 'projects',
-        element: <ProjectBoard />,
-      },
-      {
-        path: 'projects',
-        element: <ProjectsPage />,
+        element: <Workspace />,
       },
       {
         path: 'projects/:projectId',
