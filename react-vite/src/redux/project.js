@@ -253,8 +253,9 @@ export const selectOwnedProjects = (userId) => (state) =>
   );
 
 export const selectMemberProjects = (userId) => (state) =>
-  Object.values(state.projects.allProjects).filter((project) =>
-    project.members?.includes(userId)
+  Object.values(state.projects.allProjects).filter(
+    (project) =>
+      project.members?.includes(userId) && project.owner_id !== userId
   );
 
 export const selectProjectsByStatus = (status) => (state) =>
