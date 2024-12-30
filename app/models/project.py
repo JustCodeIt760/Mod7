@@ -51,6 +51,7 @@ class Project(db.Model):
             "description": self.description,
             "owner_id": self.owner_id,
             "due_date": self.due_date.isoformat(),
+            "members": [user.id for user in self.users],
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
