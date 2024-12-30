@@ -1,175 +1,233 @@
 .projectPage {
-  display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(250px, 1fr) minmax(400px, 2fr);
-  grid-template-rows: 1fr;
-  grid-template-areas: "sidebar main sprints";
+  display: flex;
   height: 100vh;
   background-color: white;
-  padding: 12px;
-  margin: 0;
-  gap: 12px;
+  padding: 20px;
+  gap: 20px;
   overflow: hidden;
-}
-
-.contentArea {
-  grid-area: main;
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 12px;
-  overflow: hidden;
-  max-width: 300px;
 }
 
 .projectHeader {
-  text-align: center;
-  padding: 8px 0;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px;
+  border: 2px solid #1e1e1e;
+  border-radius: 4px;
 }
 
 .projectHeader h1 {
-  font-size: 2rem;
-  color: #333;
   margin: 0;
+  font-size: 20px;
+  color: #1e1e1e;
 }
 
-.mainContent {
-  background-color: white;
-  padding: 16px;
-  border: 2px solid #007bff;
-  border-radius: 12px;
-  overflow-y: auto;
+.parkingLotSection {
+  width: 250px;
+  border: 2px solid #1e1e1e;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.2s;
 }
 
-.sidebar {
-  grid-area: sidebar;
-  background-color: white;
-  padding: 16px;
-  border: 2px solid #007bff;
-  border-radius: 12px;
-  overflow-y: auto;
-}
-
-.sprintSection {
-  grid-area: sprints;
-  background-color: white;
-  padding: 16px;
-  border: 2px solid #007bff;
-  border-radius: 12px;
-  overflow-y: auto;
-}
-
-/* Responsive Design */
-@media screen and (max-width: 1400px) {
-  .projectPage {
-    grid-template-columns: minmax(180px, 1fr) minmax(250px, 1fr) minmax(350px, 2fr);
-    gap: 10px;
-    padding: 10px;
-  }
-}
-
-@media screen and (max-width: 1200px) {
-  .projectPage {
-    grid-template-columns: minmax(160px, 1fr) minmax(220px, 1fr) minmax(300px, 2fr);
-    gap: 8px;
-    padding: 8px;
-  }
-}
-
-@media screen and (max-width: 992px) {
-  .projectPage {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(200px, auto) minmax(400px, 1fr) minmax(200px, auto);
-    grid-template-areas:
-      "sidebar"
-      "main"
-      "sprints";
-    height: 100vh;
-    overflow-y: auto;
-  }
-
-  .contentArea {
-    max-width: none;
-  }
-
-  .sidebar, .mainContent, .sprintSection {
-    max-height: none;
-    height: 100%;
-  }
-
-  .mainContent {
-    min-height: 400px;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .projectPage {
-    padding: 8px;
-    gap: 8px;
-  }
-
-  .projectHeader h1 {
-    font-size: 1.5rem;
-  }
-}
-
-.featuresContainer {
-  display: grid;
-  gap: 12px;
-}
-
-.parkingLot {
-  padding: 16px;
-  background-color: white;
+.parkingLotSection.dragOver {
+  background-color: rgba(30, 30, 30, 0.05);
 }
 
 .parkingLotHeader {
-  font-size: 1.1rem;
-  color: #333;
-  margin-bottom: 12px;
+  padding: 15px;
+  border-bottom: 2px solid #1e1e1e;
+  text-align: center;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.addButton {
-  background: none;
-  border: none;
-  color: #666;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0 5px;
+.parkingLotHeader h2 {
+  margin: 0;
+  font-size: 28px;
 }
 
-.addButton:hover {
-  color: #333;
-}
-
-.sprintHeader {
-  font-size: 1.1rem;
-  color: #333;
-  padding: 0 0 12px 0;
-  margin-bottom: 12px;
-  border-bottom: 1px solid #e0e0e0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.parkingLotContent {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
 }
 
 .featureCard {
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 12px;
+  border: 2px solid #1e1e1e;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 15px;
+  position: relative;
+  cursor: grab;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.featureTitle {
-  font-size: 1rem;
-  color: #333;
-  margin-bottom: 8px;
+.featureCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.featureMeta {
-  font-size: 0.85rem;
-  color: #666;
+.featureCard:active {
+  cursor: grabbing;
+}
+
+.featureCard h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.addFeatureButton {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #1e1e1e;
+  border-radius: 4px;
+  background: none;
+  font-size: 24px;
+  cursor: pointer;
   display: flex;
-  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  color: #1e1e1e;
+}
+
+.addFeatureButton:hover {
+  background-color: rgba(30, 30, 30, 0.05);
+}
+
+.sprintSection {
+  flex: 1;
+  border: 2px solid #1e1e1e;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.2s;
+}
+
+.sprintSection.dragOver {
+  background-color: rgba(30, 30, 30, 0.05);
+}
+
+.sprintHeader {
+  padding: 15px;
+  border-bottom: 2px solid #1e1e1e;
+  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sprintHeader h2 {
+  margin: 0;
+  font-size: 28px;
+  flex: 1;
+}
+
+.sprintName {
+  cursor: pointer;
+  transition: color 0.2s;
+  position: relative;
+  display: inline-block;
+}
+
+.sprintName:hover {
+  color: #2196F3;
+}
+
+.sprintName::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background-color: #2196F3;
+  transform: scaleX(0);
+  transform-origin: bottom right;
+  transition: transform 0.2s;
+}
+
+.sprintName:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+.carouselButton {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #1e1e1e;
+  border-radius: 4px;
+  background: none;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.carouselButton:hover:not(:disabled) {
+  background-color: rgba(30, 30, 30, 0.05);
+}
+
+.carouselButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sprintContent {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.sprintFeature {
+  border: 2px solid #1e1e1e;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 15px;
+  position: relative;
+  cursor: grab;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.sprintFeature:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sprintFeature:active {
+  cursor: grabbing;
+}
+
+.sprintFeature h3 {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+  color: #e03131;
+}
+
+.addSprintFeatureButton {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #e03131;
+}
+
+.taskList {
+  margin-top: 20px;
+  padding-left: 20px;
+}
+
+.taskList p {
+  margin: 5px 0;
+  color: #f08c00;
+  font-size: 20px;
 }

@@ -11,10 +11,10 @@ const SideNav = () => {
   return (
     <nav className={styles.sideNav}>
       <div className={styles.navLinks}>
-        <NavLink to="/projects" className={styles.navItem}>
+        <NavLink to="/" className={styles.navItem}>
           Home
         </NavLink>
-        <NavLink to="/projects" className={styles.navItem}>
+        <NavLink to="/workspace" className={styles.navItem}>
           WorkSpace
         </NavLink>
         <NavLink to="/sprints" className={styles.navItem}>
