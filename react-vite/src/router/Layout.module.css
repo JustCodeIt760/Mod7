@@ -1,0 +1,9 @@
+.layout {
+  min-height: 100vh;
+}
+
+.mainContent {
+  margin-left: 250px;
+  margin-top: 60px;
+  padding: 20px;
+}

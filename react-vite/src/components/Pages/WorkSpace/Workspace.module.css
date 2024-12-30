@@ -1,0 +1,141 @@
+.workspaceContainer {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.createButton {
+  padding: 8px 16px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.createButton:hover {
+  background-color: #2980b9;
+}
+
+.projectsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.projectCard {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+  position: relative;
+}
+
+.projectCard h3 {
+  margin: 0 0 8px 0;
+  color: #2c3e50;
+}
+
+.projectCard p {
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.projectStats {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: 100%;
+}
+
+.projectStats span {
+  display: block;
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.overdue {
+  color: #e74c3c;
+}
+
+.progressBar {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 60%;
+  height: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  overflow: visible;
+}
+
+.progress {
+  height: 100%;
+  background-color: #4a90e2;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.progressPercent {
+  position: absolute;
+  right: 0;
+  top: -16px;
+  font-size: 0.8rem;
+  color: #4a90e2;
+  white-space: nowrap;
+}
+
+.progressText {
+  position: absolute;
+  bottom: 15px;
+  right: 20px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.sprintInfo {
+  margin-bottom: 8px;
+}
+
+.taskStats {
+  position: absolute;
+  bottom: 40px;
+  left: 20px;
+  color: #666;
+}
+
+.taskStats span {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.taskStats span:last-child {
+  margin-bottom: 0;
+}
+
+.sectionHeader {
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}

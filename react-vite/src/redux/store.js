@@ -3,19 +3,27 @@ import {
   applyMiddleware,
   compose,
   combineReducers,
-} from "redux";
-import thunk from "redux-thunk";
-import sessionReducer from "./session";
+} from 'redux';
+import thunk from 'redux-thunk';
+import sessionReducer from './session';
+import projectReducer from './project';
+import taskReducer from './task';
+import sprintReducer from './sprint';
+import featureReducer from './feature';
 
 const rootReducer = combineReducers({
   session: sessionReducer,
+  projects: projectReducer,
+  features: featureReducer,
+  sprints: sprintReducer,
+  tasks: taskReducer,
 });
 
 let enhancer;
-if (import.meta.env.MODE === "production") {
+if (import.meta.env.MODE === 'production') {
   enhancer = applyMiddleware(thunk);
 } else {
-  const logger = (await import("redux-logger")).default;
+  const logger = (await import('redux-logger')).default;
   const composeEnhancers =
     window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
   enhancer = composeEnhancers(applyMiddleware(thunk, logger));

@@ -1,24 +1,36 @@
 import { createBrowserRouter } from 'react-router-dom';
-import LoginFormPage from '../components/LoginFormPage';
-import SignupFormPage from '../components/SignupFormPage';
 import LandingPage from '../components/LandingPage/LandingPage';
+import Dashboard from '../components/Pages/WorkSpace/workspace';
+import Workspace from '../components/Pages/WorkSpace/workspace';
 import Layout from './Layout';
+import ProjectPage from '../components/Pages/ProjectPage';
+import SprintDetailsPage from '../components/Pages/SprintDetailsPage';
+import SprintTimeline from '../components/Pages/SprintTimeline';
+import SignupFormPage from '../components/SignupFormPage';
 
 export const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
       {
-        path: "/",
+        path: '/',
         element: <LandingPage />,
       },
       {
-        path: "login",
-        element: <LoginFormPage />,
+        path: 'signup',
+        element: <SignupFormPage />,
       },
       {
-        path: "signup",
-        element: <SignupFormPage />,
+        path: 'projects',
+        element: <Workspace />,
+      },
+      {
+        path: 'projects/:projectId',
+        element: <ProjectPage />,
+      },
+      {
+        path: 'projects/:projectId/sprints/:sprintId',
+        element: <SprintTimeline />,
       },
     ],
   },
