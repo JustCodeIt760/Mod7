@@ -75,7 +75,7 @@ export const thunkSetSprint =
       dispatch(setSprint(cachedSprint));
       dispatch(setErrors(null));
       dispatch(setLoading(false));
-      return;
+      return cachedSprint;
     }
 
     // If not cached, fetch the sprint details from the API
@@ -84,11 +84,17 @@ export const thunkSetSprint =
         `/projects/${projectId}/sprints/${sprintId}`
       );
       const data = await response.json();
-      dispatch(setSprint(data));
-      dispatch(setErrors(null));
-      return data;
+      if (response.ok) {
+        dispatch(setSprint(data));
+        dispatch(setErrors(null));
+        return data;
+      } else {
+        dispatch(setErrors(data));
+        return null;
+      }
     } catch (err) {
       dispatch(setErrors(err.errors || baseError));
+      return null;
     } finally {
       dispatch(setLoading(false));
     }
@@ -141,7 +147,7 @@ export const thunkUpdateSprint =
 export const thunkRemoveSprint = (sprintId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    await csrfFetch(`/api/sprints/${sprintId}`, {
+    await csrfFetch(`/sprints/${sprintId}`, {
       method: 'DELETE',
     });
     dispatch(removeSprint(sprintId));
