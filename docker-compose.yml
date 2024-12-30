@@ -6,7 +6,6 @@ services:
       context: ./app
       dockerfile: Dockerfile
     container_name: backend
-    command: flask run -h 0.0.0.0 -p 5000
     environment:
       - FLASK_APP=__init__.py
       - FLASK_DEBUG=1
@@ -14,7 +13,6 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - SCHEMA=${SCHEMA}
       - REFRESH_DB=${REFRESH_DB:-false}
-      - PYTHONPATH=/app
     ports:
       - '5000:5000'
     volumes:
@@ -28,6 +26,7 @@ services:
     build:
       context: ./react-vite
       dockerfile: Dockerfile
+    container_name: frontend
     ports:
       - '5173:5173'
     volumes:
@@ -38,6 +37,7 @@ services:
 
   db:
     image: postgres:14-alpine
+    container_name: mod7_db
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}

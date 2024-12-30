@@ -23,17 +23,17 @@ export const router = createBrowserRouter([
         element: <ProjectBoard />,
       },
       {
-        path: "projects",
+        path: 'projects',
         element: <ProjectsPage />,
       },
       {
-        path: "projects/:projectId",
+        path: 'projects/:projectId',
         element: <ProjectPage />,
       },
       {
-        path: "projects/:projectId/features/:featureId",
+        path: 'projects/:projectId/features/:featureId',
         element: <ProjectPage />,
-      }
+      },
     ],
   },
 ]);
