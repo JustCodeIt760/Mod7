@@ -29,32 +29,27 @@ const SideNav = () => {
           
           {isProjectsOpen && (
             <div className={styles.projectsList}>
-                {ownedProjects.length > 0 && (
-                    <>
-                    <div className={styles.projectsCategoryHeader}>Owned</div>
-                    {ownedProjects.map((project) => (
-                        <NavLink 
-                            key={project.id}
-                            to={`/${project.id}`}
-                            className={styles.projectItem}
-                        >
-                            {project.name}
-                        </NavLink>
-                    ))}
-                    </>
-                )}
-              <>
+              <div className={styles.projectsCategoryHeader}>Owned</div>
+              {ownedProjects.map((project) => (
+                <NavLink 
+                  key={project.id}
+                  to={`/projects/${project.id}`}
+                  className={styles.projectItem}
+                >
+                  {project.name}
+                </NavLink>
+              ))}
+              
               <div className={styles.projectsCategoryHeader}>Shared</div>
               {sharedProjects.map((project) => (
                 <NavLink 
-                    key={project.id}
-                    to={`/${project.id}`}
-                    className={styles.projectItem}
+                  key={project.id}
+                  to={`/projects/${project.id}`}
+                  className={styles.projectItem}
                 >
-                    {project.name}
+                  {project.name}
                 </NavLink>
               ))}
-              </>
             </div>
           )}
         </div>
