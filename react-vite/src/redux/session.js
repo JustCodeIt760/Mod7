@@ -78,7 +78,8 @@ export const thunkSignup = (user) => async (dispatch) => {
     dispatch(setErrors(null));
     return data;
   } catch (err) {
-    dispatch(setErrors(err.errors || baseError));
+    const errorData = await err.json();
+    dispatch(setErrors(errorData || baseError));
     return null;
   } finally {
     dispatch(setLoading(false));

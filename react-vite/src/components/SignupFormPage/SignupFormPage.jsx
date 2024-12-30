@@ -1,19 +1,20 @@
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Navigate, useNavigate } from "react-router-dom";
-import { thunkSignup } from "../../redux/session";
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { selectErrors, thunkSignup } from '../../redux/session';
 
 function SignupFormPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const sessionUser = useSelector((state) => state.session.user);
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [errors, setErrors] = useState({});
+  const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [localErrors, setLocalErrors] = useState({});
+  const serverErrors = useSelector(selectErrors);
 
   if (sessionUser) return <Navigate to="/" replace={true} />;
 
@@ -21,12 +22,14 @@ function SignupFormPage() {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      return setErrors({
+      setLocalErrors({
         confirmPassword:
-          "Confirm Password field must be the same as the Password field",
+          'Confirm Password field must be the same as the Password field',
       });
-
+      return;
     }
+
+    setLocalErrors({});
 
     const serverResponse = await dispatch(
       thunkSignup({
@@ -37,18 +40,15 @@ function SignupFormPage() {
         password,
       })
     );
-
-    if (serverResponse) {
-      setErrors(serverResponse);
-    } else {
-      navigate("/");
-    }
   };
-
+  const allErrors = {
+    ...serverErrors?.errors,
+    ...localErrors,
+  };
   return (
     <>
       <h1>Sign Up</h1>
-      {errors.server && <p>{errors.server}</p>}
+      {allErrors.server && <p>{allErrors.server}</p>}
       <form onSubmit={handleSubmit}>
         <label>
           First Name
@@ -59,7 +59,7 @@ function SignupFormPage() {
             required
           />
         </label>
-        {errors.firstName && <p>{errors.firstName}</p>}
+        {allErrors.firstName && <p>{allErrors.firstName}</p>}
         <label>
           Last Name
           <input
@@ -69,7 +69,7 @@ function SignupFormPage() {
             required
           />
         </label>
-        {errors.lastName && <p>{errors.lastName}</p>}
+        {allErrors.lastName && <p>{allErrors.lastName}</p>}
         <label>
           Email
           <input
@@ -79,7 +79,7 @@ function SignupFormPage() {
             required
           />
         </label>
-        {errors.email && <p>{errors.email}</p>}
+        {allErrors.email && <p>{allErrors.email}</p>}
         <label>
           Username
           <input
@@ -89,7 +89,7 @@ function SignupFormPage() {
             required
           />
         </label>
-        {errors.username && <p>{errors.username}</p>}
+        {allErrors.username && <p>{allErrors.username}</p>}
         <label>
           Password
           <input
@@ -99,7 +99,7 @@ function SignupFormPage() {
             required
           />
         </label>
-        {errors.password && <p>{errors.password}</p>}
+        {allErrors.password && <p>{allErrors.password}</p>}
         <label>
           Confirm Password
           <input
@@ -109,7 +109,7 @@ function SignupFormPage() {
             required
           />
         </label>
-        {errors.confirmPassword && <p>{errors.confirmPassword}</p>}
+        {allErrors.confirmPassword && <p>{allErrors.confirmPassword}</p>}
         <button type="submit">Sign Up</button>
       </form>
     </>

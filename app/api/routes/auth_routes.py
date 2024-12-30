@@ -63,7 +63,7 @@ def sign_up():
         db.session.commit()
         login_user(user)
         return user.to_dict()
-    return form.errors, 401
+    return jsonify({"errors": form.errors}), 400
 
 
 @auth_routes.route("/unauthorized")
