@@ -5,6 +5,7 @@ import ProjectBoard from '../components/Pages/ProjectBoard';
 import Layout from './Layout';
 import ProjectsPage from '../components/Pages/ProjectsPage';
 import ProjectPage from '../components/Pages/ProjectPage';
+import SignupFormPage from '../components/SignupFormPage';
 
 export const router = createBrowserRouter([
   {
@@ -13,6 +14,10 @@ export const router = createBrowserRouter([
       {
         path: '/',
         element: <LandingPage />,
+      },
+      {
+        path: 'signup',
+        element: <SignupFormPage />,
       },
       {
         path: 'projects',
