@@ -56,6 +56,8 @@ export const thunkLogin = (credentials) => async (dispatch) => {
     dispatch(setErrors(null));
     return data;
   } catch (err) {
+    console.log('Full error:', err);
+
     const errorResponse = await err.json();
     dispatch(setErrors(errorResponse.errors || baseError));
     return null;
@@ -76,7 +78,8 @@ export const thunkSignup = (user) => async (dispatch) => {
     dispatch(setErrors(null));
     return data;
   } catch (err) {
-    dispatch(setErrors(err.errors || baseError));
+    const errorData = await err.json();
+    dispatch(setErrors(errorData || baseError));
     return null;
   } finally {
     dispatch(setLoading(false));

@@ -1,10 +1,13 @@
 import { createBrowserRouter } from 'react-router-dom';
 import LandingPage from '../components/LandingPage/LandingPage';
 import Dashboard from '../components/Pages/WorkSpace/workspace';
+import Workspace from '../components/Pages/WorkSpace/workspace';
+import ProjectBoard from '../components/Pages/ProjectBoard';
 import Layout from './Layout';
 import ProjectPage from '../components/Pages/ProjectPage';
 import SprintDetailsPage from '../components/Pages/SprintDetailsPage';
 import SprintTimeline from '../components/Pages/SprintTimeline';
+import SignupFormPage from '../components/SignupFormPage';
 
 export const router = createBrowserRouter([
   {
@@ -15,24 +18,21 @@ export const router = createBrowserRouter([
         element: <LandingPage />,
       },
       {
-        path: 'dashboard',
-        element: <Dashboard />,
+        path: 'signup',
+        element: <SignupFormPage />,
+      },
+      {
+        path: 'projects',
+        element: <Workspace />,
       },
       {
         path: 'projects/:projectId',
         element: <ProjectPage />,
       },
       {
-        path: 'projects/:projectId/features/:featureId',
-        element: <ProjectPage />,
-      },
-      {
         path: 'projects/:projectId/sprints/:sprintId',
         element: (
-          <div>
             <SprintTimeline />
-            <SprintDetailsPage />
-          </div>
         ),
       },
     ],

@@ -8,7 +8,8 @@ function LandingPage() {
   const user = useSelector(selectUser);
 
   const handleSignUp = () => {
-    navigate('/signup');
+    //Redirect to signup page
+      navigate('/signup');
   };
 
   const handleLearnMore = () => {
@@ -16,7 +17,7 @@ function LandingPage() {
     featuresSection.scrollIntoView({ behavior: 'smooth' });
   };
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/projects" replace />;
   }
 
   return (
