@@ -1,15 +1,22 @@
 import { NavLink } from 'react-router-dom';
-import { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import styles from './SideNav.module.css';
-import { selectMemberProjects, selectOwnedProjects } from '../../redux/project';
+import { selectMemberProjects, selectOwnedProjects, thunkLoadProjects } from '../../redux/project';
 import { selectUser } from '../../redux/session';
 
 const SideNav = () => {
   const [isProjectsOpen, setIsProjectsOpen] = useState(false);
+  const dispatch = useDispatch();
   const user = useSelector(selectUser);
   const ownedProjects = useSelector(selectOwnedProjects(user.id));
   const memberProjects = useSelector(selectMemberProjects(user.id));
+
+  useEffect(() => {
+    if (user) {
+      dispatch(thunkLoadProjects());
+    }
+  }, [dispatch, user]);
 
   return (
     <nav className={styles.sideNav}>
