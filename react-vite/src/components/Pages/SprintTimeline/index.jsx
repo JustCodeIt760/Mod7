@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { format, eachDayOfInterval, isSameDay } from 'date-fns';
 import { thunkLoadSprints, thunkSetSprint } from '../../../redux/sprint';
 import { thunkLoadFeatures, selectAllFeatures } from '../../../redux/feature';
+import styles from './SprintTimeline.module.css';
 
 const TEAM_COLORS = {
   1: {  // Demo user
@@ -66,140 +67,9 @@ const SprintTimeline = () => {
     }
   }, [sprintErrors]);
 
-  // Add CSS styles
-  useEffect(() => {
-    const styleSheet = document.createElement("style");
-    styleSheet.textContent = `
-      .sprint-view {
-        padding: 1.5rem;
-        background: #f9fafb;
-        border-radius: 0.75rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        overflow-x: auto;
-      }
-
-      .task-bar {
-        transition: all 0.3s ease;
-        position: absolute;
-        height: 100%;
-        border-radius: 0.375rem;
-        cursor: pointer;
-        min-width: 40px;
-      }
-
-      .task-bar.faded {
-        opacity: 0.25;
-      }
-
-      .task-bar.faded:hover {
-        opacity: 1;
-      }
-
-      .task-row {
-        height: 3rem;
-        position: relative;
-        margin-bottom: 0.5rem;
-      }
-
-      .task-content {
-        position: absolute;
-        inset: 0;
-        padding: 0 0.5rem;
-        display: flex;
-        align-items: center;
-        color: #111827;
-        font-size: 12px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .task-bar[data-small="true"] .task-content {
-        display: none;
-      }
-
-      .task-bar[data-medium="true"] .task-content {
-        font-size: 11px;
-      }
-
-      .task-bar[data-small="true"]:hover::before {
-        content: attr(data-title);
-        position: absolute;
-        top: -20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 10px;
-        white-space: nowrap;
-        z-index: 30;
-      }
-
-      .tooltip {
-        position: absolute;
-        z-index: 20;
-        background: white;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        width: 16rem;
-        margin-top: -6rem;
-      }
-
-      .timeline-header {
-        display: flex;
-        margin-bottom: 1rem;
-        min-width: min-content;
-        border-bottom: 1px solid #e5e7eb;
-        padding-bottom: 0.5rem;
-      }
-
-      .day-marker {
-        flex: 1;
-        text-align: center;
-        font-size: 0.75rem;
-        color: #666;
-        min-width: 30px;
-      }
-
-      .tasks-section {
-        margin-bottom: 2rem;
-      }
-
-      .section-title {
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: #666;
-        margin-bottom: 1rem;
-      }
-
-      .content-wrapper {
-        min-width: min-content;
-        padding-right: 1rem;
-      }
-
-      .error-container {
-        padding: 1rem;
-        background: #fee2e2;
-        border-radius: 0.5rem;
-        margin: 1rem;
-      }
-
-      .loading-container {
-        padding: 2rem;
-        text-align: center;
-        color: #666;
-      }
-    `;
-    document.head.appendChild(styleSheet);
-    return () => styleSheet.remove();
-  }, []);
-
   if (error) {
     return (
-      <div className="error-container">
+      <div className={styles.errorContainer}>
         <h2>Error</h2>
         <p>{error}</p>
         <button onClick={() => navigate(`/projects/${projectId}`)}>
@@ -211,9 +81,9 @@ const SprintTimeline = () => {
 
   if (isLoading || !sprint) {
     return (
-      <div className="loading-container">
+      <div className={styles.loadingContainer}>
         <h2>Loading Sprint Timeline...</h2>
-        <div className="loading-spinner"></div>
+        <div className={styles.loadingSpinner}></div>
       </div>
     );
   }
@@ -249,94 +119,80 @@ const SprintTimeline = () => {
     return acc;
   }, { userTasks: [], otherTasks: [] });
 
-  const calculatePosition = (startDate, endDate) => {
+  const getTaskStyle = (task, startDate, endDate) => {
     const totalDays = days.length;
-    const startDayIndex = days.findIndex(day => isSameDay(day, startDate));
-    const endDayIndex = days.findIndex(day => isSameDay(day, endDate));
+    const startDay = days.findIndex(day => isSameDay(day, startDate));
+    const endDay = days.findIndex(day => isSameDay(day, endDate));
 
-    // If dates are outside sprint range, clamp them
-    const clampedStartIndex = Math.max(0, startDayIndex);
-    const clampedEndIndex = Math.min(totalDays - 1, endDayIndex >= 0 ? endDayIndex : totalDays - 1);
+    const left = `${(startDay / totalDays) * 100}%`;
+    const width = `${((endDay - startDay + 1) / totalDays) * 100}%`;
 
-    const left = (clampedStartIndex / totalDays) * 100;
-    const width = ((clampedEndIndex - clampedStartIndex + 1) / totalDays) * 100;
+    // Get colors based on assignees
+    const colors = task.assignees
+      .map(userId => TEAM_COLORS[userId])
+      .filter(Boolean);
 
-    return { left, width };
-  };
-
-  const generateGradient = (assignees, isUserTask, isHovered = false) => {
-    const colorType = isUserTask || isHovered ? 'vibrant' : 'pale';
-
-    // For single assignee, return solid color
-    if (assignees.length === 1) {
-      return TEAM_COLORS[assignees[0]]?.[colorType] || '#94a3b8'; // Default color if user not found
+    if (colors.length === 0) {
+      return {
+        left,
+        width,
+        '--task-color': '#6B7280'  // Default gray for unassigned
+      };
+    } else if (colors.length === 1) {
+      return {
+        left,
+        width,
+        '--task-color': colors[0].vibrant
+      };
+    } else {
+      return {
+        left,
+        width,
+        '--first-color': colors[0].vibrant,
+        '--second-color': colors[1].vibrant
+      };
     }
-
-    // For multiple assignees, create gradient
-    const stops = assignees.map((assignee, index) => {
-      const color = TEAM_COLORS[assignee]?.[colorType] || '#94a3b8';
-      const percentage = (index / (assignees.length - 1)) * 100;
-      return `${color} ${percentage}%`;
-    });
-
-    return `linear-gradient(to right, ${stops.join(', ')})`;
   };
 
-  const renderTask = (task, isUserTask = false) => {
-    const { left, width } = calculatePosition(task.startDate, task.endDate);
-    const isHovered = hoveredTask === task;
-
-    const getTaskSize = (width) => {
-      if (width < 5) return 'small';
-      if (width < 10) return 'medium';
-      return 'large';
-    };
-
-    const taskSize = getTaskSize(width);
-    const taskTitle = `${task.featureName}: ${task.taskName}`;
+  const renderTask = (task) => {
+    const style = getTaskStyle(task, task.startDate, task.endDate);
+    const isMultipleAssignees = task.assignees.length > 1;
 
     return (
-      <div className="task-row" key={task.id}>
+      <div key={task.id} className={styles.taskRow}>
         <div
-          className={`task-bar ${!isUserTask ? 'faded' : ''}`}
-          style={{
-            left: `${left}%`,
-            width: `${width}%`,
-            background: generateGradient(task.assignees, isUserTask, isHovered)
-          }}
-          data-small={taskSize === 'small'}
-          data-medium={taskSize === 'medium'}
-          data-large={taskSize === 'large'}
-          data-title={taskTitle}
+          className={`${styles.taskBar} ${isMultipleAssignees ? styles.striped : styles.single}`}
+          style={style}
           onMouseEnter={() => setHoveredTask(task)}
           onMouseLeave={() => setHoveredTask(null)}
-          onClick={() => navigate(`/projects/${projectId}/features/${task.id}`)}
         >
-          <div className="task-content">
-            {taskTitle}
+          <div className={styles.taskContent}>
+            <span className={styles.taskName}>{task.taskName}</span>
           </div>
         </div>
-
-        {isHovered && (
-          <div className="tooltip" style={{
-            left: `${left}%`,
-            transform: left > 80 ? 'translateX(-100%)' : 'translateX(0)'
-          }}>
-            <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
-              {taskTitle}
+        {hoveredTask?.id === task.id && (
+          <div className={styles.tooltip}>
+            <div className={styles.tooltipTitle}>{task.taskName}</div>
+            <div className={styles.tooltipSection}>
+              <div className={styles.tooltipLabel}>Feature</div>
+              <div>{task.featureName}</div>
             </div>
-            <div>
-              <div>{format(task.startDate, 'MMM d')} - {format(task.endDate, 'MMM d')}</div>
-              <div style={{ marginTop: '0.5rem' }}>
-                Status: {task.status}
-              </div>
-              <div style={{ marginTop: '0.5rem' }}>
-                Priority: {task.priority}
-              </div>
-              <div style={{ marginTop: '0.5rem', color: '#666' }}>
-                {task.description}
+            <div className={styles.tooltipSection}>
+              <div className={styles.tooltipLabel}>Assignees</div>
+              <div>{task.assignees.map(id => `User ${id}`).join(', ')}</div>
+            </div>
+            <div className={styles.tooltipSection}>
+              <div className={styles.tooltipLabel}>Dates</div>
+              <div>
+                {format(task.startDate, 'MMM d')} - {format(task.endDate, 'MMM d')}
               </div>
             </div>
+            {task.description && (
+              <div className={styles.tooltipSection}>
+                <div className={styles.tooltipLabel}>Description</div>
+                <div>{task.description}</div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -344,27 +200,29 @@ const SprintTimeline = () => {
   };
 
   return (
-    <div className="sprint-view">
-      <div className="content-wrapper">
-        <div className="timeline-header">
-          {days.map((day, index) => (
-            <div key={index} className="day-marker">
-              {index % 2 === 0 && format(day, 'MMM d')}
-            </div>
-          ))}
-        </div>
+    <div className={styles.sprintView}>
+      <div className={styles.timelineHeader}>
+        {days.map(day => (
+          <div key={day.toISOString()} className={styles.dayMarker}>
+            {format(day, 'MMM d')}
+          </div>
+        ))}
+      </div>
 
+      <div className={styles.contentWrapper}>
         {userTasks.length > 0 && (
-          <div className="tasks-section">
-            <div className="section-title">MY TASKS</div>
-            {userTasks.map(task => renderTask(task, true))}
+          <div className={styles.tasksSection}>
+            <h3 className={styles.sectionTitle}>Your Tasks</h3>
+            {userTasks.map(renderTask)}
           </div>
         )}
 
-        <div className="tasks-section">
-          <div className="section-title">OTHER TASKS</div>
-          {otherTasks.map(task => renderTask(task, false))}
-        </div>
+        {otherTasks.length > 0 && (
+          <div className={styles.tasksSection}>
+            <h3 className={styles.sectionTitle}>Team Tasks</h3>
+            {otherTasks.map(renderTask)}
+          </div>
+        )}
       </div>
     </div>
   );
