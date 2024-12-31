@@ -1,14 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider as ReduxProvider } from 'react-redux';
+import { ModalProvider } from './context/Modal';
 import { RouterProvider } from 'react-router-dom';
-import configureStore from './redux/store';
-import { router } from './router';
-import * as sessionActions from './redux/session';
-import * as projectActions from './redux/project';
+import { Modal } from './context/Modal';
 import * as featureActions from './redux/feature';
+import * as projectActions from './redux/project';
+import * as sessionActions from './redux/session';
 import * as sprintActions from './redux/sprint';
+import configureStore from './redux/store';
 import * as taskActions from './redux/task';
+import { router } from './router';
 import './index.css';
 
 const store = configureStore();
@@ -133,24 +135,24 @@ if (import.meta.env.MODE !== 'production') {
   // Usage examples in console
   console.log(`
     Available test commands:
-    
+
     // Auth
     testHelpers.login()
     testHelpers.logout()
-    
+
     // Projects
     testHelpers.loadProjects()
     testHelpers.createProject(testHelpers.sampleProject)
-    
+
     // Features
     testHelpers.loadFeatures(projectId)
-    
+
     // Sprints
     testHelpers.loadSprints(projectId)
-    
+
     // Tasks
     testHelpers.loadTasks()
-    
+
     // State
     testHelpers.getState()
     testHelpers.getUser()
@@ -159,8 +161,11 @@ if (import.meta.env.MODE !== 'production') {
 }
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
+    <ModalProvider>
     <ReduxProvider store={store}>
       <RouterProvider router={router} />
+      <Modal />
     </ReduxProvider>
+    </ModalProvider>
   </React.StrictMode>
 );
