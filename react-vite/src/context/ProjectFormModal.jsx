@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useModal } from './Modal';
+import { useSelector } from 'react-redux';
 
 const ProjectFormModal = ({ type = 'create', project = null }) => {
-  const { closeModal } = useModal();
+    const { closeModal } = useModal();
+
+    const user = useSelector(state => state.session.user);
 
   // Use State
   const [name, setName] = useState(project?.name || '');
   const [description, setDescription] = useState(project?.description || '');
-  const [ownerId, setOwnerId] = useState(project?.owner_id || '');
-  const [createdAt, setCreatedAt] = useState(project?.created_at || '');
-  const [updatedAt, setUpdatedAt] = useState(project?.updated_at || '');
+  const [ownerId, setOwnerId] = useState(project?.owner_id || user?.id || '');
+  const [createdAt, setCreatedAt] = useState(project?.created_at || new Date().toISOString().split('T')[0]);
+  const [updatedAt, setUpdatedAt] = useState(project?.updated_at || new Date().toISOString().split('T')[0]);
   const [errors, setErrors] = useState({});
 
   const handleSubmit = async (e) => {
