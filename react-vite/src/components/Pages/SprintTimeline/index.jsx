@@ -3,7 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { format, eachDayOfInterval, isSameDay } from 'date-fns';
 import { thunkLoadSprints, thunkSetSprint } from '../../../redux/sprint';
-import { thunkLoadFeatures, selectAllFeatures } from '../../../redux/feature';
+import { thunkLoadFeatures, selectAllFeatures, updateFeature } from '../../../redux/feature';
+import { loadTasks, selectAllTasks } from '../../../redux/task';
+import { csrfFetch } from '../../../utils/csrf';
 import styles from './SprintTimeline.module.css';
 
 const TEAM_COLORS = {
@@ -21,6 +23,20 @@ const TEAM_COLORS = {
   }
 };
 
+const TeamLegend = () => (
+  <div className={styles.legend}>
+    <h3 className={styles.legendTitle}>Team Members</h3>
+    <div className={styles.legendItems}>
+      {Object.entries(TEAM_COLORS).map(([userId, colors]) => (
+        <div key={userId} className={styles.legendItem}>
+          <div className={styles.legendColor} style={{ backgroundColor: colors.vibrant }}></div>
+          <span>{userId === '1' ? 'Demo User' : userId === '2' ? 'Sarah' : 'Mike'}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 const SprintTimeline = () => {
   const { projectId, sprintId } = useParams();
   const dispatch = useDispatch();
@@ -31,6 +47,7 @@ const SprintTimeline = () => {
   const currentUser = useSelector(state => state.session.user);
   const sprint = useSelector(state => state.sprints.singleSprint);
   const features = useSelector(selectAllFeatures);
+  const allTasks = useSelector(selectAllTasks);
   const isLoading = useSelector(state => state.sprints.isLoading);
   const sprintErrors = useSelector(state => state.sprints.errors);
 
@@ -50,9 +67,30 @@ const SprintTimeline = () => {
         }
 
         const featuresResult = await dispatch(thunkLoadFeatures(projectId));
+        console.log('Loaded features:', featuresResult);
         if (!featuresResult) {
           setError('Failed to load features');
           return;
+        }
+
+        // Load tasks for each feature in the sprint
+        const sprintFeatures = featuresResult.filter(f => f.sprint_id === parseInt(sprintId));
+        for (const feature of sprintFeatures) {
+          try {
+            const tasksResponse = await csrfFetch(`/projects/${projectId}/features/${feature.id}/tasks`);
+            if (!tasksResponse.ok) {
+              throw new Error(`Failed to load tasks for feature ${feature.id}`);
+            }
+            const tasksData = await tasksResponse.json();
+            dispatch(loadTasks(tasksData));
+            // Update feature with task IDs
+            dispatch(updateFeature({
+              ...feature,
+              tasks: tasksData.map(task => task.id)
+            }));
+          } catch (err) {
+            console.error(`Error loading tasks for feature ${feature.id}:`, err);
+          }
         }
       } catch (err) {
         setError('Failed to load sprint data');
@@ -66,6 +104,14 @@ const SprintTimeline = () => {
       setError(sprintErrors.message || 'An error occurred');
     }
   }, [sprintErrors]);
+
+  // Debug logs for features and tasks
+  useEffect(() => {
+    console.log('Current features:', features);
+    const filteredFeatures = features.filter(f => f.sprint_id === parseInt(sprintId));
+    console.log('Filtered features:', filteredFeatures);
+    console.log('All tasks:', allTasks);
+  }, [features, sprintId, allTasks]);
 
   if (error) {
     return (
@@ -97,17 +143,29 @@ const SprintTimeline = () => {
   // Convert features to tasks format
   const tasks = features
     .filter(f => f.sprint_id === parseInt(sprintId))
-    .flatMap(feature => feature.tasks?.map(task => ({
-      id: task.id,
-      featureName: feature.name,
-      taskName: task.name,
-      startDate: new Date(task._start_date),
-      endDate: new Date(task._due_date),
-      status: task.status,
-      assignees: [task.assigned_to, task._created_by].filter(Boolean), // Include both assigned and creator
-      description: task.description,
-      priority: task.priority
-    })) || []);
+    .flatMap(feature => {
+      const featureTasks = feature.tasks?.map(taskId => allTasks[taskId]).filter(Boolean) || [];
+      return featureTasks.map(task => {
+        console.log('Task dates:', {
+          taskId: task.id,
+          raw_start: task.start_date,
+          raw_end: task.due_date,
+          parsed_start: new Date(task.start_date),
+          parsed_end: new Date(task.due_date)
+        });
+        return {
+          id: task.id,
+          featureName: feature.name,
+          taskName: task.name,
+          startDate: new Date(task.start_date),
+          endDate: new Date(task.due_date),
+          status: task.status,
+          assignees: [task.assigned_to, task.created_by].filter(Boolean),
+          description: task.description,
+          priority: task.priority
+        };
+      });
+    });
 
   // Split tasks into user's tasks and other tasks
   const { userTasks, otherTasks } = tasks.reduce((acc, task) => {
@@ -127,41 +185,34 @@ const SprintTimeline = () => {
     const left = `${(startDay / totalDays) * 100}%`;
     const width = `${((endDay - startDay + 1) / totalDays) * 100}%`;
 
-    // Get colors based on assignees
-    const colors = task.assignees
-      .map(userId => TEAM_COLORS[userId])
-      .filter(Boolean);
+    // Get color based on primary assignee
+    const primaryAssignee = task.assignees[0];
+    const color = TEAM_COLORS[primaryAssignee]?.vibrant || '#6B7280';
 
-    if (colors.length === 0) {
-      return {
-        left,
-        width,
-        '--task-color': '#6B7280'  // Default gray for unassigned
-      };
-    } else if (colors.length === 1) {
-      return {
-        left,
-        width,
-        '--task-color': colors[0].vibrant
-      };
-    } else {
-      return {
-        left,
-        width,
-        '--first-color': colors[0].vibrant,
-        '--second-color': colors[1].vibrant
-      };
-    }
+    return {
+      left,
+      width,
+      '--task-color': color
+    };
   };
 
   const renderTask = (task) => {
+    // Validate dates
+    if (!task.startDate || !task.endDate || isNaN(task.startDate.getTime()) || isNaN(task.endDate.getTime())) {
+      console.error('Invalid dates for task:', {
+        taskId: task.id,
+        startDate: task.startDate,
+        endDate: task.endDate
+      });
+      return null;
+    }
+
     const style = getTaskStyle(task, task.startDate, task.endDate);
-    const isMultipleAssignees = task.assignees.length > 1;
 
     return (
       <div key={task.id} className={styles.taskRow}>
         <div
-          className={`${styles.taskBar} ${isMultipleAssignees ? styles.striped : styles.single}`}
+          className={styles.taskBar}
           style={style}
           onMouseEnter={() => setHoveredTask(task)}
           onMouseLeave={() => setHoveredTask(null)}
@@ -178,7 +229,7 @@ const SprintTimeline = () => {
               <div>{task.featureName}</div>
             </div>
             <div className={styles.tooltipSection}>
-              <div className={styles.tooltipLabel}>Assignees</div>
+              <div className={styles.tooltipLabel}>Assignee</div>
               <div>{task.assignees.map(id => `User ${id}`).join(', ')}</div>
             </div>
             <div className={styles.tooltipSection}>
@@ -201,6 +252,7 @@ const SprintTimeline = () => {
 
   return (
     <div className={styles.sprintView}>
+      <TeamLegend />
       <div className={styles.timelineHeader}>
         {days.map(day => (
           <div key={day.toISOString()} className={styles.dayMarker}>

@@ -164,8 +164,9 @@ const taskReducer = (state = initialState, action) => {
       //Handler for loading tasks
       const newState = { ...state };
       //Iterate through each task in the payload and add it to the allTasks object
-      action.payload.forEach((task) => {
-        //Add each project to allProjects object
+      const tasks = Array.isArray(action.payload) ? action.payload : [action.payload];
+      tasks.forEach((task) => {
+        //Add each task to allTasks object
         newState.allTasks[task.id] = task;
       });
       //Return the updated state

@@ -9,35 +9,17 @@
 
 /* Task Bar Styles */
 .taskBar {
-  transition: all 0.3s ease;
   position: absolute;
   height: 100%;
   border-radius: 0.375rem;
   cursor: pointer;
   min-width: 40px;
-  background-size: 20px 100%;
-}
-
-.taskBar.single {
   background: var(--task-color);
+  transition: opacity 0.2s ease;
 }
 
-.taskBar.striped {
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--first-color),
-    var(--first-color) 10px,
-    var(--second-color) 10px,
-    var(--second-color) 20px
-  );
-}
-
-.taskBar.faded {
-  opacity: 0.25;
-}
-
-.taskBar.faded:hover {
-  opacity: 1;
+.taskBar:hover {
+  opacity: 0.8;
 }
 
 /* Task Row */
@@ -54,7 +36,7 @@
   padding: 0 0.5rem;
   display: flex;
   align-items: center;
-  color: #111827;
+  color: white;
   font-size: 12px;
   white-space: nowrap;
   overflow: hidden;
@@ -62,12 +44,7 @@
 }
 
 .taskName {
-  cursor: pointer;
   font-weight: 500;
-}
-
-.taskName:hover {
-  text-decoration: underline;
 }
 
 /* Tooltip */
@@ -79,7 +56,10 @@
   border-radius: 0.5rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   width: 16rem;
-  margin-top: -6rem;
+  top: -6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
 .tooltipTitle {
@@ -158,4 +138,45 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.legend {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+.legendTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.legendItems {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legendColor {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
 }
