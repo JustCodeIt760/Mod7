@@ -41,6 +41,7 @@ const SprintTimeline = () => {
   const { projectId, sprintId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [selectedTask, setSelectedTask] = useState(null);
   const [hoveredTask, setHoveredTask] = useState(null);
   const [error, setError] = useState(null);
 
@@ -112,6 +113,18 @@ const SprintTimeline = () => {
     console.log('Filtered features:', filteredFeatures);
     console.log('All tasks:', allTasks);
   }, [features, sprintId, allTasks]);
+
+  // Add click handler for closing modal when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectedTask && !event.target.closest(`.${styles.taskModal}`)) {
+        setSelectedTask(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [selectedTask]);
 
   if (error) {
     return (
@@ -214,6 +227,7 @@ const SprintTimeline = () => {
         <div
           className={styles.taskBar}
           style={style}
+          onClick={() => setSelectedTask(task)}
           onMouseEnter={() => setHoveredTask(task)}
           onMouseLeave={() => setHoveredTask(null)}
         >
@@ -221,29 +235,48 @@ const SprintTimeline = () => {
             <span className={styles.taskName}>{task.taskName}</span>
           </div>
         </div>
-        {hoveredTask?.id === task.id && (
+        {hoveredTask?.id === task.id && !selectedTask && (
           <div className={styles.tooltip}>
             <div className={styles.tooltipTitle}>{task.taskName}</div>
-            <div className={styles.tooltipSection}>
-              <div className={styles.tooltipLabel}>Feature</div>
-              <div>{task.featureName}</div>
+            <div className={styles.tooltipSection}>Click to view details</div>
+          </div>
+        )}
+        {selectedTask?.id === task.id && (
+          <div className={styles.taskModal}>
+            <div className={styles.modalHeader}>
+              <h3>{task.taskName}</h3>
+              <button
+                className={styles.closeButton}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedTask(null);
+                }}
+              >
+                ×
+              </button>
             </div>
-            <div className={styles.tooltipSection}>
-              <div className={styles.tooltipLabel}>Assignee</div>
-              <div>{task.assignees.map(id => `User ${id}`).join(', ')}</div>
-            </div>
-            <div className={styles.tooltipSection}>
-              <div className={styles.tooltipLabel}>Dates</div>
-              <div>
-                {format(task.startDate, 'MMM d')} - {format(task.endDate, 'MMM d')}
+            <div className={styles.modalContent}>
+              <div className={styles.modalSection}>
+                <div className={styles.modalLabel}>Feature</div>
+                <div>{task.featureName}</div>
               </div>
-            </div>
-            {task.description && (
-              <div className={styles.tooltipSection}>
-                <div className={styles.tooltipLabel}>Description</div>
-                <div>{task.description}</div>
+              <div className={styles.modalSection}>
+                <div className={styles.modalLabel}>Assignee</div>
+                <div>{task.assignees.map(id => `User ${id}`).join(', ')}</div>
               </div>
-            )}
+              <div className={styles.modalSection}>
+                <div className={styles.modalLabel}>Dates</div>
+                <div>
+                  {format(task.startDate, 'MMM d')} - {format(task.endDate, 'MMM d')}
+                </div>
+              </div>
+              {task.description && (
+                <div className={styles.modalSection}>
+                  <div className={styles.modalLabel}>Description</div>
+                  <div>{task.description}</div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -252,6 +285,14 @@ const SprintTimeline = () => {
 
   return (
     <div className={styles.sprintView}>
+      <div className={styles.header}>
+        <button
+          className={styles.backButton}
+          onClick={() => navigate(`/projects/${projectId}`)}
+        >
+          ← Back to Project
+        </button>
+      </div>
       <TeamLegend />
       <div className={styles.timelineHeader}>
         {days.map(day => (
