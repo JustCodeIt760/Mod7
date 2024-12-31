@@ -20,12 +20,6 @@ function Navigation() {
         <div className="nav-right">
           {sessionUser ? (
             <>
-              <NavLink to="/workspaces" className="nav-button">
-                Workspaces
-              </NavLink>
-              <NavLink to="/create" className="nav-button">
-                Create
-              </NavLink>
               <ProfileButton />
             </>
           ) : (
