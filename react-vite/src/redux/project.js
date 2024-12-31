@@ -1,4 +1,5 @@
 import { csrfFetch } from '../utils/csrf';
+import { createSelector } from '@reduxjs/toolkit';
 
 //! TO IMPLEMENT: optimistic loading, add front end ownership check for update, delete
 
@@ -58,11 +59,12 @@ export const thunkLoadProjects = () => async (dispatch) => {
   try {
     const response = await csrfFetch('/projects');
     const data = await response.json();
-    dispatch(loadProjects(data));
+    dispatch(loadProjects(data.projects));
     dispatch(setErrors(null));
+    return data.projects;
   } catch (err) {
-    // utilizing setErrors so we have easy access to error responses
     dispatch(setErrors(err.errors || baseError));
+    return null;
   } finally {
     dispatch(setLoading(false));
   }
@@ -160,11 +162,17 @@ const projectReducer = (state = initialState, action) => {
     [LOAD_PROJECTS]: (state, action) => {
       // Create a copy of the current state to avoid direct mutation
       const newState = { ...state };
+      const newProjects = {};
       // Iterate through each project in the payload
-      action.payload.projects.forEach((project) => {
+      action.payload.forEach((project) => {
         // Add each project to allProjects object, using project ID as key
-        newState.allProjects[project.id] = project;
+        newProjects[project.id] = project;
       });
+      // Update allProjects with new projects
+      newState.allProjects = {
+        ...newState.allProjects,
+        ...newProjects
+      };
       // Return the updated state
       return newState;
     },
@@ -244,33 +252,49 @@ export const selectCurrentProject = (state) => state.projects.singleProject;
 export const selectIsLoading = (state) => state.projects.isLoading;
 export const selectErrors = (state) => state.projects.errors;
 
-export const selectProjectById = (projectId) => (state) =>
-  state.projects.allProjects[projectId];
-
-export const selectOwnedProjects = (userId) => (state) =>
-  Object.values(state.projects.allProjects).filter(
-    (project) => project.owner_id === userId
+export const selectProjectById = (projectId) =>
+  createSelector(
+    [selectAllProjects],
+    (allProjects) => allProjects[projectId]
   );
 
-export const selectMemberProjects = (userId) => (state) =>
-  Object.values(state.projects.allProjects).filter(
-    (project) =>
-      project.members?.includes(userId) && project.owner_id !== userId
+export const selectOwnedProjects = (userId) =>
+  createSelector(
+    [selectAllProjects],
+    (allProjects) => Object.values(allProjects).filter(
+      (project) => project.owner_id === userId
+    )
   );
 
-export const selectProjectsByStatus = (status) => (state) =>
-  Object.values(state.projects.allProjects).filter(
-    (project) => project.status === status
+export const selectMemberProjects = (userId) =>
+  createSelector(
+    [selectAllProjects],
+    (allProjects) => Object.values(allProjects).filter(
+      (project) =>
+        project.members?.includes(userId) &&
+        project.owner_id !== userId
+    )
   );
 
-export const selectProjectsDueWithinDays = (days) => (state) => {
-  const futureDate = new Date();
-  futureDate.setDate(futureDate.getDate() + days);
+export const selectProjectsByStatus = (status) =>
+  createSelector(
+    [selectAllProjects],
+    (allProjects) => Object.values(allProjects).filter(
+      (project) => project.status === status
+    )
+  );
 
-  return Object.values(state.projects.allProjects).filter((project) => {
-    const dueDate = new Date(project.due_date);
-    return dueDate <= futureDate && dueDate >= new Date();
-  });
-};
+export const selectProjectsDueWithinDays = (days) =>
+  createSelector(
+    [selectAllProjects],
+    (allProjects) => {
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + days);
+      return Object.values(allProjects).filter((project) => {
+        const dueDate = new Date(project.due_date);
+        return dueDate <= futureDate && dueDate >= new Date();
+      });
+    }
+  );
 
 export default projectReducer;
