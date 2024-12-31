@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { format } from 'date-fns';
 import { thunkSetProject } from '../../../redux/project';
-import { thunkLoadFeatures, thunkMoveFeature, thunkAddFeature } from '../../../redux/feature';
+import { thunkLoadFeatures, thunkMoveFeature, thunkAddFeature, updateFeature } from '../../../redux/feature';
 import { thunkLoadSprints } from '../../../redux/sprint';
+import { loadTasks, selectAllTasks } from '../../../redux/task';
+import { csrfFetch } from '../../../utils/csrf';
 import styles from './ProjectPage.module.css';
 
 const ProjectPage = () => {
@@ -13,13 +16,39 @@ const ProjectPage = () => {
   const project = useSelector(state => state.projects.singleProject);
   const features = useSelector(state => Object.values(state.features.allFeatures));
   const sprints = useSelector(state => Object.values(state.sprints.allSprints));
+  const allTasks = useSelector(selectAllTasks);
   const isLoading = useSelector(state => state.projects.isLoading);
   const [currentSprintIndex, setCurrentSprintIndex] = useState(0);
+  const [hoveredTask, setHoveredTask] = useState(null);
 
   useEffect(() => {
-    dispatch(thunkSetProject(projectId));
-    dispatch(thunkLoadFeatures(projectId));
-    dispatch(thunkLoadSprints(projectId));
+    const loadData = async () => {
+      await dispatch(thunkSetProject(projectId));
+      const featuresResult = await dispatch(thunkLoadFeatures(projectId));
+      await dispatch(thunkLoadSprints(projectId));
+
+      // Load tasks for each feature
+      if (featuresResult) {
+        for (const feature of featuresResult) {
+          try {
+            const tasksResponse = await csrfFetch(`/projects/${projectId}/features/${feature.id}/tasks`);
+            if (!tasksResponse.ok) {
+              throw new Error(`Failed to load tasks for feature ${feature.id}`);
+            }
+            const tasksData = await tasksResponse.json();
+            dispatch(loadTasks(tasksData));
+            // Update feature with task IDs
+            dispatch(updateFeature({
+              ...feature,
+              tasks: tasksData.map(task => task.id)
+            }));
+          } catch (err) {
+            console.error(`Error loading tasks for feature ${feature.id}:`, err);
+          }
+        }
+      }
+    };
+    loadData();
   }, [dispatch, projectId]);
 
   if (isLoading) return <div>Loading...</div>;
@@ -84,6 +113,14 @@ const ProjectPage = () => {
     await dispatch(thunkAddFeature(projectId, newFeature));
   };
 
+  const handleTaskHover = (task) => {
+    setHoveredTask(task);
+  };
+
+  const handleTaskLeave = () => {
+    setHoveredTask(null);
+  };
+
   return (
     <div className={styles.projectPage}>
       <header className={styles.projectHeader}>
@@ -143,22 +180,56 @@ const ProjectPage = () => {
           </button>
         </div>
         <div className={styles.sprintContent}>
-          {sprintFeatures.map(feature => (
-            <div
-              key={feature.id}
-              className={styles.sprintFeature}
-              draggable
-              onDragStart={(e) => handleDragStart(e, feature.id)}
-            >
-              <h3>{feature.name}</h3>
-              <div className={styles.taskList}>
-                <p>task 1</p>
-                <p>task 2</p>
-                <p>task 3</p>
-                <p>task 4</p>
+          {sprintFeatures.map(feature => {
+            const featureTasks = feature.tasks?.map(taskId => allTasks[taskId]).filter(Boolean) || [];
+            return (
+              <div
+                key={feature.id}
+                className={styles.sprintFeature}
+                draggable
+                onDragStart={(e) => handleDragStart(e, feature.id)}
+              >
+                <h3>{feature.name}</h3>
+                <div className={styles.taskList}>
+                  {featureTasks.length > 0 ? (
+                    featureTasks.map(task => (
+                      <div
+                        key={task.id}
+                        className={`${styles.task} ${hoveredTask?.id === task.id ? styles.taskHovered : ''}`}
+                        onMouseEnter={() => handleTaskHover(task)}
+                        onMouseLeave={handleTaskLeave}
+                      >
+                        <div className={styles.taskContent}>
+                          <div className={styles.taskHeader}>
+                            <span className={styles.taskName}>{task.name}</span>
+                            <span className={styles.taskStatus}>{task.status}</span>
+                          </div>
+                          {hoveredTask?.id === task.id && (
+                            <div className={styles.taskDetails}>
+                              <div className={styles.taskSection}>
+                                <span className={styles.taskLabel}>Dates:</span>
+                                <span>
+                                  {format(new Date(task.start_date), 'MMM d')} - {format(new Date(task.due_date), 'MMM d')}
+                                </span>
+                              </div>
+                              {task.description && (
+                                <div className={styles.taskSection}>
+                                  <span className={styles.taskLabel}>Description:</span>
+                                  <span>{task.description}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className={styles.noTasks}>No tasks yet</p>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
     </div>
