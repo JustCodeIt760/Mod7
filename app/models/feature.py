@@ -104,4 +104,5 @@ class Feature(db.Model):
             "priority": self.priority,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
+            "tasks": [task.to_dict() for task in self.tasks]
         }

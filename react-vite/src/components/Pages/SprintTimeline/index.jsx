@@ -3,7 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { format, eachDayOfInterval, isSameDay } from 'date-fns';
 import { thunkLoadSprints, thunkSetSprint } from '../../../redux/sprint';
-import { thunkLoadFeatures, selectAllFeatures } from '../../../redux/feature';
+import { thunkLoadFeatures, selectAllFeatures, updateFeature } from '../../../redux/feature';
+import { loadTasks, selectAllTasks } from '../../../redux/task';
+import { csrfFetch } from '../../../utils/csrf';
+import styles from './SprintTimeline.module.css';
 
 const TEAM_COLORS = {
   1: {  // Demo user
@@ -20,16 +23,32 @@ const TEAM_COLORS = {
   }
 };
 
+const TeamLegend = () => (
+  <div className={styles.legend}>
+    <h3 className={styles.legendTitle}>Team Members</h3>
+    <div className={styles.legendItems}>
+      {Object.entries(TEAM_COLORS).map(([userId, colors]) => (
+        <div key={userId} className={styles.legendItem}>
+          <div className={styles.legendColor} style={{ backgroundColor: colors.vibrant }}></div>
+          <span>{userId === '1' ? 'Demo User' : userId === '2' ? 'Sarah' : 'Mike'}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 const SprintTimeline = () => {
   const { projectId, sprintId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [selectedTask, setSelectedTask] = useState(null);
   const [hoveredTask, setHoveredTask] = useState(null);
   const [error, setError] = useState(null);
 
   const currentUser = useSelector(state => state.session.user);
   const sprint = useSelector(state => state.sprints.singleSprint);
   const features = useSelector(selectAllFeatures);
+  const allTasks = useSelector(selectAllTasks);
   const isLoading = useSelector(state => state.sprints.isLoading);
   const sprintErrors = useSelector(state => state.sprints.errors);
 
@@ -49,9 +68,30 @@ const SprintTimeline = () => {
         }
 
         const featuresResult = await dispatch(thunkLoadFeatures(projectId));
+        console.log('Loaded features:', featuresResult);
         if (!featuresResult) {
           setError('Failed to load features');
           return;
+        }
+
+        // Load tasks for each feature in the sprint
+        const sprintFeatures = featuresResult.filter(f => f.sprint_id === parseInt(sprintId));
+        for (const feature of sprintFeatures) {
+          try {
+            const tasksResponse = await csrfFetch(`/projects/${projectId}/features/${feature.id}/tasks`);
+            if (!tasksResponse.ok) {
+              throw new Error(`Failed to load tasks for feature ${feature.id}`);
+            }
+            const tasksData = await tasksResponse.json();
+            dispatch(loadTasks(tasksData));
+            // Update feature with task IDs
+            dispatch(updateFeature({
+              ...feature,
+              tasks: tasksData.map(task => task.id)
+            }));
+          } catch (err) {
+            console.error(`Error loading tasks for feature ${feature.id}:`, err);
+          }
         }
       } catch (err) {
         setError('Failed to load sprint data');
@@ -66,140 +106,29 @@ const SprintTimeline = () => {
     }
   }, [sprintErrors]);
 
-  // Add CSS styles
+  // Debug logs for features and tasks
   useEffect(() => {
-    const styleSheet = document.createElement("style");
-    styleSheet.textContent = `
-      .sprint-view {
-        padding: 1.5rem;
-        background: #f9fafb;
-        border-radius: 0.75rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        overflow-x: auto;
-      }
+    console.log('Current features:', features);
+    const filteredFeatures = features.filter(f => f.sprint_id === parseInt(sprintId));
+    console.log('Filtered features:', filteredFeatures);
+    console.log('All tasks:', allTasks);
+  }, [features, sprintId, allTasks]);
 
-      .task-bar {
-        transition: all 0.3s ease;
-        position: absolute;
-        height: 100%;
-        border-radius: 0.375rem;
-        cursor: pointer;
-        min-width: 40px;
+  // Add click handler for closing modal when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectedTask && !event.target.closest(`.${styles.taskModal}`)) {
+        setSelectedTask(null);
       }
+    };
 
-      .task-bar.faded {
-        opacity: 0.25;
-      }
-
-      .task-bar.faded:hover {
-        opacity: 1;
-      }
-
-      .task-row {
-        height: 3rem;
-        position: relative;
-        margin-bottom: 0.5rem;
-      }
-
-      .task-content {
-        position: absolute;
-        inset: 0;
-        padding: 0 0.5rem;
-        display: flex;
-        align-items: center;
-        color: #111827;
-        font-size: 12px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .task-bar[data-small="true"] .task-content {
-        display: none;
-      }
-
-      .task-bar[data-medium="true"] .task-content {
-        font-size: 11px;
-      }
-
-      .task-bar[data-small="true"]:hover::before {
-        content: attr(data-title);
-        position: absolute;
-        top: -20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 10px;
-        white-space: nowrap;
-        z-index: 30;
-      }
-
-      .tooltip {
-        position: absolute;
-        z-index: 20;
-        background: white;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        width: 16rem;
-        margin-top: -6rem;
-      }
-
-      .timeline-header {
-        display: flex;
-        margin-bottom: 1rem;
-        min-width: min-content;
-        border-bottom: 1px solid #e5e7eb;
-        padding-bottom: 0.5rem;
-      }
-
-      .day-marker {
-        flex: 1;
-        text-align: center;
-        font-size: 0.75rem;
-        color: #666;
-        min-width: 30px;
-      }
-
-      .tasks-section {
-        margin-bottom: 2rem;
-      }
-
-      .section-title {
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: #666;
-        margin-bottom: 1rem;
-      }
-
-      .content-wrapper {
-        min-width: min-content;
-        padding-right: 1rem;
-      }
-
-      .error-container {
-        padding: 1rem;
-        background: #fee2e2;
-        border-radius: 0.5rem;
-        margin: 1rem;
-      }
-
-      .loading-container {
-        padding: 2rem;
-        text-align: center;
-        color: #666;
-      }
-    `;
-    document.head.appendChild(styleSheet);
-    return () => styleSheet.remove();
-  }, []);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [selectedTask]);
 
   if (error) {
     return (
-      <div className="error-container">
+      <div className={styles.errorContainer}>
         <h2>Error</h2>
         <p>{error}</p>
         <button onClick={() => navigate(`/projects/${projectId}`)}>
@@ -211,9 +140,9 @@ const SprintTimeline = () => {
 
   if (isLoading || !sprint) {
     return (
-      <div className="loading-container">
+      <div className={styles.loadingContainer}>
         <h2>Loading Sprint Timeline...</h2>
-        <div className="loading-spinner"></div>
+        <div className={styles.loadingSpinner}></div>
       </div>
     );
   }
@@ -227,17 +156,29 @@ const SprintTimeline = () => {
   // Convert features to tasks format
   const tasks = features
     .filter(f => f.sprint_id === parseInt(sprintId))
-    .flatMap(feature => feature.tasks?.map(task => ({
-      id: task.id,
-      featureName: feature.name,
-      taskName: task.name,
-      startDate: new Date(task._start_date),
-      endDate: new Date(task._due_date),
-      status: task.status,
-      assignees: [task.assigned_to, task._created_by].filter(Boolean), // Include both assigned and creator
-      description: task.description,
-      priority: task.priority
-    })) || []);
+    .flatMap(feature => {
+      const featureTasks = feature.tasks?.map(taskId => allTasks[taskId]).filter(Boolean) || [];
+      return featureTasks.map(task => {
+        console.log('Task dates:', {
+          taskId: task.id,
+          raw_start: task.start_date,
+          raw_end: task.due_date,
+          parsed_start: new Date(task.start_date),
+          parsed_end: new Date(task.due_date)
+        });
+        return {
+          id: task.id,
+          featureName: feature.name,
+          taskName: task.name,
+          startDate: new Date(task.start_date),
+          endDate: new Date(task.due_date),
+          status: task.status,
+          assignees: [task.assigned_to, task.created_by].filter(Boolean),
+          description: task.description,
+          priority: task.priority
+        };
+      });
+    });
 
   // Split tasks into user's tasks and other tasks
   const { userTasks, otherTasks } = tasks.reduce((acc, task) => {
@@ -249,93 +190,92 @@ const SprintTimeline = () => {
     return acc;
   }, { userTasks: [], otherTasks: [] });
 
-  const calculatePosition = (startDate, endDate) => {
+  const getTaskStyle = (task, startDate, endDate) => {
     const totalDays = days.length;
-    const startDayIndex = days.findIndex(day => isSameDay(day, startDate));
-    const endDayIndex = days.findIndex(day => isSameDay(day, endDate));
+    const startDay = days.findIndex(day => isSameDay(day, startDate));
+    const endDay = days.findIndex(day => isSameDay(day, endDate));
 
-    // If dates are outside sprint range, clamp them
-    const clampedStartIndex = Math.max(0, startDayIndex);
-    const clampedEndIndex = Math.min(totalDays - 1, endDayIndex >= 0 ? endDayIndex : totalDays - 1);
+    const left = `${(startDay / totalDays) * 100}%`;
+    const width = `${((endDay - startDay + 1) / totalDays) * 100}%`;
 
-    const left = (clampedStartIndex / totalDays) * 100;
-    const width = ((clampedEndIndex - clampedStartIndex + 1) / totalDays) * 100;
+    // Get color based on primary assignee
+    const primaryAssignee = task.assignees[0];
+    const color = TEAM_COLORS[primaryAssignee]?.vibrant || '#6B7280';
 
-    return { left, width };
+    return {
+      left,
+      width,
+      '--task-color': color
+    };
   };
 
-  const generateGradient = (assignees, isUserTask, isHovered = false) => {
-    const colorType = isUserTask || isHovered ? 'vibrant' : 'pale';
-
-    // For single assignee, return solid color
-    if (assignees.length === 1) {
-      return TEAM_COLORS[assignees[0]]?.[colorType] || '#94a3b8'; // Default color if user not found
+  const renderTask = (task) => {
+    // Validate dates
+    if (!task.startDate || !task.endDate || isNaN(task.startDate.getTime()) || isNaN(task.endDate.getTime())) {
+      console.error('Invalid dates for task:', {
+        taskId: task.id,
+        startDate: task.startDate,
+        endDate: task.endDate
+      });
+      return null;
     }
 
-    // For multiple assignees, create gradient
-    const stops = assignees.map((assignee, index) => {
-      const color = TEAM_COLORS[assignee]?.[colorType] || '#94a3b8';
-      const percentage = (index / (assignees.length - 1)) * 100;
-      return `${color} ${percentage}%`;
-    });
-
-    return `linear-gradient(to right, ${stops.join(', ')})`;
-  };
-
-  const renderTask = (task, isUserTask = false) => {
-    const { left, width } = calculatePosition(task.startDate, task.endDate);
-    const isHovered = hoveredTask === task;
-
-    const getTaskSize = (width) => {
-      if (width < 5) return 'small';
-      if (width < 10) return 'medium';
-      return 'large';
-    };
-
-    const taskSize = getTaskSize(width);
-    const taskTitle = `${task.featureName}: ${task.taskName}`;
+    const style = getTaskStyle(task, task.startDate, task.endDate);
 
     return (
-      <div className="task-row" key={task.id}>
+      <div key={task.id} className={styles.taskRow}>
         <div
-          className={`task-bar ${!isUserTask ? 'faded' : ''}`}
-          style={{
-            left: `${left}%`,
-            width: `${width}%`,
-            background: generateGradient(task.assignees, isUserTask, isHovered)
-          }}
-          data-small={taskSize === 'small'}
-          data-medium={taskSize === 'medium'}
-          data-large={taskSize === 'large'}
-          data-title={taskTitle}
+          className={styles.taskBar}
+          style={style}
+          onClick={() => setSelectedTask(task)}
           onMouseEnter={() => setHoveredTask(task)}
           onMouseLeave={() => setHoveredTask(null)}
-          onClick={() => navigate(`/projects/${projectId}/features/${task.id}`)}
         >
-          <div className="task-content">
-            {taskTitle}
+          <div className={styles.taskContent}>
+            <span className={styles.taskName}>{task.taskName}</span>
           </div>
         </div>
-
-        {isHovered && (
-          <div className="tooltip" style={{
-            left: `${left}%`,
-            transform: left > 80 ? 'translateX(-100%)' : 'translateX(0)'
-          }}>
-            <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
-              {taskTitle}
+        {hoveredTask?.id === task.id && !selectedTask && (
+          <div className={styles.tooltip}>
+            <div className={styles.tooltipTitle}>{task.taskName}</div>
+            <div className={styles.tooltipSection}>Click to view details</div>
+          </div>
+        )}
+        {selectedTask?.id === task.id && (
+          <div className={styles.taskModal}>
+            <div className={styles.modalHeader}>
+              <h3>{task.taskName}</h3>
+              <button
+                className={styles.closeButton}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedTask(null);
+                }}
+              >
+                ×
+              </button>
             </div>
-            <div>
-              <div>{format(task.startDate, 'MMM d')} - {format(task.endDate, 'MMM d')}</div>
-              <div style={{ marginTop: '0.5rem' }}>
-                Status: {task.status}
+            <div className={styles.modalContent}>
+              <div className={styles.modalSection}>
+                <div className={styles.modalLabel}>Feature</div>
+                <div>{task.featureName}</div>
               </div>
-              <div style={{ marginTop: '0.5rem' }}>
-                Priority: {task.priority}
+              <div className={styles.modalSection}>
+                <div className={styles.modalLabel}>Assignee</div>
+                <div>{task.assignees.map(id => `User ${id}`).join(', ')}</div>
               </div>
-              <div style={{ marginTop: '0.5rem', color: '#666' }}>
-                {task.description}
+              <div className={styles.modalSection}>
+                <div className={styles.modalLabel}>Dates</div>
+                <div>
+                  {format(task.startDate, 'MMM d')} - {format(task.endDate, 'MMM d')}
+                </div>
               </div>
+              {task.description && (
+                <div className={styles.modalSection}>
+                  <div className={styles.modalLabel}>Description</div>
+                  <div>{task.description}</div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -344,27 +284,38 @@ const SprintTimeline = () => {
   };
 
   return (
-    <div className="sprint-view">
-      <div className="content-wrapper">
-        <div className="timeline-header">
-          {days.map((day, index) => (
-            <div key={index} className="day-marker">
-              {index % 2 === 0 && format(day, 'MMM d')}
-            </div>
-          ))}
-        </div>
+    <div className={styles.sprintView}>
+      <div className={styles.header}>
+        <button
+          className={styles.backButton}
+          onClick={() => navigate(`/projects/${projectId}`)}
+        >
+          ← Back to Project
+        </button>
+      </div>
+      <TeamLegend />
+      <div className={styles.timelineHeader}>
+        {days.map(day => (
+          <div key={day.toISOString()} className={styles.dayMarker}>
+            {format(day, 'MMM d')}
+          </div>
+        ))}
+      </div>
 
+      <div className={styles.contentWrapper}>
         {userTasks.length > 0 && (
-          <div className="tasks-section">
-            <div className="section-title">MY TASKS</div>
-            {userTasks.map(task => renderTask(task, true))}
+          <div className={styles.tasksSection}>
+            <h3 className={styles.sectionTitle}>Your Tasks</h3>
+            {userTasks.map(renderTask)}
           </div>
         )}
 
-        <div className="tasks-section">
-          <div className="section-title">OTHER TASKS</div>
-          {otherTasks.map(task => renderTask(task, false))}
-        </div>
+        {otherTasks.length > 0 && (
+          <div className={styles.tasksSection}>
+            <h3 className={styles.sectionTitle}>Team Tasks</h3>
+            {otherTasks.map(renderTask)}
+          </div>
+        )}
       </div>
     </div>
   );

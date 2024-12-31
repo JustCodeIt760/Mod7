@@ -334,10 +334,7 @@ const featureReducer = (state = initialState, action) => {
 };
 
 // Memoized Selectors
-export const selectAllFeatures = createSelector(
-  state => state.features.allFeatures,
-  allFeatures => Object.values(allFeatures)
-);
+export const selectAllFeatures = state => Object.values(state.features.allFeatures);
 
 export const selectFeaturesBySprintId = (projectId, sprintId) =>
   createSelector(
