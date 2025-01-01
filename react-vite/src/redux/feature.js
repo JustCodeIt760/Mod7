@@ -334,54 +334,62 @@ const featureReducer = (state = initialState, action) => {
 };
 
 // Memoized Selectors
-export const selectAllFeatures = state => Object.values(state.features.allFeatures);
+export const selectAllFeatures = (state) =>
+  Object.values(state.features.allFeatures);
 
 export const selectFeaturesBySprintId = (projectId, sprintId) =>
   createSelector(
-    state => state.features.allFeatures,
-    allFeatures => Object.values(allFeatures).filter(
-      feature => feature.project_id === projectId && feature.sprint_id === sprintId
-    )
+    (state) => state.features.allFeatures,
+    (allFeatures) =>
+      Object.values(allFeatures).filter(
+        (feature) =>
+          feature.project_id === projectId && feature.sprint_id === sprintId
+      )
   );
 
 export const selectParkingLotFeatures = (projectId) =>
   createSelector(
-    state => state.features.allFeatures,
-    allFeatures => Object.values(allFeatures).filter(
-      feature => feature.project_id === projectId && !feature.sprint_id
-    )
+    (state) => state.features.allFeatures,
+    (allFeatures) =>
+      Object.values(allFeatures).filter(
+        (feature) => feature.project_id === projectId && !feature.sprint_id
+      )
   );
 
 export const selectFeaturesByStatus = (status) =>
   createSelector(
-    state => state.features.allFeatures,
-    allFeatures => Object.values(allFeatures).filter(
-      feature => feature.status === status
-    )
+    (state) => state.features.allFeatures,
+    (allFeatures) =>
+      Object.values(allFeatures).filter((feature) => feature.status === status)
   );
 
 export const selectFeaturesByAssignee = (userId) =>
   createSelector(
-    state => state.features.allFeatures,
-    allFeatures => Object.values(allFeatures).filter(
-      feature => feature.assigned_to === userId
-    )
+    (state) => state.features.allFeatures,
+    (allFeatures) =>
+      Object.values(allFeatures).filter(
+        (feature) => feature.assigned_to === userId
+      )
   );
 
 // Simple selectors (no need for memoization as they return direct values)
-export const selectCurrentFeature = state => state.features.currentFeature;
-export const selectIsLoading = state => state.features.isLoading;
-export const selectErrors = state => state.features.errors;
-export const selectFeaturesBySprint = state => state.features.featuresBySprint;
-export const selectFeatureById = featureId => state => state.features.allFeatures[featureId];
+export const selectCurrentFeature = (state) => state.features.currentFeature;
+export const selectIsLoading = (state) => state.features.isLoading;
+export const selectErrors = (state) => state.features.errors;
+export const selectFeaturesBySprint = (state) =>
+  state.features.featuresBySprint;
+export const selectFeatureById = (featureId) => (state) =>
+  state.features.allFeatures[featureId];
 
 // Memoized computed selector
 export const selectFeatureCompletion = (featureId) =>
   createSelector(
-    state => state.features.allFeatures[featureId],
-    feature => {
+    (state) => state.features.allFeatures[featureId],
+    (feature) => {
       if (!feature || !feature.tasks) return 0;
-      const completedTasks = feature.tasks.filter(task => task.completed).length;
+      const completedTasks = feature.tasks.filter(
+        (task) => task.completed
+      ).length;
       return (completedTasks / feature.tasks.length) * 100;
     }
   );

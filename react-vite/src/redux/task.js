@@ -1,4 +1,5 @@
 import { csrfFetch } from '../utils/csrf';
+import { createSelector } from '@reduxjs/toolkit';
 
 //! TO IMPLEMENT: optimistic loading, add front end ownership check for update, delete
 
@@ -164,7 +165,9 @@ const taskReducer = (state = initialState, action) => {
       //Handler for loading tasks
       const newState = { ...state };
       //Iterate through each task in the payload and add it to the allTasks object
-      const tasks = Array.isArray(action.payload) ? action.payload : [action.payload];
+      const tasks = Array.isArray(action.payload)
+        ? action.payload
+        : [action.payload];
       tasks.forEach((task) => {
         //Add each task to allTasks object
         newState.allTasks[task.id] = task;
@@ -270,5 +273,94 @@ export const selectOverdueTasks = (state) =>
     (task) =>
       new Date(task.due_date) < new Date() && task.status !== 'completed'
   );
+
+export const selectEnrichedTask = (taskId) =>
+  createSelector(
+    [
+      (state) => state.tasks.allTasks[taskId],
+      (state) => state.features.allFeatures,
+      (state) => state.projects.allProjects,
+    ],
+    (task, features, projects) => {
+      if (!task) return null;
+
+      const feature = features[task.feature_id];
+      const project = feature ? projects[feature.project_id] : null;
+
+      return {
+        ...task,
+        context: {
+          feature: feature
+            ? {
+                id: feature.id,
+                name: feature.name,
+                status: feature.status,
+              }
+            : null,
+          project: project
+            ? {
+                id: project.id,
+                name: project.name,
+              }
+            : null,
+        },
+        display: {
+          dueDate: new Date(task.due_date).toLocaleDateString(),
+          priority:
+            task.priority === 1
+              ? 'High'
+              : task.priority === 2
+              ? 'Medium'
+              : 'Low',
+          isOverdue:
+            new Date(task.due_date) < new Date() && task.status !== 'Completed',
+        },
+      };
+    }
+  );
+
+export const selectEnrichedTasks = createSelector(
+  [
+    (state) => state.tasks.allTasks,
+    (state) => state.features.allFeatures,
+    (state) => state.projects.allProjects,
+  ],
+  (tasks, features, projects) => {
+    return Object.values(tasks).map((task) => {
+      const feature = features[task.feature_id];
+      const project = feature ? projects[feature.project_id] : null;
+
+      return {
+        ...task,
+        context: {
+          feature: feature
+            ? {
+                id: feature.id,
+                name: feature.name,
+                status: feature.status,
+              }
+            : null,
+          project: project
+            ? {
+                id: project.id,
+                name: project.name,
+              }
+            : null,
+        },
+        display: {
+          dueDate: new Date(task.due_date).toLocaleDateString(),
+          priority:
+            task.priority === 1
+              ? 'High'
+              : task.priority === 2
+              ? 'Medium'
+              : 'Low',
+          isOverdue:
+            new Date(task.due_date) < new Date() && task.status !== 'Completed',
+        },
+      };
+    });
+  }
+);
 
 export default taskReducer;
