@@ -23,9 +23,7 @@ function Workspace() {
   const handleCreateProject = () => {
     openModal(<ProjectFormModal type="create" project={null} />);
   };
-  const handleUpdateProject = projectId => {
-    openModal(<ProjectFormModal type="update" project={projectId} />);
-  };
+
   return (
     <div className={styles.workspaceContainer}>
       <div className={styles.header}>
@@ -44,10 +42,7 @@ function Workspace() {
               to={`/projects/${project.id}`}
               className={styles.projectLink}
             >
-              <div
-                className={styles.projectCard}
-                onClick={() => handleUpdateProject(project.id)}
-              >
+              <div className={styles.projectCard}>
                 <h3>{project.name}</h3>
                 <p>{project.description}</p>
                 <div className={styles.projectStats}>
@@ -105,10 +100,7 @@ function Workspace() {
               to={`/projects/${project.id}`}
               className={styles.projectLink}
             >
-              <div
-                className={styles.projectCard}
-                onClick={() => handleUpdateProject(project.id)}
-              >
+              <div className={styles.projectCard}>
                 <h3>{project.name}</h3>
                 <p>{project.description}</p>
                 <div className={styles.projectStats}>
@@ -158,7 +150,7 @@ function Workspace() {
           ))}
         </div>
       </div>
-       {/* <ProjectFormModal /> */}
+      {/* <ProjectFormModal /> */}
     </div>
   );
 }

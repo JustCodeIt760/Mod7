@@ -1,5 +1,5 @@
-import { csrfFetch } from '../utils/csrf';
 import { createSelector } from '@reduxjs/toolkit';
+import { csrfFetch } from '../utils/csrf';
 
 //! TO IMPLEMENT: optimistic loading, add front end ownership check for update, delete
 
@@ -17,44 +17,44 @@ const SET_ERRORS = 'projects/setErrors';
 
 //Actions
 
-export const loadProjects = (projectsData) => ({
+export const loadProjects = projectsData => ({
   type: LOAD_PROJECTS,
   payload: projectsData,
 });
 
-export const setProject = (project) => ({
+export const setProject = project => ({
   type: SET_PROJECT,
   payload: project,
 });
 
-export const addProject = (project) => ({
+export const addProject = project => ({
   type: ADD_PROJECT,
   payload: project,
 });
 
-export const updateProject = (project) => ({
+export const updateProject = project => ({
   type: UPDATE_PROJECT,
   payload: project,
 });
 
-export const removeProject = (projectId) => ({
+export const removeProject = projectId => ({
   type: REMOVE_PROJECT,
   payload: projectId,
 });
 
-export const setLoading = (isLoading) => ({
+export const setLoading = isLoading => ({
   type: SET_LOADING,
   payload: isLoading,
 });
 
-export const setErrors = (errors) => ({
+export const setErrors = errors => ({
   type: SET_ERRORS,
   payload: errors,
 });
 
 //Thunks
 
-export const thunkLoadProjects = () => async (dispatch) => {
+export const thunkLoadProjects = () => async dispatch => {
   dispatch(setLoading(true));
   try {
     const response = await csrfFetch('/projects');
@@ -70,7 +70,7 @@ export const thunkLoadProjects = () => async (dispatch) => {
   }
 };
 
-export const thunkSetProject = (projectId) => async (dispatch, getState) => {
+export const thunkSetProject = projectId => async (dispatch, getState) => {
   dispatch(setLoading(true));
   // using getState() to quickly pull the project by ID if it exists from our store
   const state = getState();
@@ -91,7 +91,7 @@ export const thunkSetProject = (projectId) => async (dispatch, getState) => {
   }
 };
 
-export const thunkAddProject = (projectData) => async (dispatch) => {
+export const thunkAddProject = projectData => async dispatch => {
   dispatch(setLoading(true));
   try {
     const response = await csrfFetch('/projects', {
@@ -110,7 +110,7 @@ export const thunkAddProject = (projectData) => async (dispatch) => {
   }
 };
 
-export const thunkUpdateProject = (projectData) => async (dispatch) => {
+export const thunkUpdateProject = projectData => async dispatch => {
   dispatch(setLoading(true));
   try {
     const response = await csrfFetch(`/projects/${projectData.id}`, {
@@ -129,7 +129,7 @@ export const thunkUpdateProject = (projectData) => async (dispatch) => {
   }
 };
 
-export const thunkRemoveProject = (projectId) => async (dispatch) => {
+export const thunkRemoveProject = projectId => async dispatch => {
   dispatch(setLoading(true));
   try {
     await csrfFetch(`/projects/${projectId}`, {
@@ -164,14 +164,14 @@ const projectReducer = (state = initialState, action) => {
       const newState = { ...state };
       const newProjects = {};
       // Iterate through each project in the payload
-      action.payload.forEach((project) => {
+      action.payload.forEach(project => {
         // Add each project to allProjects object, using project ID as key
         newProjects[project.id] = project;
       });
       // Update allProjects with new projects
       newState.allProjects = {
         ...newState.allProjects,
-        ...newProjects
+        ...newProjects,
       };
       // Return the updated state
       return newState;
@@ -247,54 +247,40 @@ const projectReducer = (state = initialState, action) => {
   return handlers[action.type] ? handlers[action.type](state, action) : state;
 };
 //Selectors
-export const selectAllProjects = (state) => state.projects.allProjects;
-export const selectCurrentProject = (state) => state.projects.singleProject;
-export const selectIsLoading = (state) => state.projects.isLoading;
-export const selectErrors = (state) => state.projects.errors;
+export const selectAllProjects = state => state.projects.allProjects;
+export const selectCurrentProject = state => state.projects.singleProject;
+export const selectIsLoading = state => state.projects.isLoading;
+export const selectErrors = state => state.projects.errors;
 
-export const selectProjectById = (projectId) =>
-  createSelector(
-    [selectAllProjects],
-    (allProjects) => allProjects[projectId]
+export const selectProjectById = projectId =>
+  createSelector([selectAllProjects], allProjects => allProjects[projectId]);
+
+export const selectOwnedProjects = userId =>
+  createSelector([selectAllProjects], allProjects =>
+    Object.values(allProjects).filter(project => project.owner_id === userId)
   );
 
-export const selectOwnedProjects = (userId) =>
-  createSelector(
-    [selectAllProjects],
-    (allProjects) => Object.values(allProjects).filter(
-      (project) => project.owner_id === userId
+export const selectMemberProjects = userId =>
+  createSelector([selectAllProjects], allProjects =>
+    Object.values(allProjects).filter(
+      project =>
+        project.members?.includes(userId) && project.owner_id !== userId
     )
   );
 
-export const selectMemberProjects = (userId) =>
-  createSelector(
-    [selectAllProjects],
-    (allProjects) => Object.values(allProjects).filter(
-      (project) =>
-        project.members?.includes(userId) &&
-        project.owner_id !== userId
-    )
+export const selectProjectsByStatus = status =>
+  createSelector([selectAllProjects], allProjects =>
+    Object.values(allProjects).filter(project => project.status === status)
   );
 
-export const selectProjectsByStatus = (status) =>
-  createSelector(
-    [selectAllProjects],
-    (allProjects) => Object.values(allProjects).filter(
-      (project) => project.status === status
-    )
-  );
-
-export const selectProjectsDueWithinDays = (days) =>
-  createSelector(
-    [selectAllProjects],
-    (allProjects) => {
-      const futureDate = new Date();
-      futureDate.setDate(futureDate.getDate() + days);
-      return Object.values(allProjects).filter((project) => {
-        const dueDate = new Date(project.due_date);
-        return dueDate <= futureDate && dueDate >= new Date();
-      });
-    }
-  );
+export const selectProjectsDueWithinDays = days =>
+  createSelector([selectAllProjects], allProjects => {
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + days);
+    return Object.values(allProjects).filter(project => {
+      const dueDate = new Date(project.due_date);
+      return dueDate <= futureDate && dueDate >= new Date();
+    });
+  });
 
 export default projectReducer;

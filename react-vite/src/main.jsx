@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider as ReduxProvider } from 'react-redux';
-import { ModalProvider } from './context/Modal';
 import { RouterProvider } from 'react-router-dom';
-import { Modal } from './context/Modal';
+import { Modal, ModalProvider } from './context/Modal';
+import './index.css';
 import * as featureActions from './redux/feature';
 import * as projectActions from './redux/project';
 import * as sessionActions from './redux/session';
@@ -11,7 +11,6 @@ import * as sprintActions from './redux/sprint';
 import configureStore from './redux/store';
 import * as taskActions from './redux/task';
 import { router } from './router';
-import './index.css';
 
 const store = configureStore();
 

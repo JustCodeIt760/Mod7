@@ -2,31 +2,34 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
-  thunkAddProject,
-  thunkRemoveProject,
-  thunkUpdateProject,
-} from '../redux/project';
+  thunkAddSprint,
+  thunkRemoveSprint,
+  thunkUpdateSprint,
+} from '../redux/sprint';
 import { useModal } from './Modal';
 
-const ProjectFormModal = ({ type = 'create', project = null }) => {
+const SprintFormModal = ({ type = 'create', sprint = null }) => {
   const { closeModal } = useModal();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const user = useSelector(state => state.session.user);
+  const projects = useSelector(state => state.projects?.allProjects || {});
 
   // Use State
-  const [name, setName] = useState(project?.name || '');
-  const [description, setDescription] = useState(project?.description || '');
-  const [ownerId, setOwnerId] = useState(project?.owner_id || user?.id || '');
-  const [dueDate, setDueDate] = useState(
-    project?.due_date || new Date().toISOString().split('T')[0]
+  const [name, setName] = useState(sprint?.name || '');
+  const [description, setDescription] = useState(sprint?.description || '');
+  const [projectId, setProjectId] = useState(sprint?.project_id || '');
+  const [startDate, setStartDate] = useState(
+    sprint?.start_date || new Date().toISOString().split('T')[0]
+  );
+  const [endDate, setEndDate] = useState(
+    sprint?.end_date || new Date().toISOString().split('T')[0]
   );
   const [createdAt, setCreatedAt] = useState(
-    project?.created_at || new Date().toISOString().split('T')[0]
+    sprint?.created_at || new Date().toISOString().split('T')[0]
   );
   const [updatedAt, setUpdatedAt] = useState(
-    project?.updated_at || new Date().toISOString().split('T')[0]
+    sprint?.updated_at || new Date().toISOString().split('T')[0]
   );
   const [errors, setErrors] = useState({});
 
@@ -35,7 +38,7 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
     setErrors({});
 
     if (!name.trim()) {
-      setErrors(prev => ({ ...prev, name: 'Project name is required' }));
+      setErrors(prev => ({ ...prev, name: 'Sprint name is required' }));
       return;
     }
 
@@ -44,11 +47,20 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
       return;
     }
 
-    const projectData = {
+    if (!projectId) {
+      setErrors(prev => ({
+        ...prev,
+        project_id: 'Project selection is required',
+      }));
+      return;
+    }
+
+    const sprintData = {
       name: name.trim(),
       description: description.trim(),
-      owner_id: Number(ownerId),
-      due_date: dueDate,
+      project_id: Number(projectId),
+      start_date: startDate,
+      end_date: endDate,
       created_at: new Date(createdAt).toISOString().split('T')[0],
       updated_at: new Date(updatedAt).toISOString().split('T')[0],
     };
@@ -56,10 +68,10 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
     try {
       let result;
       if (type === 'create') {
-        result = await dispatch(thunkAddProject(projectData));
+        result = await dispatch(thunkAddSprint(sprintData));
       } else if (type === 'update') {
         result = await dispatch(
-          thunkUpdateProject({ ...projectData, id: project.id })
+          thunkUpdateSprint({ ...sprintData, id: sprint.id })
         );
       }
 
@@ -68,7 +80,7 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
       } else if (result) {
         closeModal();
       } else {
-        setErrors({ general: 'Failed to save project' });
+        setErrors({ general: 'Failed to save sprint' });
       }
     } catch (error) {
       setErrors({ general: 'An error occurred' });
@@ -77,33 +89,53 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
 
   const handleDelete = async () => {
     const confirmDelete = window.confirm(
-      'Are you sure you want to delete this project? This action cannot be undone.'
+      'Are you sure you want to delete this sprint? This action cannot be undone.'
     );
 
-    if (confirmDelete && project?.id) {
+    if (confirmDelete && sprint?.id) {
       try {
-        const result = await dispatch(thunkRemoveProject(project.id));
+        const result = await dispatch(thunkRemoveSprint(sprint.id));
         if (result?.errors) {
           setErrors({ delete: result.errors });
         } else if (result) {
           closeModal();
-          navigate('/projects');
+          navigate('/sprints');
         } else {
-          setErrors({ delete: 'Failed to delete project' });
+          setErrors({ delete: 'Failed to delete sprint' });
         }
       } catch (error) {
-        setErrors({ delete: 'An error occurred while deleting the project' });
+        setErrors({ delete: 'An error occurred while deleting the sprint' });
       }
     }
   };
 
   return (
-    <div className="project-form-modal">
-      <h2>{type === 'create' ? 'Create New Project' : 'Edit Project'}</h2>
+    <div className="sprint-form-modal">
+      <h2>{type === 'create' ? 'Create New Sprint' : 'Edit Sprint'}</h2>
       {errors.general && <div className="error-message">{errors.general}</div>}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="name">Project Name</label>
+          <label htmlFor="project_id">Project</label>
+          <select
+            id="project_id"
+            value={projectId}
+            onChange={e => setProjectId(e.target.value)}
+            required
+          >
+            <option value="">Select a project</option>
+            {Object.values(projects).map(project => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
+          {errors.project_id && (
+            <span className="error">{errors.project_id}</span>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="name">Sprint Name</label>
           <input
             id="name"
             type="text"
@@ -125,15 +157,35 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
           {errors.description && (
             <span className="error">{errors.description}</span>
           )}
-          <label htmlFor="due_date">Due Date</label>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="start_date">Start Date</label>
           <input
-            id="due_date"
+            id="start_date"
             type="date"
-            value={dueDate}
-            onChange={e => setDueDate(e.target.value)}
+            value={startDate}
+            onChange={e => setStartDate(e.target.value)}
             required
           />
-          {errors.due_date && <span className="error">{errors.due_date}</span>}
+          {errors.start_date && (
+            <span className="error">{errors.start_date}</span>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="end_date">End Date</label>
+          <input
+            id="end_date"
+            type="date"
+            value={endDate}
+            onChange={e => setEndDate(e.target.value)}
+            required
+          />
+          {errors.end_date && <span className="error">{errors.end_date}</span>}
+        </div>
+
+        <div className="form-group">
           <label htmlFor="created_at">Created At</label>
           <input
             id="created_at"
@@ -145,6 +197,9 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
           {errors.created_at && (
             <span className="error">{errors.created_at}</span>
           )}
+        </div>
+
+        <div className="form-group">
           <label htmlFor="updated_at">Updated At</label>
           <input
             id="updated_at"
@@ -160,7 +215,7 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
 
         <div className="form-actions">
           <button type="submit">
-            {type === 'create' ? 'Create Project' : 'Save Changes'}
+            {type === 'create' ? 'Create Sprint' : 'Save Changes'}
           </button>
           <button type="button" onClick={closeModal}>
             Cancel
@@ -171,7 +226,7 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
               onClick={handleDelete}
               className="delete-button"
             >
-              Delete Project
+              Delete Sprint
             </button>
           )}
         </div>
@@ -181,4 +236,4 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
   );
 };
 
-export default ProjectFormModal;
+export default SprintFormModal;
