@@ -17,44 +17,44 @@ const SET_ERRORS = 'projects/setErrors';
 
 //Actions
 
-export const loadProjects = projectsData => ({
+export const loadProjects = (projectsData) => ({
   type: LOAD_PROJECTS,
   payload: projectsData,
 });
 
-export const setProject = project => ({
+export const setProject = (project) => ({
   type: SET_PROJECT,
   payload: project,
 });
 
-export const addProject = project => ({
+export const addProject = (project) => ({
   type: ADD_PROJECT,
   payload: project,
 });
 
-export const updateProject = project => ({
+export const updateProject = (project) => ({
   type: UPDATE_PROJECT,
   payload: project,
 });
 
-export const removeProject = projectId => ({
+export const removeProject = (projectId) => ({
   type: REMOVE_PROJECT,
   payload: projectId,
 });
 
-export const setLoading = isLoading => ({
+export const setLoading = (isLoading) => ({
   type: SET_LOADING,
   payload: isLoading,
 });
 
-export const setErrors = errors => ({
+export const setErrors = (errors) => ({
   type: SET_ERRORS,
   payload: errors,
 });
 
 //Thunks
 
-export const thunkLoadProjects = () => async dispatch => {
+export const thunkLoadProjects = () => async (dispatch) => {
   dispatch(setLoading(true));
   try {
     const response = await csrfFetch('/projects');
@@ -70,7 +70,7 @@ export const thunkLoadProjects = () => async dispatch => {
   }
 };
 
-export const thunkSetProject = projectId => async (dispatch, getState) => {
+export const thunkSetProject = (projectId) => async (dispatch, getState) => {
   dispatch(setLoading(true));
   // using getState() to quickly pull the project by ID if it exists from our store
   const state = getState();
@@ -91,7 +91,7 @@ export const thunkSetProject = projectId => async (dispatch, getState) => {
   }
 };
 
-export const thunkAddProject = projectData => async dispatch => {
+export const thunkAddProject = (projectData) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
     const response = await csrfFetch('/projects', {
@@ -110,7 +110,7 @@ export const thunkAddProject = projectData => async dispatch => {
   }
 };
 
-export const thunkUpdateProject = projectData => async dispatch => {
+export const thunkUpdateProject = (projectData) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
     const response = await csrfFetch(`/projects/${projectData.id}`, {
@@ -129,7 +129,7 @@ export const thunkUpdateProject = projectData => async dispatch => {
   }
 };
 
-export const thunkRemoveProject = projectId => async dispatch => {
+export const thunkRemoveProject = (projectId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
     await csrfFetch(`/projects/${projectId}`, {
@@ -156,128 +156,138 @@ const initialState = {
 
 // Reducer function to handle state changes based on dispatched actions
 const projectReducer = (state = initialState, action) => {
-  // Object containing handler functions for different action types
   const handlers = {
-    // Handler for loading multiple projects
     [LOAD_PROJECTS]: (state, action) => {
-      // Create a copy of the current state to avoid direct mutation
-      const newState = { ...state };
-      const newProjects = {};
-      // Iterate through each project in the payload
-      action.payload.forEach(project => {
-        // Add each project to allProjects object, using project ID as key
-        newProjects[project.id] = project;
-      });
-      // Update allProjects with new projects
-      newState.allProjects = {
-        ...newState.allProjects,
-        ...newProjects,
+      // Convert array to object in single operation
+      const newProjects = action.payload.reduce(
+        (acc, project) => ({
+          ...acc,
+          [project.id]: project,
+        }),
+        {}
+      );
+
+      return {
+        ...state,
+        allProjects: {
+          ...state.allProjects,
+          ...newProjects,
+        },
       };
-      // Return the updated state
-      return newState;
     },
 
-    // Handler for setting a single project
     [SET_PROJECT]: (state, action) => {
-      // Create a copy of the current state
-      const newState = { ...state };
-      // Set the single project to the payload
-      newState.singleProject = action.payload;
-      // If a project is provided, update/add it to allProjects
-      if (action.payload) {
-        newState.allProjects[action.payload.id] = action.payload;
+      if (!action.payload) {
+        return state;
       }
-      // Return the updated state
-      return newState;
+
+      return {
+        ...state,
+        singleProject: action.payload,
+        allProjects: {
+          ...state.allProjects,
+          [action.payload.id]: action.payload,
+        },
+      };
     },
 
-    // Handler for adding a new project
     [ADD_PROJECT]: (state, action) => {
-      // Create a copy of the current state
-      const newState = { ...state };
-      // Add the new project to allProjects using its ID as key
-      newState.allProjects[action.payload.id] = action.payload;
-      // Return the updated state
-      return newState;
+      return {
+        ...state,
+        allProjects: {
+          ...state.allProjects,
+          [action.payload.id]: action.payload,
+        },
+      };
     },
 
-    // Handler for updating an existing project
     [UPDATE_PROJECT]: (state, action) => {
-      // Create a copy of the current state
-      const newState = { ...state };
-      // Update the project in allProjects using its ID
-      newState.allProjects[action.payload.id] = action.payload;
-      // Return the updated state
-      return newState;
+      return {
+        ...state,
+        allProjects: {
+          ...state.allProjects,
+          [action.payload.id]: action.payload,
+        },
+      };
     },
 
-    // Handler for removing a project
     [REMOVE_PROJECT]: (state, action) => {
-      // Create a copy of the current state
-      const newState = { ...state };
-      // Remove the project from allProjects using its ID
-      delete newState.allProjects[action.payload.id];
-      // Return the updated state
-      return newState;
+      // Use object destructuring for immutable removal
+      const { [action.payload.id]: removedProject, ...remainingProjects } =
+        state.allProjects;
+
+      return {
+        ...state,
+        allProjects: remainingProjects,
+      };
     },
 
-    // Handler for setting loading state
     [SET_LOADING]: (state, action) => {
-      // Create a copy of the current state
-      const newState = { ...state };
-      // Update the isLoading flag
-      newState.isLoading = action.payload;
-      // Return the updated state
-      return newState;
+      return {
+        ...state,
+        isLoading: action.payload,
+      };
     },
 
-    // Handler for setting error state
     [SET_ERRORS]: (state, action) => {
-      // Create a copy of the current state
-      const newState = { ...state };
-      // Update the errors
-      newState.errors = action.payload;
-      // Return the updated state
-      return newState;
+      return {
+        ...state,
+        errors: action.payload,
+      };
     },
   };
 
-  // Check if a handler exists for the current action type
-  // If it does, call the handler; otherwise, return the current state
-  return handlers[action.type] ? handlers[action.type](state, action) : state;
+  // Add error boundary and validation
+  try {
+    const handler = handlers[action.type];
+    if (!handler) return state;
+
+    // Validate payload for relevant actions
+    if ([ADD_PROJECT, UPDATE_PROJECT, SET_PROJECT].includes(action.type)) {
+      if (!action.payload?.id) {
+        console.warn(`Invalid payload for ${action.type}`);
+        return state;
+      }
+    }
+
+    return handler(state, action);
+  } catch (error) {
+    console.error(`Error in projectReducer handling ${action.type}:`, error);
+    return state;
+  }
 };
 //Selectors
-export const selectAllProjects = state => state.projects.allProjects;
-export const selectCurrentProject = state => state.projects.singleProject;
-export const selectIsLoading = state => state.projects.isLoading;
-export const selectErrors = state => state.projects.errors;
+export const selectAllProjects = (state) => state.projects.allProjects;
+export const selectCurrentProject = (state) => state.projects.singleProject;
+export const selectIsLoading = (state) => state.projects.isLoading;
+export const selectErrors = (state) => state.projects.errors;
 
-export const selectProjectById = projectId =>
-  createSelector([selectAllProjects], allProjects => allProjects[projectId]);
+export const selectProjectById = (projectId) =>
+  createSelector([selectAllProjects], (allProjects) => allProjects[projectId]);
 
-export const selectOwnedProjects = userId =>
-  createSelector([selectAllProjects], allProjects =>
-    Object.values(allProjects).filter(project => project.owner_id === userId)
+export const selectOwnedProjects = (userId) =>
+  createSelector([selectAllProjects], (allProjects) =>
+    Object.values(allProjects).filter((project) => project.owner_id === userId)
   );
 
-export const selectMemberProjects = userId =>
-  createSelector([selectAllProjects], allProjects =>
+export const selectMemberProjects = (userId) =>
+  createSelector([selectAllProjects], (allProjects) =>
     Object.values(allProjects).filter(
-      project =>
+      (project) =>
         project.members?.includes(userId) && project.owner_id !== userId
     )
   );
 
-export const selectProjectsByStatus = status =>
-  createSelector([selectAllProjects], allProjects =>
-    Object.values(allProjects).filter(project => project.status === status)
+export const selectProjectsByStatus = (status) =>
+  createSelector([selectAllProjects], (allProjects) =>
+    Object.values(allProjects).filter((project) => project.status === status)
   );
 
-export const selectProjectsDueWithinDays = days =>
-  createSelector([selectAllProjects], allProjects => {
+export const selectProjectsDueWithinDays = (days) =>
+  createSelector([selectAllProjects], (allProjects) => {
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + days);
-    return Object.values(allProjects).filter(project => {
+    return Object.values(allProjects).filter((project) => {
       const dueDate = new Date(project.due_date);
       return dueDate <= futureDate && dueDate >= new Date();
     });

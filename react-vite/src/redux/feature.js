@@ -232,105 +232,189 @@ const initialState = {
 const featureReducer = (state = initialState, action) => {
   const handlers = {
     [LOAD_FEATURES]: (state, action) => {
-      const newState = { ...state };
       const features = Array.isArray(action.payload) ? action.payload : [];
-      features.forEach((feature) => {
-        newState.allFeatures[feature.id] = feature;
-      });
-      return newState;
+
+      return {
+        ...state,
+        allFeatures: {
+          ...state.allFeatures,
+          ...features.reduce(
+            (acc, feature) => ({
+              ...acc,
+              [feature.id]: feature,
+            }),
+            {}
+          ),
+        },
+      };
     },
+
     [SET_FEATURE]: (state, action) => {
-      const newState = { ...state };
-      newState.currentFeature = action.payload;
-      if (action.payload) {
-        newState.allFeatures[action.payload.id] = action.payload;
-      }
-      return newState;
+      if (!action.payload) return state;
+
+      return {
+        ...state,
+        currentFeature: action.payload,
+        allFeatures: {
+          ...state.allFeatures,
+          [action.payload.id]: action.payload,
+        },
+      };
     },
+
     [ADD_FEATURE]: (state, action) => {
-      const newState = { ...state };
-      newState.allFeatures[action.payload.id] = action.payload;
-      return newState;
+      return {
+        ...state,
+        allFeatures: {
+          ...state.allFeatures,
+          [action.payload.id]: action.payload,
+        },
+      };
     },
+
     [UPDATE_FEATURE]: (state, action) => {
-      const newState = { ...state };
-      newState.allFeatures[action.payload.id] = action.payload;
-      return newState;
+      return {
+        ...state,
+        allFeatures: {
+          ...state.allFeatures,
+          [action.payload.id]: action.payload,
+        },
+      };
     },
+
     [REMOVE_FEATURE]: (state, action) => {
-      const newState = { ...state };
-      delete newState.allFeatures[action.payload.id];
-      return newState;
+      const { [action.payload.id]: removed, ...remainingFeatures } =
+        state.allFeatures;
+
+      return {
+        ...state,
+        allFeatures: remainingFeatures,
+      };
     },
+
     [MOVE_FEATURE]: (state, action) => {
-      const newState = { ...state };
       const { featureId, sprintId } = action.payload;
-      //! updated the feature in allfeatures if it exists
-      if (newState.allFeatures[featureId]) {
-        newState.allFeatures[featureId] = {
-          ...newState.allFeatures[featureId],
-          sprint_id: sprintId,
-        };
-      }
-      //! updated current feature if it matches the move feature
-      if (newState.currentFeature?.id === featureId) {
-        newState.currentFeature = {
-          ...newState.currentFeature,
-          sprint_id: sprintId,
-        };
-      }
-      return newState;
+      const targetFeature = state.allFeatures[featureId];
+
+      if (!targetFeature) return state;
+
+      const updatedFeature = {
+        ...targetFeature,
+        sprint_id: sprintId,
+      };
+
+      return {
+        ...state,
+        allFeatures: {
+          ...state.allFeatures,
+          [featureId]: updatedFeature,
+        },
+        currentFeature:
+          state.currentFeature?.id === featureId
+            ? updatedFeature
+            : state.currentFeature,
+      };
     },
+
     [SET_FEATURES_BY_SPRINT]: (state, action) => {
-      const newState = { ...state };
       const { projectId, sprintId, features } = action.payload;
 
-      //! initialize proj if not exists
-      if (!newState.featuresBySprint[projectId]) {
-        newState.featuresBySprint[projectId] = {};
+      // Create new features mapping
+      const newFeatures = features.reduce(
+        (acc, feature) => ({
+          ...acc,
+          [feature.id]: feature,
+        }),
+        {}
+      );
 
-        //! set features for specific sprint
-        newState.featuresBySprint[projectId][sprintId] = features;
-
-        //! update all featues with the new features
-        features.forEach((feature) => {
-          newState.allFeatures[feature.id] = feature;
-        });
-        return newState;
-      }
+      return {
+        ...state,
+        featuresBySprint: {
+          ...state.featuresBySprint,
+          [projectId]: {
+            ...(state.featuresBySprint[projectId] || {}),
+            [sprintId]: features,
+          },
+        },
+        allFeatures: {
+          ...state.allFeatures,
+          ...newFeatures,
+        },
+      };
     },
+
     [SET_PARKING_LOT]: (state, action) => {
-      const newState = { ...state };
       const featureId = action.payload;
-      //! sets feature's sprint_id to null moving it into the parking lot and updates both the all feats and current feats if needed.
-      if (newState.allFeatures[featureId]) {
-        newState.allFeatures[featureId] = {
-          ...newState.allFeatures[featureId],
-          sprint_id: null,
-        };
-      }
-      if (newState.currentFeature?.id === featureId) {
-        newState.currentFeature = {
-          ...newState.currentFeature,
-          sprint_id: null,
-        };
-      }
-      return newState;
+      const targetFeature = state.allFeatures[featureId];
+
+      if (!targetFeature) return state;
+
+      const updatedFeature = {
+        ...targetFeature,
+        sprint_id: null,
+      };
+
+      return {
+        ...state,
+        allFeatures: {
+          ...state.allFeatures,
+          [featureId]: updatedFeature,
+        },
+        currentFeature:
+          state.currentFeature?.id === featureId
+            ? updatedFeature
+            : state.currentFeature,
+      };
     },
 
-    [SET_LOADING]: (state, action) => {
-      const newState = { ...state };
-      newState.isLoading = action.payload;
-      return newState;
-    },
+    [SET_LOADING]: (state, action) => ({
+      ...state,
+      isLoading: action.payload,
+    }),
 
-    [SET_ERRORS]: (state, action) => {
-      const newState = { ...state };
-      newState.errors = action.payload;
-      return newState;
-    },
+    [SET_ERRORS]: (state, action) => ({
+      ...state,
+      errors: action.payload,
+    }),
   };
-  return handlers[action.type] ? handlers[action.type](state, action) : state;
+
+  // Add error boundary and validation
+  try {
+    const handler = handlers[action.type];
+    if (!handler) return state;
+
+    // Validate payloads for relevant actions
+    if ([ADD_FEATURE, UPDATE_FEATURE, SET_FEATURE].includes(action.type)) {
+      if (!action.payload?.id) {
+        console.warn(`Invalid payload for ${action.type}`);
+        return state;
+      }
+    }
+
+    if (action.type === MOVE_FEATURE) {
+      if (!action.payload?.featureId || !action.payload?.sprintId) {
+        console.warn('Invalid payload for MOVE_FEATURE');
+        return state;
+      }
+    }
+
+    if (action.type === SET_FEATURES_BY_SPRINT) {
+      if (
+        !action.payload?.projectId ||
+        !action.payload?.sprintId ||
+        !Array.isArray(action.payload?.features)
+      ) {
+        console.warn('Invalid payload for SET_FEATURES_BY_SPRINT');
+        return state;
+      }
+    }
+
+    return handler(state, action);
+  } catch (error) {
+    console.error(`Error in featureReducer handling ${action.type}:`, error);
+    return state;
+  }
 };
 
 // Memoized Selectors
