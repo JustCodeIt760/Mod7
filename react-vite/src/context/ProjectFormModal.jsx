@@ -49,8 +49,8 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
       description: description.trim(),
       owner_id: Number(ownerId),
       due_date: dueDate,
-      created_at: new Date(createdAt).toISOString().split('T')[0],
-      updated_at: new Date(updatedAt).toISOString().split('T')[0],
+      // created_at: new Date(createdAt).toISOString().split('T')[0],
+      // updated_at: new Date(updatedAt).toISOString().split('T')[0],
     };
 
     try {
@@ -134,7 +134,7 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
             required
           />
           {errors.due_date && <span className="error">{errors.due_date}</span>}
-          <label htmlFor="created_at">Created At</label>
+          {/* <label htmlFor="created_at">Created At</label>
           <input
             id="created_at"
             type="date"
@@ -155,7 +155,7 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
           />
           {errors.updated_at && (
             <span className="error">{errors.updated_at}</span>
-          )}
+          )} */}
         </div>
 
         <div className="form-actions">

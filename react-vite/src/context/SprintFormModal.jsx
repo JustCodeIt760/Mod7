@@ -61,8 +61,8 @@ const SprintFormModal = ({ type = 'create', sprint = null }) => {
       project_id: Number(projectId),
       start_date: startDate,
       end_date: endDate,
-      created_at: new Date(createdAt).toISOString().split('T')[0],
-      updated_at: new Date(updatedAt).toISOString().split('T')[0],
+    //   created_at: new Date(createdAt).toISOString().split('T')[0],
+    //   updated_at: new Date(updatedAt).toISOString().split('T')[0],
     };
 
     try {
@@ -185,7 +185,7 @@ const SprintFormModal = ({ type = 'create', sprint = null }) => {
           {errors.end_date && <span className="error">{errors.end_date}</span>}
         </div>
 
-        <div className="form-group">
+        {/* <div className="form-group">
           <label htmlFor="created_at">Created At</label>
           <input
             id="created_at"
@@ -197,9 +197,9 @@ const SprintFormModal = ({ type = 'create', sprint = null }) => {
           {errors.created_at && (
             <span className="error">{errors.created_at}</span>
           )}
-        </div>
+        </div> */}
 
-        <div className="form-group">
+        {/* <div className="form-group">
           <label htmlFor="updated_at">Updated At</label>
           <input
             id="updated_at"
@@ -211,7 +211,7 @@ const SprintFormModal = ({ type = 'create', sprint = null }) => {
           {errors.updated_at && (
             <span className="error">{errors.updated_at}</span>
           )}
-        </div>
+        </div> */}
 
         <div className="form-actions">
           <button type="submit">
