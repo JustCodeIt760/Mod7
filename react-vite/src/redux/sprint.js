@@ -173,64 +173,78 @@ const initialState = {
 const sprintReducer = (state = initialState, action) => {
   const handlers = {
     [LOAD_SPRINTS]: (state, action) => {
-      const newState = { ...state };
-      const newSprints = {};
-      action.payload.forEach((sprint) => {
-        newSprints[sprint.id] = sprint;
-      });
-      newState.allSprints = {
-        ...newState.allSprints,
-        ...newSprints,
+      // Convert array to object in single operation
+      const newSprints = action.payload.reduce(
+        (acc, sprint) => ({
+          ...acc,
+          [sprint.id]: sprint,
+        }),
+        {}
+      );
+
+      return {
+        ...state,
+        allSprints: {
+          ...state.allSprints,
+          ...newSprints,
+        },
       };
-      return newState;
     },
 
     [SET_SPRINT]: (state, action) => {
-      const newState = { ...state };
-      newState.singleSprint = action.payload;
-      newState.allSprints = {
-        ...newState.allSprints,
-        [action.payload.id]: action.payload,
+      return {
+        ...state,
+        singleSprint: action.payload,
+        allSprints: {
+          ...state.allSprints,
+          [action.payload.id]: action.payload,
+        },
       };
-      return newState;
     },
 
     [ADD_SPRINT]: (state, action) => {
-      const newState = { ...state };
-      newState.allSprints = {
-        ...newState.allSprints,
-        [action.payload.id]: action.payload,
+      return {
+        ...state,
+        allSprints: {
+          ...state.allSprints,
+          [action.payload.id]: action.payload,
+        },
       };
-      return newState;
     },
 
     [UPDATE_SPRINT]: (state, action) => {
-      const newState = { ...state };
-      newState.allSprints = {
-        ...newState.allSprints,
-        [action.payload.id]: action.payload,
+      return {
+        ...state,
+        allSprints: {
+          ...state.allSprints,
+          [action.payload.id]: action.payload,
+        },
       };
-      return newState;
     },
 
     [REMOVE_SPRINT]: (state, action) => {
-      const newState = { ...state };
-      const { ...remainingSprints } = newState.allSprints;
-      delete remainingSprints[action.payload];
-      newState.allSprints = remainingSprints;
-      return newState;
+      // Use object destructuring to remove the sprint
+      const { [action.payload]: removedSprint, ...remainingSprints } =
+        state.allSprints;
+
+      return {
+        ...state,
+        allSprints: remainingSprints,
+      };
     },
 
     [SET_LOADING]: (state, action) => {
-      const newState = { ...state };
-      newState.isLoading = action.payload;
-      return newState;
+      return {
+        ...state,
+        isLoading: action.payload,
+      };
     },
 
     [SET_ERRORS]: (state, action) => {
-      const newState = { ...state };
-      newState.errors = action.payload;
-      return newState;
+      return {
+        ...state,
+        errors: action.payload,
+      };
     },
   };
 
