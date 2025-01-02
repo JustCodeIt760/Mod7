@@ -10,11 +10,19 @@ function TaskList() {
   const [filters, setFilters] = useState({
     priority: 'all',
     sortBy: 'dueDate',
+    completion: 'active', // Added this
   });
 
   // Filter and sort tasks
   const getFilteredTasks = () => {
     let filtered = [...enrichedTasks];
+
+    // Apply completion filter
+    if (filters.completion === 'active') {
+      filtered = filtered.filter((task) => task.status !== 'Completed');
+    } else if (filters.completion === 'completed') {
+      filtered = filtered.filter((task) => task.status === 'Completed');
+    }
 
     // Apply priority filter
     if (filters.priority !== 'all') {
@@ -56,6 +64,21 @@ function TaskList() {
   return (
     <div className={styles.taskList}>
       <div className={styles.filters}>
+        <div className={styles.filterGroup}>
+          <label htmlFor="completion">Show:</label>
+          <select
+            id="completion"
+            name="completion"
+            value={filters.completion}
+            onChange={handleFilterChange}
+            className={styles.filterSelect}
+          >
+            <option value="active">Active Tasks</option>
+            <option value="completed">Completed Tasks</option>
+            <option value="all">All Tasks</option>
+          </select>
+        </div>
+
         <div className={styles.filterGroup}>
           <label htmlFor="priority">Priority:</label>
           <select

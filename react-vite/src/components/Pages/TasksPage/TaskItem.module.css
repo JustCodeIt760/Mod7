@@ -39,8 +39,9 @@
 .taskHeader {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 0.75rem;
+  width: 100%;
 }
 
 .taskName {
@@ -127,4 +128,43 @@
 .Completed {
   background-color: #d1fae5;
   color: #065f46;
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  margin-right: 1rem;
+}
+
+.checkButton {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  padding: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.checkButton:hover {
+  border-color: #10b981;
+}
+
+.checkButton.completed {
+  background-color: #10b981;
+  border-color: #10b981;
+}
+
+.completedText {
+  text-decoration: line-through;
+  color: #9ca3af;
 }

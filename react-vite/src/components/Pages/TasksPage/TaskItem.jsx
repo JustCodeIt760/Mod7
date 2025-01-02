@@ -1,17 +1,15 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import { thunkToggleTaskCompletion } from '../../../redux/task';
 import styles from './TaskItem.module.css';
 
 function TaskItem({ task }) {
-  if (task.name === 'Content Planning') {
-    console.log('Content Planning Task:', {
-      taskId: task.id,
-      featureId: task.feature_id,
-      taskData: task,
-      context: task.context,
-      projectInfo: task.context?.project,
-      featureInfo: task.context?.feature,
-    });
-  }
+  const dispatch = useDispatch();
+
+  const handleToggleCompletion = async () => {
+    console.log(task.id);
+    await dispatch(thunkToggleTaskCompletion(task.id));
+  };
 
   return (
     <div className={styles.taskItem}>
@@ -26,7 +24,28 @@ function TaskItem({ task }) {
       </div>
 
       <div className={styles.taskHeader}>
-        <h3 className={styles.taskName}>{task.name}</h3>
+        <div className={styles.titleSection}>
+          <button
+            onClick={handleToggleCompletion}
+            className={`${styles.checkButton} ${
+              task.status === 'Completed' ? styles.completed : ''
+            }`}
+            aria-label={
+              task.status === 'Completed'
+                ? 'Mark as incomplete'
+                : 'Mark as complete'
+            }
+          >
+            {task.status === 'Completed' ? '✓' : ''}
+          </button>
+          <h3
+            className={`${styles.taskName} ${
+              task.status === 'Completed' ? styles.completedText : ''
+            }`}
+          >
+            {task.name}
+          </h3>
+        </div>
         <span
           className={`${styles.priority} ${
             styles[`priority${task.display.priority}`]

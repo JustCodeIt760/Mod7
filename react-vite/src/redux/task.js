@@ -133,6 +133,36 @@ export const thunkUpdateTask = (taskData) => async (dispatch) => {
   }
 };
 
+export const thunkToggleTaskCompletion = (taskId) => async (dispatch) => {
+  dispatch(setLoading(true));
+  try {
+    console.log('Attempting to toggle task:', taskId);
+    const response = await csrfFetch(`/api/tasks/${taskId}/toggle`, {
+      method: 'PATCH',
+      body: JSON.stringify({}), // Empty body since backend handles toggle logic
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Toggle failed:', errorData);
+      throw new Error(errorData.message || 'Failed to toggle task');
+    }
+
+    const updatedTask = await response.json();
+    console.log('Task updated:', updatedTask);
+
+    dispatch(updateTask(updatedTask));
+    dispatch(setErrors(null));
+    return updatedTask;
+  } catch (error) {
+    console.error('Toggle task error:', error);
+    dispatch(setErrors(error.errors || baseError));
+    return null;
+  } finally {
+    dispatch(setLoading(false));
+  }
+};
+
 export const thunkRemoveTask = (taskId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
