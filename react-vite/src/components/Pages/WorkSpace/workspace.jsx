@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, NavLink } from "react-router-dom";
-import styles from "./Workspace.module.css";
 import { thunkLoadSprints } from "../../../redux/sprint";
 import { thunkLoadProjects } from "../../../redux/project";
 import { thunkLoadTasks } from "../../../redux/task";
+import { useModal } from '../../../context/Modal';
+import ProjectFormModal from '../../../context/ProjectFormModal';
+import styles from './Workspace.module.css';
+
 
 function Workspace() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { openModal } = useModal();
+
   const user = useSelector((state) => state.session.user);
   const projects = useSelector((state) => state.projects?.allProjects || {});
   const tasks = useSelector((state) => state.tasks?.allTasks || {});
@@ -27,6 +32,10 @@ function Workspace() {
   const totalTasks = Object.values(tasks).filter(
     (task) => task.project_id === projects.projectId
   );
+
+  const handleCreateProject = () => {
+    openModal(<ProjectFormModal type="create" project={null} />);
+  };
 
   // Fetch projects and sprints when component mounts
   useEffect(() => {
@@ -54,9 +63,6 @@ function Workspace() {
 
           const startDateTimestamp = startDate.getTime();
           const endDateTimestamp = endDate.getTime();
-
-          const startDiff = Math.abs(todayTimestamp - startDateTimestamp);
-          const endDiff = Math.abs(todayTimestamp - endDateTimestamp);
 
           // Determine the closer sprint based on start or end date
           if (startDiff < minDiff) {
@@ -90,11 +96,10 @@ function Workspace() {
       });
       return overdue;
     };
-   
 
-   const overdue = findOverDues(tasksArray);
-   setOverdueTasks(overdue.length);
-     console.log("HOHOHOHOHOH",overdue)
+    const overdue = findOverDues(tasksArray);
+    setOverdueTasks(overdue.length);
+    
     fetchData();
   }, [dispatch, sprints, tasks]); // Dependencies ensure it re-runs when sprints or dispatch changes
 
@@ -102,10 +107,9 @@ function Workspace() {
     <div className={styles.workspaceContainer}>
       <div className={styles.header}>
         <h1>WorkSpace</h1>
-        <button
-          className={styles.createButton}
-          onClick={() => navigate("/projects/new")}
-        >
+
+        <button className={styles.createButton} onClick={handleCreateProject}>
+
           Create a Project
         </button>
       </div>
@@ -113,31 +117,27 @@ function Workspace() {
       <div className={styles.projectsSection}>
         <h2 className={styles.sectionHeader}>Owned Projects</h2>
         <div className={styles.projectsGrid}>
-          {ownedProjects.map((project) => (
-            <NavLink
-              key={project.id}
-              to={`/projects/${project.id}`}
-              className={styles.projectLink}
-            >
-              <div className={styles.projectCard}>
-                <h3>{project.name}</h3>
-                <p>{project.description}</p>
-                <div className={styles.projectStats}>
-                  <div>
-                    {currentSprint ? (
-                      <>
-                        <span>Current Sprint: </span>
-                        <strong>{currentSprint.name}</strong>
-                      </>
-                    ) : (
-                      <p>No active sprint</p>
-                    )}
-                  </div>
-                  <div className={styles.taskStats}>
-                    <span>Total Tasks: {totalTasks.length}</span>
-                    <span className={styles.overdue}>
-                      Overdue: {overdueTasks || 0}
-                    </span>
+{ownedProjects.map((project) => (
+  <NavLink
+    key={project.id}
+    to={`/projects/${project.id}`}
+    className={styles.projectLink}
+  >
+    <div className={styles.projectCard}>
+      <h3>{project.name}</h3>
+      <p>{project.description}</p>
+      <div className={styles.projectStats}>
+        <div>
+          <span>
+            Current Sprint:{' '}
+            {project.current_sprint?.name || 'No active sprint'}
+          </span>
+        </div>
+        <div className={styles.taskStats}>
+          <span>Total Tasks: {project.total_tasks || 0}</span>
+          <span className={styles.overdue}>
+            Overdue: {project.overdue_tasks || 0}
+          </span>
                   </div>
                   <div>
                     <div className={styles.progressBar}>
@@ -175,7 +175,9 @@ function Workspace() {
 
         <h2 className={styles.sectionHeader}>Shared Projects</h2>
         <div className={styles.projectsGrid}>
+
           {sharedProjects.map((project) => (
+
             <NavLink
               key={project.id}
               to={`/projects/${project.id}`}
@@ -186,20 +188,27 @@ function Workspace() {
                 <p>{project.description}</p>
                 <div className={styles.projectStats}>
                   <div>
-                    {currentSprint ? (
-                      <>
-                        <span>Current Sprint: </span>
-                        <strong>{currentSprint.name}</strong>
-                      </>
-                    ) : (
-                      <p>No active sprint</p>
-                    )}
-                  </div>
-                  <div className={styles.taskStats}>
-                    <span>Total Tasks: {totalTasks.length}</span>
-                    <span className={styles.overdue}>
-                      Overdue: {overdueTasks || 0}
-                    </span>
+{sharedProjects.map((project) => (
+  <NavLink
+    key={project.id}
+    to={`/projects/${project.id}`}
+    className={styles.projectLink}
+  >
+    <div className={styles.projectCard}>
+      <h3>{project.name}</h3>
+      <p>{project.description}</p>
+      <div className={styles.projectStats}>
+        <div>
+          <span>
+            Current Sprint:{' '}
+            {project.current_sprint?.name || 'No active sprint'}
+          </span>
+        </div>
+        <div className={styles.taskStats}>
+          <span>Total Tasks: {project.total_tasks || 0}</span>
+          <span className={styles.overdue}>
+            Overdue: {project.overdue_tasks || 0}
+          </span>
                   </div>
                   <div>
                     <div className={styles.progressBar}>
@@ -235,6 +244,7 @@ function Workspace() {
           ))}
         </div>
       </div>
+      {/* <ProjectFormModal /> */}
     </div>
   );
 }
