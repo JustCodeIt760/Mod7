@@ -1,4 +1,5 @@
 import { csrfFetch } from '../utils/csrf';
+import { createSelector } from '@reduxjs/toolkit';
 
 //! TO IMPLEMENT: optimistic loading, add front end ownership check for update, delete
 
@@ -132,6 +133,29 @@ export const thunkUpdateTask = (taskData) => async (dispatch) => {
   }
 };
 
+export const thunkToggleTaskCompletion = (taskId) => async (dispatch) => {
+  dispatch(setLoading(true));
+  try {
+    console.log('Attempting to toggle task:', taskId);
+    const response = await csrfFetch(`/api/tasks/${taskId}/toggle`, {
+      method: 'PATCH',
+      body: JSON.stringify({}), // Empty body since backend handles toggle logic
+    });
+    const updatedTask = await response.json();
+    console.log('Task updated:', updatedTask);
+
+    dispatch(updateTask(updatedTask));
+    dispatch(setErrors(null));
+    return updatedTask;
+  } catch (error) {
+    console.error('Toggle task error:', error);
+    dispatch(setErrors(error.errors || baseError));
+    return null;
+  } finally {
+    dispatch(setLoading(false));
+  }
+};
+
 export const thunkRemoveTask = (taskId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
@@ -164,7 +188,9 @@ const taskReducer = (state = initialState, action) => {
       //Handler for loading tasks
       const newState = { ...state };
       //Iterate through each task in the payload and add it to the allTasks object
-      const tasks = Array.isArray(action.payload) ? action.payload : [action.payload];
+      const tasks = Array.isArray(action.payload)
+        ? action.payload
+        : [action.payload];
       tasks.forEach((task) => {
         //Add each task to allTasks object
         newState.allTasks[task.id] = task;
@@ -199,12 +225,13 @@ const taskReducer = (state = initialState, action) => {
 
     //Handler for updating a task
     [UPDATE_TASK]: (state, action) => {
-      //Create a copy of the current state
-      const newState = { ...state };
-      //Update the task in allTasks object
-      newState.allTasks[action.payload.id] = action.payload;
-      //return the updated state
-      return newState;
+      return {
+        ...state,
+        allTasks: {
+          ...state.allTasks,
+          [action.payload.id]: action.payload,
+        },
+      };
     },
 
     //Handler for removing a task
@@ -270,5 +297,87 @@ export const selectOverdueTasks = (state) =>
     (task) =>
       new Date(task.due_date) < new Date() && task.status !== 'completed'
   );
+
+export const selectEnrichedTask = (taskId) =>
+  createSelector(
+    [
+      (state) => state.tasks.allTasks[taskId],
+      (state) => state.features.allFeatures,
+      (state) => state.projects.allProjects,
+    ],
+    (task, features, projects) => {
+      if (!task) return null;
+
+      const feature = features[task.feature_id];
+      const project = feature ? projects[feature.project_id] : null;
+
+      return {
+        ...task,
+        context: {
+          feature: feature
+            ? {
+                id: feature.id,
+                name: feature.name,
+                status: feature.status,
+              }
+            : null,
+          project: project
+            ? {
+                id: project.id,
+                name: project.name,
+              }
+            : null,
+        },
+        display: {
+          dueDate: new Date(task.due_date).toLocaleDateString(),
+          priority:
+            task.priority === 1
+              ? 'High'
+              : task.priority === 2
+              ? 'Medium'
+              : 'Low',
+          isOverdue:
+            new Date(task.due_date) < new Date() && task.status !== 'Completed',
+        },
+      };
+    }
+  );
+
+export const selectEnrichedTasks = createSelector(
+  [
+    (state) => state.tasks.allTasks,
+    (state) => state.features.allFeatures,
+    (state) => state.projects.allProjects,
+  ],
+  (tasks, features, projects) => {
+    console.log('Recomputing enriched tasks'); // Debug log
+    return Object.values(tasks).map((task) => ({
+      ...task,
+      context: {
+        feature: features[task.feature_id]
+          ? {
+              id: features[task.feature_id].id,
+              name: features[task.feature_id].name,
+              status: features[task.feature_id].status,
+            }
+          : null,
+        project:
+          features[task.feature_id] &&
+          projects[features[task.feature_id].project_id]
+            ? {
+                id: projects[features[task.feature_id].project_id].id,
+                name: projects[features[task.feature_id].project_id].name,
+              }
+            : null,
+      },
+      display: {
+        dueDate: new Date(task.due_date).toLocaleDateString(),
+        priority: ['High', 'Medium', 'Low'][task.priority - 1] || 'Low',
+        isOverdue:
+          new Date(task.due_date) < new Date() && task.status !== 'Completed',
+      },
+    }));
+  }
+);
 
 export default taskReducer;

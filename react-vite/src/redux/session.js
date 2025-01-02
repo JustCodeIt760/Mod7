@@ -1,4 +1,8 @@
 import { csrfFetch } from '../utils/csrf';
+import { thunkLoadProjects } from './project';
+import { thunkLoadTasks } from './task';
+import { thunkLoadSprints } from './sprint';
+import { thunkLoadFeatures } from './feature';
 
 const SET_USER = 'session/setUser';
 const REMOVE_USER = 'session/removeUser';
@@ -34,6 +38,24 @@ export const thunkAuthenticate = () => async (dispatch) => {
     const response = await csrfFetch('/auth');
     const data = await response.json();
     dispatch(setUser(data));
+
+    // After user is authenticated, load all app data
+    if (data) {
+      // if authentication was successful
+      // Load core data
+      await dispatch(thunkLoadProjects());
+      await dispatch(thunkLoadTasks());
+      await dispatch(thunkLoadSprints());
+
+      // Load features for each project
+      const projects = await dispatch(thunkLoadProjects());
+      if (projects) {
+        Object.values(projects).forEach((project) => {
+          dispatch(thunkLoadFeatures(project.id));
+        });
+      }
+    }
+
     dispatch(setErrors(null));
     return data;
   } catch (err) {

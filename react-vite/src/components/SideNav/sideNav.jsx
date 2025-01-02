@@ -2,7 +2,11 @@ import { NavLink } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styles from './SideNav.module.css';
-import { selectMemberProjects, selectOwnedProjects, thunkLoadProjects } from '../../redux/project';
+import {
+  selectMemberProjects,
+  selectOwnedProjects,
+  thunkLoadProjects,
+} from '../../redux/project';
 import { selectUser } from '../../redux/session';
 
 const SideNav = () => {
@@ -24,7 +28,7 @@ const SideNav = () => {
         <NavLink to="/" className={styles.navItem}>
           WorkSpace
         </NavLink>
-        <NavLink to="/workspace" className={styles.navItem}>
+        <NavLink to="/tasks" className={styles.navItem}>
           Tasks
         </NavLink>
         <NavLink to="/sprints" className={styles.navItem}>

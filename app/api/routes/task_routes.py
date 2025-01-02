@@ -24,6 +24,33 @@ def require_project_access(f):
     return decorated_function
 
 
+def require_task_access(f):
+    @wraps(f)
+    def decorated_function(task_id, *args, **kwargs):
+        # Get task and verify it exists
+        task = Task.query.get(task_id)
+        if not task:
+            return {"message": "Task couldn't be found"}, 404
+
+        # Get feature and verify it exists
+        feature = Feature.query.get(task.feature_id)
+        if not feature:
+            return {"message": "Feature couldn't be found"}, 404
+
+        # Get project and verify it exists
+        project = Project.query.get(feature.project_id)
+        if not project:
+            return {"message": "Project couldn't be found"}, 404
+
+        # Check if user has access using your existing method
+        if not current_user.has_project_access(feature.project_id):
+            return {"message": "Unauthorized"}, 403
+
+        return f(task_id, *args, **kwargs)
+
+    return decorated_function
+
+
 @task_routes.route(
     "/projects/<int:project_id>/features/<int:feature_id>/tasks"
 )
@@ -38,6 +65,7 @@ def get_all_tasks_feature(feature_id):
 
 
 @task_routes.route("/tasks")
+@task_routes.route("/tasks/")
 @login_required
 def get_user_tasks():
     """
@@ -45,6 +73,34 @@ def get_user_tasks():
     """
     tasks = Task.query.filter(Task.assigned_to == current_user.id).all()
     return jsonify([task.to_dict() for task in tasks])
+
+
+@task_routes.route("/tasks/<int:task_id>/toggle", methods=["PATCH"])
+@task_routes.route("/tasks/<int:task_id>/toggle/", methods=["PATCH"])
+@login_required
+@require_task_access
+def toggle_task_completion(task_id):
+    try:
+        task = Task.query.get(task_id)
+        if not task:
+            return {"message": "Task couldn't be found"}, 404
+
+        # Toggle between Completed and Not Started
+        new_status = (
+            "Completed" if task.status != "Completed" else "Not Started"
+        )
+
+        # Use the model's update_task method which handles db session
+        updated_task = task.update_task(status=new_status)
+
+        # The model method returns the updated task
+        return updated_task.to_dict()
+
+    except ValueError as e:  # This would catch invalid status values
+        return {"message": str(e)}, 400
+    except Exception as e:
+        print("Error in toggle_task_completion:", str(e))
+        return {"message": "Server error"}, 500
 
 
 @task_routes.route(
