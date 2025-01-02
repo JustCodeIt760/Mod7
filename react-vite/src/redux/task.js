@@ -186,45 +186,49 @@ const initialState = {
 const taskReducer = (state = initialState, action) => {
   const handlers = {
     [LOAD_TASKS]: (state, action) => {
-      //Handler for loading tasks
-      const newState = { ...state };
-      //Iterate through each task in the payload and add it to the allTasks object
       const tasks = Array.isArray(action.payload)
         ? action.payload
         : [action.payload];
-      tasks.forEach((task) => {
-        //Add each task to allTasks object
-        newState.allTasks[task.id] = task;
-      });
-      //Return the updated state
-      return newState;
+
+      // Create new allTasks object with all tasks
+      const newAllTasks = tasks.reduce(
+        (acc, task) => ({
+          ...acc,
+          [task.id]: task,
+        }),
+        { ...state.allTasks }
+      );
+
+      return {
+        ...state,
+        allTasks: newAllTasks,
+      };
     },
 
-    // Handler for setting a single task
     [SET_TASK]: (state, action) => {
-      //Create a copy of the current state
-      const newState = { ...state };
-      //Set the single task to the action payload
-      newState.singleTask = action.payload;
-      // If a project is provided, update/add it to the allTasks object
-      if (action.payload) {
-        newState.allTasks[action.payload.id] = action.payload;
-      }
-      //Return the updated state
-      return newState;
+      return {
+        ...state,
+        singleTask: action.payload,
+        // Only update allTasks if we have a payload
+        ...(action.payload && {
+          allTasks: {
+            ...state.allTasks,
+            [action.payload.id]: action.payload,
+          },
+        }),
+      };
     },
 
-    //Handler for adding a task
     [ADD_TASK]: (state, action) => {
-      //Create a copy of the current state
-      const newState = { ...state };
-      //Add the new task to the allTasks using the task ID as the key
-      newState.allTasks[action.payload.id] = action.payload;
-      //Return the updated state
-      return newState;
+      return {
+        ...state,
+        allTasks: {
+          ...state.allTasks,
+          [action.payload.id]: action.payload,
+        },
+      };
     },
 
-    //Handler for updating a task
     [UPDATE_TASK]: (state, action) => {
       return {
         ...state,
@@ -235,39 +239,31 @@ const taskReducer = (state = initialState, action) => {
       };
     },
 
-    //Handler for removing a task
     [REMOVE_TASK]: (state, action) => {
-      //Create a copy of the current state
-      const newState = { ...state };
-      //Remove the task from allTasks object
-      delete newState.allTasks[action.payload];
-      //Return the updated state
-      return newState;
+      // Create new allTasks object without the removed task
+      const { [action.payload]: removed, ...remainingTasks } = state.allTasks;
+
+      return {
+        ...state,
+        allTasks: remainingTasks,
+      };
     },
 
-    //Handler for setting loading state
     [SET_LOADING]: (state, action) => {
-      //Create a copy of the current state
-      const newState = { ...state };
-      //Update isLoading to the flag;
-      newState.isLoading = action.payload;
-      //Return the updated state
-      return newState;
+      return {
+        ...state,
+        isLoading: action.payload,
+      };
     },
 
-    //Handler for setting errors
     [SET_ERROR]: (state, action) => {
-      //Create a copy of the current state
-      const newState = { ...state };
-      //Update errors to the action payload
-      newState.errors = action.payload;
-      //Return the updated state
-      return newState;
+      return {
+        ...state,
+        errors: action.payload,
+      };
     },
   };
 
-  //Check if a handler exists for the action type
-  //If it does, call the handler; otherwise, return the current state
   return handlers[action.type] ? handlers[action.type](state, action) : state;
 };
 
