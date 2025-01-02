@@ -98,13 +98,22 @@ export const thunkAddProject = (projectData) => async (dispatch) => {
       method: 'POST',
       body: JSON.stringify(projectData),
     });
-    const newProject = await response.json();
-    dispatch(addProject(newProject));
-    dispatch(setErrors(null));
-    return newProject;
+
+    const data = await response.json();
+
+    if (response.ok) {
+      dispatch(addProject(data));
+      dispatch(setErrors(null));
+      return data;
+    } else {
+      // WTForms sends errors in a specific format
+      dispatch(setErrors(data.errors));
+      return { errors: data.errors };
+    }
   } catch (err) {
-    dispatch(setErrors(err.errors || baseError));
-    return null;
+    const errorData = await err.json?.();
+    dispatch(setErrors(errorData?.errors || baseError));
+    return { errors: errorData?.errors || baseError };
   } finally {
     dispatch(setLoading(false));
   }
