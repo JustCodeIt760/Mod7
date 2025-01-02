@@ -1,5 +1,5 @@
 // TaskList.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { selectEnrichedTasks } from '../../../redux/task';
 import TaskItem from './TaskItem';
@@ -7,14 +7,15 @@ import styles from './TaskList.module.css';
 
 function TaskList() {
   const enrichedTasks = useSelector(selectEnrichedTasks);
+  const [filteredTasks, setFilteredTasks] = useState([]);
   const [filters, setFilters] = useState({
     priority: 'all',
     sortBy: 'dueDate',
-    completion: 'active', // Added this
+    completion: 'active',
   });
 
   // Filter and sort tasks
-  const getFilteredTasks = () => {
+  const getFilteredTasks = useCallback(() => {
     let filtered = [...enrichedTasks];
 
     // Apply completion filter
@@ -45,21 +46,25 @@ function TaskList() {
     });
 
     return filtered;
-  };
+  }, [enrichedTasks, filters]);
 
-  const handleFilterChange = (e) => {
+  // Update filtered tasks when enrichedTasks or filters change
+  useEffect(() => {
+    const newFilteredTasks = getFilteredTasks();
+    setFilteredTasks(newFilteredTasks);
+  }, [enrichedTasks, getFilteredTasks]);
+
+  const handleFilterChange = useCallback((e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({
       ...prev,
       [name]: value,
     }));
-  };
+  }, []);
 
   if (!enrichedTasks?.length) {
     return <div className={styles.noTasks}>No tasks found</div>;
   }
-
-  const filteredTasks = getFilteredTasks();
 
   return (
     <div className={styles.taskList}>
@@ -119,4 +124,4 @@ function TaskList() {
   );
 }
 
-export default TaskList;
+export default React.memo(TaskList);

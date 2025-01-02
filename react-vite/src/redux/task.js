@@ -141,13 +141,6 @@ export const thunkToggleTaskCompletion = (taskId) => async (dispatch) => {
       method: 'PATCH',
       body: JSON.stringify({}), // Empty body since backend handles toggle logic
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Toggle failed:', errorData);
-      throw new Error(errorData.message || 'Failed to toggle task');
-    }
-
     const updatedTask = await response.json();
     console.log('Task updated:', updatedTask);
 
@@ -232,12 +225,13 @@ const taskReducer = (state = initialState, action) => {
 
     //Handler for updating a task
     [UPDATE_TASK]: (state, action) => {
-      //Create a copy of the current state
-      const newState = { ...state };
-      //Update the task in allTasks object
-      newState.allTasks[action.payload.id] = action.payload;
-      //return the updated state
-      return newState;
+      return {
+        ...state,
+        allTasks: {
+          ...state.allTasks,
+          [action.payload.id]: action.payload,
+        },
+      };
     },
 
     //Handler for removing a task
@@ -356,40 +350,33 @@ export const selectEnrichedTasks = createSelector(
     (state) => state.projects.allProjects,
   ],
   (tasks, features, projects) => {
-    return Object.values(tasks).map((task) => {
-      const feature = features[task.feature_id];
-      const project = feature ? projects[feature.project_id] : null;
-
-      return {
-        ...task,
-        context: {
-          feature: feature
+    console.log('Recomputing enriched tasks'); // Debug log
+    return Object.values(tasks).map((task) => ({
+      ...task,
+      context: {
+        feature: features[task.feature_id]
+          ? {
+              id: features[task.feature_id].id,
+              name: features[task.feature_id].name,
+              status: features[task.feature_id].status,
+            }
+          : null,
+        project:
+          features[task.feature_id] &&
+          projects[features[task.feature_id].project_id]
             ? {
-                id: feature.id,
-                name: feature.name,
-                status: feature.status,
+                id: projects[features[task.feature_id].project_id].id,
+                name: projects[features[task.feature_id].project_id].name,
               }
             : null,
-          project: project
-            ? {
-                id: project.id,
-                name: project.name,
-              }
-            : null,
-        },
-        display: {
-          dueDate: new Date(task.due_date).toLocaleDateString(),
-          priority:
-            task.priority === 1
-              ? 'High'
-              : task.priority === 2
-              ? 'Medium'
-              : 'Low',
-          isOverdue:
-            new Date(task.due_date) < new Date() && task.status !== 'Completed',
-        },
-      };
-    });
+      },
+      display: {
+        dueDate: new Date(task.due_date).toLocaleDateString(),
+        priority: ['High', 'Medium', 'Low'][task.priority - 1] || 'Low',
+        isOverdue:
+          new Date(task.due_date) < new Date() && task.status !== 'Completed',
+      },
+    }));
   }
 );
 
