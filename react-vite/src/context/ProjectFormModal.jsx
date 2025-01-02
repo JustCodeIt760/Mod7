@@ -13,12 +13,11 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const user = useSelector(state => state.session.user);
+  const user = useSelector((state) => state.session.user);
 
   // Use State
   const [name, setName] = useState(project?.name || '');
   const [description, setDescription] = useState(project?.description || '');
-  const [ownerId, setOwnerId] = useState(project?.owner_id || user?.id || '');
   const [dueDate, setDueDate] = useState(
     project?.due_date || new Date().toISOString().split('T')[0]
   );
@@ -30,27 +29,27 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
   );
   const [errors, setErrors] = useState({});
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
 
     if (!name.trim()) {
-      setErrors(prev => ({ ...prev, name: 'Project name is required' }));
+      setErrors((prev) => ({ ...prev, name: 'Project name is required' }));
       return;
     }
 
     if (!description.trim()) {
-      setErrors(prev => ({ ...prev, description: 'Description is required' }));
+      setErrors((prev) => ({
+        ...prev,
+        description: 'Description is required',
+      }));
       return;
     }
 
     const projectData = {
       name: name.trim(),
       description: description.trim(),
-      owner_id: Number(ownerId),
       due_date: dueDate,
-      // created_at: new Date(createdAt).toISOString().split('T')[0],
-      // updated_at: new Date(updatedAt).toISOString().split('T')[0],
     };
 
     try {
@@ -108,7 +107,7 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
             id="name"
             type="text"
             value={name}
-            onChange={e => setName(e.target.value)}
+            onChange={(e) => setName(e.target.value)}
             required
           />
           {errors.name && <span className="error">{errors.name}</span>}
@@ -119,7 +118,7 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
           <textarea
             id="description"
             value={description}
-            onChange={e => setDescription(e.target.value)}
+            onChange={(e) => setDescription(e.target.value)}
             required
           />
           {errors.description && (
@@ -130,7 +129,7 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
             id="due_date"
             type="date"
             value={dueDate}
-            onChange={e => setDueDate(e.target.value)}
+            onChange={(e) => setDueDate(e.target.value)}
             required
           />
           {errors.due_date && <span className="error">{errors.due_date}</span>}
