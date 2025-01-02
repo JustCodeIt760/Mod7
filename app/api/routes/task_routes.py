@@ -3,6 +3,7 @@ from models import Task, Feature, Project
 from flask_login import login_required, current_user
 from functools import wraps
 
+
 task_routes = Blueprint("tasks", __name__)
 
 
@@ -68,10 +69,7 @@ def get_all_tasks_feature(feature_id):
 @task_routes.route("/tasks/")
 @login_required
 def get_user_tasks():
-    """
-    Get all tasks assigned to the current user
-    """
-    tasks = Task.query.filter(Task.assigned_to == current_user.id).all()
+    tasks = Task.get_accessible_tasks(current_user)
     return jsonify([task.to_dict() for task in tasks])
 
 

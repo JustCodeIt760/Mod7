@@ -17,44 +17,44 @@ const SET_ERRORS = 'projects/setErrors';
 
 //Actions
 
-export const loadProjects = projectsData => ({
+export const loadProjects = (projectsData) => ({
   type: LOAD_PROJECTS,
   payload: projectsData,
 });
 
-export const setProject = project => ({
+export const setProject = (project) => ({
   type: SET_PROJECT,
   payload: project,
 });
 
-export const addProject = project => ({
+export const addProject = (project) => ({
   type: ADD_PROJECT,
   payload: project,
 });
 
-export const updateProject = project => ({
+export const updateProject = (project) => ({
   type: UPDATE_PROJECT,
   payload: project,
 });
 
-export const removeProject = projectId => ({
+export const removeProject = (projectId) => ({
   type: REMOVE_PROJECT,
   payload: projectId,
 });
 
-export const setLoading = isLoading => ({
+export const setLoading = (isLoading) => ({
   type: SET_LOADING,
   payload: isLoading,
 });
 
-export const setErrors = errors => ({
+export const setErrors = (errors) => ({
   type: SET_ERRORS,
   payload: errors,
 });
 
 //Thunks
 
-export const thunkLoadProjects = () => async dispatch => {
+export const thunkLoadProjects = () => async (dispatch) => {
   dispatch(setLoading(true));
   try {
     const response = await csrfFetch('/projects');
@@ -70,7 +70,7 @@ export const thunkLoadProjects = () => async dispatch => {
   }
 };
 
-export const thunkSetProject = projectId => async (dispatch, getState) => {
+export const thunkSetProject = (projectId) => async (dispatch, getState) => {
   dispatch(setLoading(true));
   // using getState() to quickly pull the project by ID if it exists from our store
   const state = getState();
@@ -91,7 +91,7 @@ export const thunkSetProject = projectId => async (dispatch, getState) => {
   }
 };
 
-export const thunkAddProject = projectData => async dispatch => {
+export const thunkAddProject = (projectData) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
     const response = await csrfFetch('/projects', {
@@ -110,7 +110,7 @@ export const thunkAddProject = projectData => async dispatch => {
   }
 };
 
-export const thunkUpdateProject = projectData => async dispatch => {
+export const thunkUpdateProject = (projectData) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
     const response = await csrfFetch(`/projects/${projectData.id}`, {
@@ -129,7 +129,7 @@ export const thunkUpdateProject = projectData => async dispatch => {
   }
 };
 
-export const thunkRemoveProject = projectId => async dispatch => {
+export const thunkRemoveProject = (projectId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
     await csrfFetch(`/projects/${projectId}`, {
@@ -164,7 +164,7 @@ const projectReducer = (state = initialState, action) => {
       const newState = { ...state };
       const newProjects = {};
       // Iterate through each project in the payload
-      action.payload.forEach(project => {
+      action.payload.forEach((project) => {
         // Add each project to allProjects object, using project ID as key
         newProjects[project.id] = project;
       });
@@ -247,40 +247,163 @@ const projectReducer = (state = initialState, action) => {
   return handlers[action.type] ? handlers[action.type](state, action) : state;
 };
 //Selectors
-export const selectAllProjects = state => state.projects.allProjects;
-export const selectCurrentProject = state => state.projects.singleProject;
-export const selectIsLoading = state => state.projects.isLoading;
-export const selectErrors = state => state.projects.errors;
+export const selectAllProjects = (state) => state.projects.allProjects;
+export const selectCurrentProject = (state) => state.projects.singleProject;
+export const selectIsLoading = (state) => state.projects.isLoading;
+export const selectErrors = (state) => state.projects.errors;
 
-export const selectProjectById = projectId =>
-  createSelector([selectAllProjects], allProjects => allProjects[projectId]);
+export const selectProjectById = (projectId) =>
+  createSelector([selectAllProjects], (allProjects) => allProjects[projectId]);
 
-export const selectOwnedProjects = userId =>
-  createSelector([selectAllProjects], allProjects =>
-    Object.values(allProjects).filter(project => project.owner_id === userId)
+export const selectOwnedProjects = (userId) =>
+  createSelector([selectAllProjects], (allProjects) =>
+    Object.values(allProjects).filter((project) => project.owner_id === userId)
   );
 
-export const selectMemberProjects = userId =>
-  createSelector([selectAllProjects], allProjects =>
+export const selectMemberProjects = (userId) =>
+  createSelector([selectAllProjects], (allProjects) =>
     Object.values(allProjects).filter(
-      project =>
+      (project) =>
         project.members?.includes(userId) && project.owner_id !== userId
     )
   );
 
-export const selectProjectsByStatus = status =>
-  createSelector([selectAllProjects], allProjects =>
-    Object.values(allProjects).filter(project => project.status === status)
+export const selectProjectsByStatus = (status) =>
+  createSelector([selectAllProjects], (allProjects) =>
+    Object.values(allProjects).filter((project) => project.status === status)
   );
 
-export const selectProjectsDueWithinDays = days =>
-  createSelector([selectAllProjects], allProjects => {
+export const selectProjectsDueWithinDays = (days) =>
+  createSelector([selectAllProjects], (allProjects) => {
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + days);
-    return Object.values(allProjects).filter(project => {
+    return Object.values(allProjects).filter((project) => {
       const dueDate = new Date(project.due_date);
       return dueDate <= futureDate && dueDate >= new Date();
     });
   });
+
+export const selectEnrichedProjects = createSelector(
+  [
+    selectAllProjects,
+    (state) => state.session.user,
+    (state) => state.features.allFeatures,
+    (state) => state.tasks.allTasks,
+    (state) => state.sprints.allSprints,
+  ],
+  (projects, currentUser, features, tasks, sprints) => {
+    if (!currentUser) return { owned: [], shared: [] };
+
+    const findRelevantSprint = (projectId) => {
+      const projectSprints = Object.values(sprints).filter(
+        (sprint) => sprint.project_id === projectId
+      );
+
+      if (projectSprints.length === 0) return null;
+
+      const now = new Date();
+
+      const currentSprint = projectSprints.find((sprint) => {
+        const startDate = new Date(sprint.start_date);
+        const endDate = new Date(sprint.end_date);
+        return startDate <= now && endDate >= now;
+      });
+
+      if (currentSprint) return currentSprint;
+
+      const upcomingSprints = projectSprints.filter(
+        (sprint) => new Date(sprint.start_date) > now
+      );
+
+      if (upcomingSprints.length > 0) {
+        return upcomingSprints.reduce((earliest, sprint) => {
+          const sprintStart = new Date(sprint.start_date);
+          const earliestStart = new Date(earliest.start_date);
+          return sprintStart < earliestStart ? sprint : earliest;
+        });
+      }
+
+      return projectSprints.reduce((latest, sprint) => {
+        const sprintEnd = new Date(sprint.end_date);
+        const latestEnd = latest ? new Date(latest.end_date) : new Date(0);
+        return sprintEnd > latestEnd ? sprint : latest;
+      }, null);
+    };
+
+    const calculateProjectStats = (projectId) => {
+      const projectFeatures = Object.values(features).filter(
+        (feature) => feature.project_id === projectId
+      );
+
+      const projectTasks = Object.values(tasks).filter((task) =>
+        projectFeatures.some((feature) => feature.id === task.feature_id)
+      );
+
+      const totalTasks = projectTasks.length;
+      const overdueTasks = projectTasks.filter(
+        (task) =>
+          new Date(task.due_date) < new Date() && task.status !== 'Completed'
+      ).length;
+      const completedTasks = projectTasks.filter(
+        (task) => task.status === 'Completed'
+      ).length;
+
+      const relevantSprint = findRelevantSprint(projectId);
+      const sprintStatus = relevantSprint
+        ? new Date(relevantSprint.end_date) < new Date()
+          ? 'completed'
+          : new Date(relevantSprint.start_date) > new Date()
+          ? 'upcoming'
+          : 'in-progress'
+        : 'no-sprint';
+
+      return {
+        totalTasks,
+        overdueTasks,
+        completedTasks,
+        currentSprint: relevantSprint,
+        sprintStatus,
+        percentComplete:
+          totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0,
+      };
+    };
+
+    const enrichedProjects = Object.values(projects).map((project) => {
+      const stats = calculateProjectStats(project.id);
+
+      return {
+        ...project,
+        stats,
+        display: {
+          dueDate: new Date(project.due_date).toLocaleDateString(),
+          isOverdue: new Date(project.due_date) < new Date(),
+          percentComplete: stats.percentComplete,
+          sprintInfo: stats.currentSprint
+            ? {
+                name: stats.currentSprint.name,
+                status: stats.sprintStatus,
+                dates: `${new Date(
+                  stats.currentSprint.start_date
+                ).toLocaleDateString()} - ${new Date(
+                  stats.currentSprint.end_date
+                ).toLocaleDateString()}`,
+              }
+            : null,
+        },
+      };
+    });
+
+    return {
+      owned: enrichedProjects.filter(
+        (project) => project.owner_id === currentUser.id
+      ),
+      shared: enrichedProjects.filter(
+        (project) =>
+          project.members?.includes(currentUser.id) &&
+          project.owner_id !== currentUser.id
+      ),
+    };
+  }
+);
 
 export default projectReducer;

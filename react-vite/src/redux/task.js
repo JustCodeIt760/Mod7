@@ -57,6 +57,7 @@ export const thunkLoadTasks = () => async (dispatch) => {
   try {
     const response = await csrfFetch('/api/tasks');
     const data = await response.json();
+    console.log('our data:', data);
     dispatch(loadTasks(data));
     dispatch(setErrors(null));
   } catch (error) {
@@ -377,6 +378,14 @@ export const selectEnrichedTasks = createSelector(
           new Date(task.due_date) < new Date() && task.status !== 'Completed',
       },
     }));
+  }
+);
+
+export const selectMyEnrichedTasks = createSelector(
+  [selectEnrichedTasks, (state) => state.session.user],
+  (enrichedTasks, currentUser) => {
+    if (!currentUser) return [];
+    return enrichedTasks.filter((task) => task.assigned_to === currentUser.id);
   }
 );
 
