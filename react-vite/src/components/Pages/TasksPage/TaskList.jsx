@@ -1,12 +1,12 @@
 // TaskList.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { selectEnrichedTasks } from '../../../redux/task';
+import { selectMyEnrichedTasks } from '../../../redux/task';
 import TaskItem from './TaskItem';
 import styles from './TaskList.module.css';
 
 function TaskList() {
-  const enrichedTasks = useSelector(selectEnrichedTasks);
+  const enrichedTasks = useSelector(selectMyEnrichedTasks);
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [filters, setFilters] = useState({
     priority: 'all',
@@ -17,7 +17,7 @@ function TaskList() {
   // Filter and sort tasks
   const getFilteredTasks = useCallback(() => {
     let filtered = [...enrichedTasks];
-
+    console.log(filtered);
     // Apply completion filter
     if (filters.completion === 'active') {
       filtered = filtered.filter((task) => task.status !== 'Completed');

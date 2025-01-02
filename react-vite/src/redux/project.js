@@ -293,4 +293,127 @@ export const selectProjectsDueWithinDays = (days) =>
     });
   });
 
+export const selectEnrichedProjects = createSelector(
+  [
+    selectAllProjects,
+    (state) => state.session.user,
+    (state) => state.features.allFeatures,
+    (state) => state.tasks.allTasks,
+    (state) => state.sprints.allSprints,
+  ],
+  (projects, currentUser, features, tasks, sprints) => {
+    if (!currentUser) return { owned: [], shared: [] };
+
+    const findRelevantSprint = (projectId) => {
+      const projectSprints = Object.values(sprints).filter(
+        (sprint) => sprint.project_id === projectId
+      );
+
+      if (projectSprints.length === 0) return null;
+
+      const now = new Date();
+
+      const currentSprint = projectSprints.find((sprint) => {
+        const startDate = new Date(sprint.start_date);
+        const endDate = new Date(sprint.end_date);
+        return startDate <= now && endDate >= now;
+      });
+
+      if (currentSprint) return currentSprint;
+
+      const upcomingSprints = projectSprints.filter(
+        (sprint) => new Date(sprint.start_date) > now
+      );
+
+      if (upcomingSprints.length > 0) {
+        return upcomingSprints.reduce((earliest, sprint) => {
+          const sprintStart = new Date(sprint.start_date);
+          const earliestStart = new Date(earliest.start_date);
+          return sprintStart < earliestStart ? sprint : earliest;
+        });
+      }
+
+      return projectSprints.reduce((latest, sprint) => {
+        const sprintEnd = new Date(sprint.end_date);
+        const latestEnd = latest ? new Date(latest.end_date) : new Date(0);
+        return sprintEnd > latestEnd ? sprint : latest;
+      }, null);
+    };
+
+    const calculateProjectStats = (projectId) => {
+      const projectFeatures = Object.values(features).filter(
+        (feature) => feature.project_id === projectId
+      );
+
+      const projectTasks = Object.values(tasks).filter((task) =>
+        projectFeatures.some((feature) => feature.id === task.feature_id)
+      );
+
+      const totalTasks = projectTasks.length;
+      const overdueTasks = projectTasks.filter(
+        (task) =>
+          new Date(task.due_date) < new Date() && task.status !== 'Completed'
+      ).length;
+      const completedTasks = projectTasks.filter(
+        (task) => task.status === 'Completed'
+      ).length;
+
+      const relevantSprint = findRelevantSprint(projectId);
+      const sprintStatus = relevantSprint
+        ? new Date(relevantSprint.end_date) < new Date()
+          ? 'completed'
+          : new Date(relevantSprint.start_date) > new Date()
+          ? 'upcoming'
+          : 'in-progress'
+        : 'no-sprint';
+
+      return {
+        totalTasks,
+        overdueTasks,
+        completedTasks,
+        currentSprint: relevantSprint,
+        sprintStatus,
+        percentComplete:
+          totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0,
+      };
+    };
+
+    const enrichedProjects = Object.values(projects).map((project) => {
+      const stats = calculateProjectStats(project.id);
+
+      return {
+        ...project,
+        stats,
+        display: {
+          dueDate: new Date(project.due_date).toLocaleDateString(),
+          isOverdue: new Date(project.due_date) < new Date(),
+          percentComplete: stats.percentComplete,
+          sprintInfo: stats.currentSprint
+            ? {
+                name: stats.currentSprint.name,
+                status: stats.sprintStatus,
+                dates: `${new Date(
+                  stats.currentSprint.start_date
+                ).toLocaleDateString()} - ${new Date(
+                  stats.currentSprint.end_date
+                ).toLocaleDateString()}`,
+              }
+            : null,
+        },
+      };
+    });
+
+    return {
+      owned: enrichedProjects.filter(
+        (project) => project.owner_id === currentUser.id
+      ),
+      shared: enrichedProjects.filter(
+        (project) =>
+          project.members?.includes(currentUser.id) &&
+          project.owner_id !== currentUser.id
+      ),
+    };
+  }
+);
+
 export default projectReducer;
