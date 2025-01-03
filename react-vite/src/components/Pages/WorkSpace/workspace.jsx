@@ -63,27 +63,22 @@ function Workspace() {
 
   useEffect(() => {
     const loadData = async () => {
-      try {
-        // First load projects
-        const projectsResponse = await dispatch(thunkLoadProjects());
-
-        if (projectsResponse) {
-          // Once we have projects, load sprints for each project
+      if (user) {  // Only load if user is logged in
+        try {
+          // Load all data in parallel for better performance
           await Promise.all([
-            ...Object.values(projectsResponse).map((project) =>
-              dispatch(thunkLoadSprints(project.id))
-            ),
-            // Load tasks in parallel with sprints
+            dispatch(thunkLoadProjects()),
             dispatch(thunkLoadTasks()),
+            dispatch(thunkLoadSprints())
           ]);
+        } catch (error) {
+          console.error('Error loading workspace data:', error);
         }
-      } catch (error) {
-        console.error('Error loading workspace data:', error);
       }
     };
 
     loadData();
-  }, [dispatch]);
+  }, [dispatch, user]); // Add user as dependency
 
   return (
     <div className={styles.workspaceContainer}>
