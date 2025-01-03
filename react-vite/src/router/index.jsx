@@ -3,7 +3,7 @@ import LandingPage from '../components/LandingPage/LandingPage';
 import Dashboard from '../components/Pages/WorkSpace/workspace';
 import Workspace from '../components/Pages/WorkSpace/workspace';
 import Layout from './Layout';
-import ProjectPage from '../components/Pages/ProjectPage';
+import { ProjectPage } from '../components/Pages/ProjectPage';
 import SprintDetailsPage from '../components/Pages/SprintDetailsPage';
 import SprintTimeline from '../components/Pages/SprintTimeline';
 import SignupFormPage from '../components/SignupFormPage';

@@ -25,6 +25,8 @@ def require_project_access(f):
 def get_all_sprints_project(project_id):
     try:
         sprints = Sprint.get_all_sprints_for_project(project_id).all()
+        if not sprints:
+            return jsonify([])
         return jsonify([sprint.to_dict() for sprint in sprints])
     except Exception as e:
         # Log the error for debugging

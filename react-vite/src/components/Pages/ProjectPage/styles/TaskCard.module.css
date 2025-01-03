@@ -1,0 +1,22 @@
+.taskCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.taskCard:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.taskItem {
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem;
+  border-radius: 4px;
+}
+.taskItem:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}

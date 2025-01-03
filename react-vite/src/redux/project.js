@@ -1,5 +1,10 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { csrfFetch } from '../utils/csrf';
+import { loadFeatures } from './feature';
+import { loadSprints } from './sprint';
+import { loadTasks } from './task';
+import { loadUsers } from './user';
+import { format } from 'date-fns';
 
 //! TO IMPLEMENT: optimistic loading, add front end ownership check for update, delete
 
@@ -65,6 +70,57 @@ export const thunkLoadProjects = () => async (dispatch) => {
   } catch (err) {
     dispatch(setErrors(err.errors || baseError));
     return null;
+  } finally {
+    dispatch(setLoading(false));
+  }
+};
+
+export const thunkLoadProjectData = (projectId) => async (dispatch) => {
+  dispatch(setLoading(true));
+  try {
+    console.log('Loading data for project:', projectId);
+
+    // Load project
+    const projectResponse = await csrfFetch(`/projects/${projectId}`);
+    const projectData = await projectResponse.json();
+    console.log('Project data received:', projectData);
+    dispatch(setProject(projectData));
+
+    // Load users for the project
+    const usersResponse = await csrfFetch(`/projects/${projectId}/users`);
+    const usersData = await usersResponse.json();
+    console.log('Users data received:', usersData);
+    dispatch(loadUsers(usersData.users));
+
+    // Load features
+    const featuresResponse = await csrfFetch(`/projects/${projectId}/features`);
+    const featuresData = await featuresResponse.json();
+    console.log('Features data received:', featuresData);
+    dispatch(loadFeatures(featuresData));
+
+    // Load sprints
+    const sprintsResponse = await csrfFetch(`/projects/${projectId}/sprints`);
+    const sprintsData = await sprintsResponse.json();
+    console.log('Sprints data received:', sprintsData);
+    dispatch(loadSprints(sprintsData));
+
+    // Load tasks for each feature
+    console.log('Number of features to load tasks for:', featuresData.length);
+    for (const feature of featuresData) {
+      const tasksResponse = await csrfFetch(
+        `/projects/${projectId}/features/${feature.id}/tasks`
+      );
+      const tasksData = await tasksResponse.json();
+      console.log(`Tasks for feature ${feature.id}:`, tasksData);
+      dispatch(loadTasks(tasksData));
+    }
+
+    // Log final state
+    console.log('All data loaded successfully');
+    dispatch(setErrors(null));
+  } catch (err) {
+    console.error('Error in thunkLoadProjectData:', err);
+    dispatch(setErrors(err.errors || baseError));
   } finally {
     dispatch(setLoading(false));
   }
@@ -421,6 +477,86 @@ export const selectEnrichedProjects = createSelector(
           project.members?.includes(currentUser.id) &&
           project.owner_id !== currentUser.id
       ),
+    };
+  }
+);
+
+export const selectProjectPageData = createSelector(
+  [
+    (state, projectId) => state.projects.singleProject,
+    (state) => state.features.allFeatures,
+    (state) => state.tasks.allTasks,
+    (state) => state.sprints.allSprints,
+    (state) => state.users?.allUsers || {}, // Add users state if you have it
+    (state, projectId) => projectId,
+  ],
+  (project, features, tasks, sprints, users, projectId) => {
+    if (!project) return null;
+
+    const formatDate = (dateString) => {
+      try {
+        return dateString ? format(new Date(dateString), 'MMM d') : '';
+      } catch (error) {
+        return '';
+      }
+    };
+
+    const enrichFeature = (feature) => {
+      const featureTasks = Object.values(tasks)
+        .filter((task) => task.feature_id === feature.id)
+        .map((task) => ({
+          ...task,
+          display: {
+            dates: `${formatDate(task.start_date)} - ${formatDate(
+              task.due_date
+            )}`,
+            priority: ['High', 'Medium', 'Low'][task.priority - 1] || 'Low',
+            dueDate: new Date(task.due_date).toLocaleDateString(),
+            assignedTo: users[task.assigned_to]?.full_name || 'Unassigned', // Add user info
+            assignedToUser: users[task.assigned_to] || null, // Full user object if needed
+          },
+        }));
+
+      return {
+        ...feature,
+        tasks: featureTasks,
+      };
+    };
+
+    // Get parking lot features (features with no sprint assigned)
+    const parkingLotFeatures = Object.values(features)
+      .filter(
+        (feature) =>
+          feature.project_id === parseInt(projectId) && !feature.sprint_id
+      )
+      .map(enrichFeature);
+
+    // Get sprints with their features and tasks
+    const projectSprints = Object.values(sprints)
+      .filter((sprint) => sprint.project_id === parseInt(projectId))
+      .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
+      .map((sprint) => ({
+        ...sprint,
+        features: Object.values(features)
+          .filter(
+            (feature) =>
+              feature.project_id === parseInt(projectId) &&
+              feature.sprint_id === sprint.id
+          )
+          .map(enrichFeature),
+        display: {
+          dates: `${formatDate(sprint.start_date)} - ${formatDate(
+            sprint.end_date
+          )}`,
+        },
+      }));
+
+    return {
+      project,
+      sprints: projectSprints,
+      parkingLot: {
+        features: parkingLotFeatures,
+      },
     };
   }
 );

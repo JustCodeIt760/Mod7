@@ -1,16 +1,18 @@
-import styles from './ProjectPage.module.css';
-
-const FeatureCard = ({ feature }) => {
+import { TaskList } from './';
+import styles from './styles/FeatureCard.module.css';
+function FeatureCard({ feature, projectId, showTasks = false }) {
   return (
-    <div className={styles.featureCard}>
-      <h3>{feature.name}</h3>
-      <p>{feature.description}</p>
-      <div className={styles.featureDetails}>
-        <span className={styles.status}>Status: {feature.status}</span>
-        <span className={styles.priority}>Priority: {feature.priority}</span>
-      </div>
+    <div
+      className={styles.featureCard}
+      draggable
+      onDragStart={(e) => e.dataTransfer.setData('featureId', feature.id)}
+    >
+      {showTasks && <h3>{feature.name}</h3>}
+      {!showTasks && (
+        <div className={styles.parkingLotFeature}>{feature.name}</div>
+      )}
+      {showTasks && <TaskList tasks={feature.tasks} />}
     </div>
   );
-};
-
+}
 export default FeatureCard;

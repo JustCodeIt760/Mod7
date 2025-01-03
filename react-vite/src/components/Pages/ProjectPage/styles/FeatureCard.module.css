@@ -1,0 +1,31 @@
+.featureCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.featureCard:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.featureCard h3 {
+  margin: 0 0 1rem 0;
+  color: #111827;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.parkingLotFeature {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  padding: 0.5rem 0;
+}
+.featureCard:not(:has(h3)) {
+  padding: 0.25rem;
+}

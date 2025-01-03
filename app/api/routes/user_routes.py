@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from flask_login import login_required
+from flask_login import login_required, current_user
 from models import User, Project
 
 user_routes = Blueprint("users", __name__)
@@ -29,9 +29,12 @@ def project_users(project_id):
         return {"errors": {"message": "Unauthorized"}}, 403
 
     # If authorized, return project users
-    users = [user.to_dict() for user in project.members]
-    # Don't forget to include owner if they're not in members
-    if project.owner not in project.members:
+    users = [
+        user.to_dict() for user in project.users
+    ]  # Changed from members to users
+
+    # Don't forget to include owner if they're not in users
+    if project.owner not in project.users:
         users.append(project.owner.to_dict())
 
     return {"users": users}

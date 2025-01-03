@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { thunkLogout } from "../../redux/session";
-import { useNavigate } from "react-router-dom";
-import "./Navigation.css";
+import { useState, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { thunkLogout } from '../../redux/session';
+import { useNavigate } from 'react-router-dom';
+import './Navigation.css';
 
 function ProfileButton() {
   const dispatch = useDispatch();
@@ -23,8 +23,8 @@ function ProfileButton() {
       }
     };
 
-    document.addEventListener("click", closeMenu);
-    return () => document.removeEventListener("click", closeMenu);
+    document.addEventListener('click', closeMenu);
+    return () => document.removeEventListener('click', closeMenu);
   }, []);
 
   const logout = async (e) => {
