@@ -157,22 +157,50 @@ export const thunkToggleTaskCompletion = (taskId) => async (dispatch) => {
   }
 };
 
-export const thunkRemoveTask = (taskId) => async (dispatch) => {
+export const thunkRemoveTask = (projectId, featureId, taskId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    await csrfFetch(`/api/tasks/${taskId}`, {
+    const response = await csrfFetch(`/projects/${projectId}/features/${featureId}/tasks/${taskId}`, {
       method: 'DELETE',
     });
-    dispatch(removeTask(taskId));
-    dispatch(setErrors(null));
-    return true;
+    if (response.ok) {
+      dispatch(removeTask(taskId));
+      dispatch(setErrors(null));
+      return true;
+    } else {
+      const data = await response.json();
+      dispatch(setErrors(data.errors || baseError));
+      return false;
+    }
   } catch (error) {
     dispatch(setErrors(error.errors || baseError));
-    return null;
+    return false;
   } finally {
     dispatch(setLoading(false));
   }
 };
+
+export const thunkUpdateTaskPosition =
+  (projectId, featureId, taskId, updates) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await csrfFetch(
+        `/api/projects/${projectId}/features/${featureId}/tasks/${taskId}`,
+        {
+          method: 'PUT',
+          body: JSON.stringify(updates)
+        }
+      );
+      const updatedTask = await response.json();
+      dispatch(updateTask(updatedTask));
+      return updatedTask;
+    } catch (err) {
+      dispatch(setErrors(err.errors || baseError));
+      return null;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 
 // Initial state object defining the structure of the project state
 const initialState = {

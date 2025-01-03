@@ -5,9 +5,11 @@ import { format, eachDayOfInterval, isSameDay } from 'date-fns';
 import { thunkSetSprint } from '../../../redux/sprint';
 import { thunkLoadFeatures, selectAllFeatures, updateFeature } from '../../../redux/feature';
 import { thunkLoadTasks, selectAllTasks } from '../../../redux/task';
+import { getAssignedMemberColors } from '../../../utils/colors';
 import styles from './SprintTimeline.module.css';
 import TaskHoverCard from './TaskHoverCard';
 import TaskModal from './TaskModal';
+import Legend from './Legend';
 
 const TEAM_COLORS = {
   1: {  // Demo user
@@ -23,20 +25,6 @@ const TEAM_COLORS = {
     pale: 'rgba(13, 148, 136, 0.25)'  // Transparent teal
   }
 };
-
-const TeamLegend = () => (
-  <div className={styles.legend}>
-    <h3 className={styles.legendTitle}>Team Members</h3>
-    <div className={styles.legendItems}>
-      {Object.entries(TEAM_COLORS).map(([userId, colors]) => (
-        <div key={userId} className={styles.legendItem}>
-          <div className={styles.legendColor} style={{ backgroundColor: colors.vibrant }}></div>
-          <span>{userId === '1' ? 'Demo User' : userId === '2' ? 'Sarah' : 'Mike'}</span>
-        </div>
-      ))}
-    </div>
-  </div>
-);
 
 const SprintTimeline = () => {
   const { projectId, sprintId } = useParams();
@@ -161,6 +149,7 @@ const SprintTimeline = () => {
         });
         return {
           id: task.id,
+          feature_id: feature.id,
           featureName: feature.name,
           taskName: task.name,
           startDate: new Date(task.start_date),
@@ -191,9 +180,10 @@ const SprintTimeline = () => {
     const left = `${(startDay / totalDays) * 100}%`;
     const width = `${((endDay - startDay + 1) / totalDays) * 100}%`;
 
-    // Get color based on primary assignee
-    const primaryAssignee = task.assignees[0];
-    const color = TEAM_COLORS[primaryAssignee]?.vibrant || '#6B7280';
+    // Get color based on assignee
+    const { vibrant: color } = task.assignees[0]
+      ? getAssignedMemberColors(task.assignees[0])
+      : { vibrant: '#6B7280' }; // Default gray for unassigned tasks
 
     return {
       left,
@@ -227,38 +217,40 @@ const SprintTimeline = () => {
   };
 
   return (
-    <div className={styles.sprintView}>
-      <div className={styles.header}>
-        <button
-          className={styles.backButton}
-          onClick={() => navigate(`/projects/${projectId}`)}
-        >
-          ← Back to Project
-        </button>
-      </div>
-      <TeamLegend />
-      <div className={styles.timelineHeader}>
-        {days.map(day => (
-          <div key={day.toISOString()} className={styles.dayMarker}>
-            {format(day, 'MMM d')}
-          </div>
-        ))}
-      </div>
+    <div className={styles.timelineContainer}>
+      <div className={styles.sprintView}>
+        <div className={styles.header}>
+          <button
+            className={styles.backButton}
+            onClick={() => navigate(`/projects/${projectId}`)}
+          >
+            ← Back to Project
+          </button>
+        </div>
+        <Legend />
+        <div className={styles.timelineHeader}>
+          {days.map(day => (
+            <div key={day.toISOString()} className={styles.dayMarker}>
+              {format(day, 'MMM d')}
+            </div>
+          ))}
+        </div>
 
-      <div className={styles.contentWrapper}>
-        {userTasks.length > 0 && (
-          <div className={styles.tasksSection}>
-            <h3 className={styles.sectionTitle}>Your Tasks</h3>
-            {userTasks.map(renderTask)}
-          </div>
-        )}
+        <div className={styles.contentWrapper}>
+          {userTasks.length > 0 && (
+            <div className={styles.tasksSection}>
+              <h3 className={styles.sectionTitle}>Your Tasks</h3>
+              {userTasks.map(renderTask)}
+            </div>
+          )}
 
-        {otherTasks.length > 0 && (
-          <div className={styles.tasksSection}>
-            <h3 className={styles.sectionTitle}>Team Tasks</h3>
-            {otherTasks.map(renderTask)}
-          </div>
-        )}
+          {otherTasks.length > 0 && (
+            <div className={styles.tasksSection}>
+              <h3 className={styles.sectionTitle}>Team Tasks</h3>
+              {otherTasks.map(renderTask)}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
