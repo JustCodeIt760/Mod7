@@ -20,12 +20,60 @@
 }
 
 .parkingLotFeature {
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem; /* Reduced from 0.5rem 1rem */
   font-size: 1.25rem;
   font-weight: 600;
   color: #111827;
-  padding: 0.5rem 0;
+  width: 100%;
+  word-break: break-word;
 }
+
 .featureCard:not(:has(h3)) {
-  padding: 0.25rem;
+  padding-right: 30px; /* Adjusted padding to match design */
+}
+.featureNameDisplay {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+  position: relative;
+  padding-right: 20px; /* Reduced from 24px */
+}
+
+.featureNameDisplay span {
+  flex-grow: 1;
+  text-align: center;
+  word-break: break-word;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.editIcon {
+  color: #aaa;
+  cursor: pointer;
+  font-size: 14px;
+  transition: color 0.2s ease;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.editIcon:hover {
+  color: #666;
+}
+
+.featureNameDisplay span[contenteditable='true'] {
+  border-bottom: 1px solid #ccc;
+  outline: none;
+  padding: 2px 4px;
+  margin-right: 20px;
+}
+
+.featureNameDisplay span[contenteditable='true']:focus {
+  border-bottom-color: #666;
 }
