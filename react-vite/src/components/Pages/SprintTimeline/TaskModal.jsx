@@ -1,8 +1,8 @@
-import { format } from 'date-fns';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { thunkUpdateTaskPosition, thunkRemoveTask } from '../../../redux/task';
+import { format } from 'date-fns';
 import styles from './SprintTimeline.module.css';
 
 const TEAM_MEMBERS = {

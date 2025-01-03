@@ -1,5 +1,6 @@
 import { csrfFetch } from '../utils/csrf';
 import { createSelector } from '@reduxjs/toolkit';
+import { isWithinInterval } from 'date-fns';
 
 //! TO IMPLEMENT: optimistic loading, add front end ownership check for update, delete
 
@@ -115,19 +116,26 @@ export const thunkAddTask =
     }
   };
 
-export const thunkUpdateTask = (taskData) => async (dispatch) => {
+export const thunkUpdateTask = (projectId, featureId, taskId, taskData) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    const response = await csrfFetch(`/api/tasks/${taskData.id}`, {
+    const response = await csrfFetch(`/projects/${projectId}/features/${featureId}/tasks/${taskId}`, {
       method: 'PUT',
-      body: JSON.stringify(taskData),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(taskData)
     });
-    const updatedTask = await response.json();
-    dispatch(updateTask(updatedTask));
-    dispatch(setErrors(null));
-    return updatedTask;
-  } catch (error) {
-    dispatch(setErrors(error.errors || baseError));
+
+    if (response.ok) {
+      const task = await response.json();
+      dispatch(updateTask(task));
+      dispatch(setErrors(null));
+      return task;
+    }
+    return null;
+  } catch (err) {
+    dispatch(setErrors(err.errors || baseError));
     return null;
   } finally {
     dispatch(setLoading(false));
@@ -193,6 +201,7 @@ export const thunkUpdateTaskPosition =
       );
       const updatedTask = await response.json();
       dispatch(updateTask(updatedTask));
+      dispatch(setErrors(null));
       return updatedTask;
     } catch (err) {
       dispatch(setErrors(err.errors || baseError));
