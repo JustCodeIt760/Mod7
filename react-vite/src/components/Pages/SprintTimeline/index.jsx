@@ -6,6 +6,8 @@ import { thunkSetSprint } from '../../../redux/sprint';
 import { thunkLoadFeatures, selectAllFeatures, updateFeature } from '../../../redux/feature';
 import { thunkLoadTasks, selectAllTasks } from '../../../redux/task';
 import styles from './SprintTimeline.module.css';
+import TaskHoverCard from './TaskHoverCard';
+import TaskModal from './TaskModal';
 
 const TEAM_COLORS = {
   1: {  // Demo user
@@ -201,23 +203,11 @@ const SprintTimeline = () => {
   };
 
   const renderTask = (task) => {
-    // Validate dates
-    if (!task.startDate || !task.endDate || isNaN(task.startDate.getTime()) || isNaN(task.endDate.getTime())) {
-      console.error('Invalid dates for task:', {
-        taskId: task.id,
-        startDate: task.startDate,
-        endDate: task.endDate
-      });
-      return null;
-    }
-
-    const style = getTaskStyle(task, task.startDate, task.endDate);
-
     return (
       <div key={task.id} className={styles.taskRow}>
         <div
           className={styles.taskBar}
-          style={style}
+          style={getTaskStyle(task, task.startDate, task.endDate)}
           onClick={() => setSelectedTask(task)}
           onMouseEnter={() => setHoveredTask(task)}
           onMouseLeave={() => setHoveredTask(null)}
@@ -227,48 +217,10 @@ const SprintTimeline = () => {
           </div>
         </div>
         {hoveredTask?.id === task.id && !selectedTask && (
-          <div className={styles.tooltip}>
-            <div className={styles.tooltipTitle}>{task.taskName}</div>
-            <div className={styles.tooltipSection}>Click to view details</div>
-          </div>
+          <TaskHoverCard task={task} />
         )}
         {selectedTask?.id === task.id && (
-          <div className={styles.taskModal}>
-            <div className={styles.modalHeader}>
-              <h3>{task.taskName}</h3>
-              <button
-                className={styles.closeButton}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedTask(null);
-                }}
-              >
-                ×
-              </button>
-            </div>
-            <div className={styles.modalContent}>
-              <div className={styles.modalSection}>
-                <div className={styles.modalLabel}>Feature</div>
-                <div>{task.featureName}</div>
-              </div>
-              <div className={styles.modalSection}>
-                <div className={styles.modalLabel}>Assignee</div>
-                <div>{task.assignees.map(id => `User ${id}`).join(', ')}</div>
-              </div>
-              <div className={styles.modalSection}>
-                <div className={styles.modalLabel}>Dates</div>
-                <div>
-                  {format(task.startDate, 'MMM d')} - {format(task.endDate, 'MMM d')}
-                </div>
-              </div>
-              {task.description && (
-                <div className={styles.modalSection}>
-                  <div className={styles.modalLabel}>Description</div>
-                  <div>{task.description}</div>
-                </div>
-              )}
-            </div>
-          </div>
+          <TaskModal task={task} onClose={() => setSelectedTask(null)} />
         )}
       </div>
     );
