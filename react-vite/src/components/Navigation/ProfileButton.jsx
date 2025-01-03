@@ -1,16 +1,16 @@
-import { useState, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { thunkLogout } from "../../redux/session";
-import { useNavigate } from "react-router-dom";
-import "./Navigation.css";
+import { useState, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { thunkLogout } from '../../redux/session';
+import { useNavigate } from 'react-router-dom';
+import './Navigation.css';
 
 function ProfileButton() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const buttonRef = useRef();
-  const user = useSelector(state => state.session.user);
-  
+  const user = useSelector((state) => state.session.user);
+
   const toggleMenu = (e) => {
     e.stopPropagation();
     setShowMenu(!showMenu);
@@ -23,14 +23,14 @@ function ProfileButton() {
       }
     };
 
-    document.addEventListener("click", closeMenu);
-    return () => document.removeEventListener("click", closeMenu);
+    document.addEventListener('click', closeMenu);
+    return () => document.removeEventListener('click', closeMenu);
   }, []);
 
   const logout = (e) => {
     e.preventDefault();
     dispatch(thunkLogout());
-    navigate("/");
+    navigate('/');
   };
 
   return (

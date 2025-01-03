@@ -1,5 +1,9 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { csrfFetch } from '../utils/csrf';
+import { loadFeatures } from './feature';
+import { loadSprints } from './sprint';
+import { loadTasks } from './task';
+import { format } from 'date-fns';
 
 //! TO IMPLEMENT: optimistic loading, add front end ownership check for update, delete
 
@@ -65,6 +69,41 @@ export const thunkLoadProjects = () => async (dispatch) => {
   } catch (err) {
     dispatch(setErrors(err.errors || baseError));
     return null;
+  } finally {
+    dispatch(setLoading(false));
+  }
+};
+
+export const thunkLoadProjectData = (projectId) => async (dispatch) => {
+  dispatch(setLoading(true));
+  try {
+    // Load project
+    const projectResponse = await csrfFetch(`/projects/${projectId}`);
+    const projectData = await projectResponse.json();
+    dispatch(setProject(projectData));
+
+    // Load features
+    const featuresResponse = await csrfFetch(`/projects/${projectId}/features`);
+    const featuresData = await featuresResponse.json();
+    dispatch(loadFeatures(featuresData));
+
+    // Load sprints
+    const sprintsResponse = await csrfFetch(`/projects/${projectId}/sprints`);
+    const sprintsData = await sprintsResponse.json();
+    dispatch(loadSprints(sprintsData));
+
+    // Load tasks for each feature
+    for (const feature of featuresData) {
+      const tasksResponse = await csrfFetch(
+        `/projects/${projectId}/features/${feature.id}/tasks`
+      );
+      const tasksData = await tasksResponse.json();
+      dispatch(loadTasks(tasksData));
+    }
+
+    dispatch(setErrors(null));
+  } catch (err) {
+    dispatch(setErrors(err.errors || baseError));
   } finally {
     dispatch(setLoading(false));
   }
@@ -421,6 +460,77 @@ export const selectEnrichedProjects = createSelector(
           project.members?.includes(currentUser.id) &&
           project.owner_id !== currentUser.id
       ),
+    };
+  }
+);
+
+export const selectProjectPageData = createSelector(
+  [
+    (state, projectId) => state.projects.singleProject,
+    (state) => state.features.allFeatures,
+    (state) => state.tasks.allTasks,
+    (state) => state.sprints.allSprints,
+    (state, projectId) => projectId,
+  ],
+  (project, features, tasks, sprints, projectId) => {
+    if (!project) return null;
+
+    // Get all project sprints ordered by date
+    const projectSprints = Object.values(sprints)
+      .filter((sprint) => sprint.project_id === projectId)
+      .sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+
+    // Get features with their associated tasks
+    const enrichFeature = (feature) => ({
+      ...feature,
+      tasks: Object.values(tasks)
+        .filter((task) => task.feature_id === feature.id)
+        .map((task) => ({
+          ...task,
+          display: {
+            dates: `${format(new Date(task.start_date), 'MMM d')} - ${format(
+              new Date(task.due_date),
+              'MMM d'
+            )}`,
+          },
+        })),
+    });
+
+    // Get parking lot features (features with no sprint assigned)
+    const parkingLotFeatures = Object.values(features)
+      .filter(
+        (feature) => feature.project_id === projectId && !feature.sprint_id
+      )
+      .map(enrichFeature);
+
+    // Get features organized by sprint
+    const sprintFeatures = projectSprints.reduce((acc, sprint) => {
+      acc[sprint.id] = Object.values(features)
+        .filter(
+          (feature) =>
+            feature.project_id === projectId && feature.sprint_id === sprint.id
+        )
+        .map(enrichFeature);
+      return acc;
+    }, {});
+
+    return {
+      project: {
+        ...project,
+      },
+      sprints: projectSprints.map((sprint) => ({
+        ...sprint,
+        features: sprintFeatures[sprint.id] || [],
+        display: {
+          dates: `${format(new Date(sprint.start_date), 'MMM d')} - ${format(
+            new Date(sprint.end_date),
+            'MMM d'
+          )}`,
+        },
+      })),
+      parkingLot: {
+        features: parkingLotFeatures,
+      },
     };
   }
 );

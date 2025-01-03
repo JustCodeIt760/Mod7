@@ -47,8 +47,7 @@ class User(db.Model, UserMixin):
     def has_project_access(self, project_id):
         # Check if user is owner
         is_owner = any(
-            project.id == project_id
-            for project in self.owned_projects
+            project.id == project_id for project in self.owned_projects
         )
 
         # Check if user is member

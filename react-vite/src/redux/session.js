@@ -36,28 +36,16 @@ export const thunkAuthenticate = () => async (dispatch) => {
   dispatch(setLoading(true));
   try {
     const response = await csrfFetch('/auth');
-    const data = await response.json();
-    dispatch(setUser(data));
+    const userData = await response.json();
+    dispatch(setUser(userData));
 
-    // After user is authenticated, load all app data
-    if (data) {
-      // if authentication was successful
-      // Load core data
+    if (userData) {
+      // Just load the projects list
       await dispatch(thunkLoadProjects());
-      await dispatch(thunkLoadTasks());
-      await dispatch(thunkLoadSprints());
-
-      // Load features for each project
-      const projects = await dispatch(thunkLoadProjects());
-      if (projects) {
-        Object.values(projects).forEach((project) => {
-          dispatch(thunkLoadFeatures(project.id));
-        });
-      }
     }
 
     dispatch(setErrors(null));
-    return data;
+    return userData;
   } catch (err) {
     dispatch(setErrors(err.errors || baseError));
     return null;
