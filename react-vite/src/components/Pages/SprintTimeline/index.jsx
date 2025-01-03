@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { format, eachDayOfInterval, isSameDay } from 'date-fns';
-import { thunkLoadSprints, thunkSetSprint } from '../../../redux/sprint';
+import { thunkSetSprint } from '../../../redux/sprint';
 import { thunkLoadFeatures, selectAllFeatures, updateFeature } from '../../../redux/feature';
-import { loadTasks, selectAllTasks } from '../../../redux/task';
-import { csrfFetch } from '../../../utils/csrf';
+import { thunkLoadTasks, selectAllTasks } from '../../../redux/task';
+import { getAssignedMemberColors } from '../../../utils/colors';
 import styles from './SprintTimeline.module.css';
+import TaskHoverCard from './TaskHoverCard';
+import TaskModal from './TaskModal';
+import Legend from './Legend';
 
 const TEAM_COLORS = {
   1: {  // Demo user
@@ -22,20 +25,6 @@ const TEAM_COLORS = {
     pale: 'rgba(13, 148, 136, 0.25)'  // Transparent teal
   }
 };
-
-const TeamLegend = () => (
-  <div className={styles.legend}>
-    <h3 className={styles.legendTitle}>Team Members</h3>
-    <div className={styles.legendItems}>
-      {Object.entries(TEAM_COLORS).map(([userId, colors]) => (
-        <div key={userId} className={styles.legendItem}>
-          <div className={styles.legendColor} style={{ backgroundColor: colors.vibrant }}></div>
-          <span>{userId === '1' ? 'Demo User' : userId === '2' ? 'Sarah' : 'Mike'}</span>
-        </div>
-      ))}
-    </div>
-  </div>
-);
 
 const SprintTimeline = () => {
   const { projectId, sprintId } = useParams();
@@ -55,39 +44,31 @@ const SprintTimeline = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const sprintsResult = await dispatch(thunkLoadSprints(projectId));
-        if (!sprintsResult) {
-          setError('Failed to load sprints');
-          return;
-        }
-
+        // Load just the single sprint we need
         const sprintResult = await dispatch(thunkSetSprint(projectId, sprintId));
         if (!sprintResult) {
           setError('Sprint not found');
           return;
         }
 
+        // Load features for the sprint
         const featuresResult = await dispatch(thunkLoadFeatures(projectId));
-        console.log('Loaded features:', featuresResult);
         if (!featuresResult) {
           setError('Failed to load features');
           return;
         }
 
-        // Load tasks for each feature in the sprint
+        // Load tasks for each feature through Redux
         const sprintFeatures = featuresResult.filter(f => f.sprint_id === parseInt(sprintId));
         for (const feature of sprintFeatures) {
           try {
-            const tasksResponse = await csrfFetch(`/projects/${projectId}/features/${feature.id}/tasks`);
-            if (!tasksResponse.ok) {
+            const tasksResult = await dispatch(thunkLoadTasks(projectId, feature.id));
+            if (!tasksResult) {
               throw new Error(`Failed to load tasks for feature ${feature.id}`);
             }
-            const tasksData = await tasksResponse.json();
-            dispatch(loadTasks(tasksData));
-            // Update feature with task IDs
             dispatch(updateFeature({
               ...feature,
-              tasks: tasksData.map(task => task.id)
+              tasks: tasksResult.map(task => task.id)
             }));
           } catch (err) {
             console.error(`Error loading tasks for feature ${feature.id}:`, err);
@@ -168,6 +149,7 @@ const SprintTimeline = () => {
         });
         return {
           id: task.id,
+          feature_id: feature.id,
           featureName: feature.name,
           taskName: task.name,
           startDate: new Date(task.start_date),
@@ -198,9 +180,10 @@ const SprintTimeline = () => {
     const left = `${(startDay / totalDays) * 100}%`;
     const width = `${((endDay - startDay + 1) / totalDays) * 100}%`;
 
-    // Get color based on primary assignee
-    const primaryAssignee = task.assignees[0];
-    const color = TEAM_COLORS[primaryAssignee]?.vibrant || '#6B7280';
+    // Get color based on assignee
+    const { vibrant: color } = task.assignees[0]
+      ? getAssignedMemberColors(task.assignees[0])
+      : { vibrant: '#6B7280' }; // Default gray for unassigned tasks
 
     return {
       left,
@@ -210,23 +193,11 @@ const SprintTimeline = () => {
   };
 
   const renderTask = (task) => {
-    // Validate dates
-    if (!task.startDate || !task.endDate || isNaN(task.startDate.getTime()) || isNaN(task.endDate.getTime())) {
-      console.error('Invalid dates for task:', {
-        taskId: task.id,
-        startDate: task.startDate,
-        endDate: task.endDate
-      });
-      return null;
-    }
-
-    const style = getTaskStyle(task, task.startDate, task.endDate);
-
     return (
       <div key={task.id} className={styles.taskRow}>
         <div
           className={styles.taskBar}
-          style={style}
+          style={getTaskStyle(task, task.startDate, task.endDate)}
           onClick={() => setSelectedTask(task)}
           onMouseEnter={() => setHoveredTask(task)}
           onMouseLeave={() => setHoveredTask(null)}
@@ -236,86 +207,50 @@ const SprintTimeline = () => {
           </div>
         </div>
         {hoveredTask?.id === task.id && !selectedTask && (
-          <div className={styles.tooltip}>
-            <div className={styles.tooltipTitle}>{task.taskName}</div>
-            <div className={styles.tooltipSection}>Click to view details</div>
-          </div>
+          <TaskHoverCard task={task} />
         )}
         {selectedTask?.id === task.id && (
-          <div className={styles.taskModal}>
-            <div className={styles.modalHeader}>
-              <h3>{task.taskName}</h3>
-              <button
-                className={styles.closeButton}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedTask(null);
-                }}
-              >
-                ×
-              </button>
-            </div>
-            <div className={styles.modalContent}>
-              <div className={styles.modalSection}>
-                <div className={styles.modalLabel}>Feature</div>
-                <div>{task.featureName}</div>
-              </div>
-              <div className={styles.modalSection}>
-                <div className={styles.modalLabel}>Assignee</div>
-                <div>{task.assignees.map(id => `User ${id}`).join(', ')}</div>
-              </div>
-              <div className={styles.modalSection}>
-                <div className={styles.modalLabel}>Dates</div>
-                <div>
-                  {format(task.startDate, 'MMM d')} - {format(task.endDate, 'MMM d')}
-                </div>
-              </div>
-              {task.description && (
-                <div className={styles.modalSection}>
-                  <div className={styles.modalLabel}>Description</div>
-                  <div>{task.description}</div>
-                </div>
-              )}
-            </div>
-          </div>
+          <TaskModal task={task} onClose={() => setSelectedTask(null)} />
         )}
       </div>
     );
   };
 
   return (
-    <div className={styles.sprintView}>
-      <div className={styles.header}>
-        <button
-          className={styles.backButton}
-          onClick={() => navigate(`/projects/${projectId}`)}
-        >
-          ← Back to Project
-        </button>
-      </div>
-      <TeamLegend />
-      <div className={styles.timelineHeader}>
-        {days.map(day => (
-          <div key={day.toISOString()} className={styles.dayMarker}>
-            {format(day, 'MMM d')}
-          </div>
-        ))}
-      </div>
+    <div className={styles.timelineContainer}>
+      <div className={styles.sprintView}>
+        <div className={styles.header}>
+          <button
+            className={styles.backButton}
+            onClick={() => navigate(`/projects/${projectId}`)}
+          >
+            ← Back to Project
+          </button>
+        </div>
+        <Legend />
+        <div className={styles.timelineHeader}>
+          {days.map(day => (
+            <div key={day.toISOString()} className={styles.dayMarker}>
+              {format(day, 'MMM d')}
+            </div>
+          ))}
+        </div>
 
-      <div className={styles.contentWrapper}>
-        {userTasks.length > 0 && (
-          <div className={styles.tasksSection}>
-            <h3 className={styles.sectionTitle}>Your Tasks</h3>
-            {userTasks.map(renderTask)}
-          </div>
-        )}
+        <div className={styles.contentWrapper}>
+          {userTasks.length > 0 && (
+            <div className={styles.tasksSection}>
+              <h3 className={styles.sectionTitle}>Your Tasks</h3>
+              {userTasks.map(renderTask)}
+            </div>
+          )}
 
-        {otherTasks.length > 0 && (
-          <div className={styles.tasksSection}>
-            <h3 className={styles.sectionTitle}>Team Tasks</h3>
-            {otherTasks.map(renderTask)}
-          </div>
-        )}
+          {otherTasks.length > 0 && (
+            <div className={styles.tasksSection}>
+              <h3 className={styles.sectionTitle}>Team Tasks</h3>
+              {otherTasks.map(renderTask)}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { csrfFetch } from '../utils/csrf';
 import { createSelector } from '@reduxjs/toolkit';
+import { isWithinInterval } from 'date-fns';
 
 //! TO IMPLEMENT: optimistic loading, add front end ownership check for update, delete
 
@@ -52,17 +53,17 @@ export const setErrors = (errors) => ({
 });
 
 //THUNKS
-export const thunkLoadTasks = () => async (dispatch) => {
+export const thunkLoadTasks = (projectId, featureId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    const response = await csrfFetch('/api/tasks');
+    const response = await csrfFetch(`/projects/${projectId}/features/${featureId}/tasks`);
     const data = await response.json();
-    console.log('our data:', data);
     dispatch(loadTasks(data));
     dispatch(setErrors(null));
-  } catch (error) {
-    // utilizing setErrors so we have easy access to error responses
-    dispatch(setErrors(error.errors || baseError));
+    return data;
+  } catch (err) {
+    dispatch(setErrors(err.errors || baseError));
+    return null;
   } finally {
     dispatch(setLoading(false));
   }
@@ -115,19 +116,26 @@ export const thunkAddTask =
     }
   };
 
-export const thunkUpdateTask = (taskData) => async (dispatch) => {
+export const thunkUpdateTask = (projectId, featureId, taskId, taskData) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    const response = await csrfFetch(`/api/tasks/${taskData.id}`, {
+    const response = await csrfFetch(`/projects/${projectId}/features/${featureId}/tasks/${taskId}`, {
       method: 'PUT',
-      body: JSON.stringify(taskData),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(taskData)
     });
-    const updatedTask = await response.json();
-    dispatch(updateTask(updatedTask));
-    dispatch(setErrors(null));
-    return updatedTask;
-  } catch (error) {
-    dispatch(setErrors(error.errors || baseError));
+
+    if (response.ok) {
+      const task = await response.json();
+      dispatch(updateTask(task));
+      dispatch(setErrors(null));
+      return task;
+    }
+    return null;
+  } catch (err) {
+    dispatch(setErrors(err.errors || baseError));
     return null;
   } finally {
     dispatch(setLoading(false));
@@ -157,22 +165,51 @@ export const thunkToggleTaskCompletion = (taskId) => async (dispatch) => {
   }
 };
 
-export const thunkRemoveTask = (taskId) => async (dispatch) => {
+export const thunkRemoveTask = (projectId, featureId, taskId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    await csrfFetch(`/api/tasks/${taskId}`, {
+    const response = await csrfFetch(`/projects/${projectId}/features/${featureId}/tasks/${taskId}`, {
       method: 'DELETE',
     });
-    dispatch(removeTask(taskId));
-    dispatch(setErrors(null));
-    return true;
+    if (response.ok) {
+      dispatch(removeTask(taskId));
+      dispatch(setErrors(null));
+      return true;
+    } else {
+      const data = await response.json();
+      dispatch(setErrors(data.errors || baseError));
+      return false;
+    }
   } catch (error) {
     dispatch(setErrors(error.errors || baseError));
-    return null;
+    return false;
   } finally {
     dispatch(setLoading(false));
   }
 };
+
+export const thunkUpdateTaskPosition =
+  (projectId, featureId, taskId, updates) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await csrfFetch(
+        `/api/projects/${projectId}/features/${featureId}/tasks/${taskId}`,
+        {
+          method: 'PUT',
+          body: JSON.stringify(updates)
+        }
+      );
+      const updatedTask = await response.json();
+      dispatch(updateTask(updatedTask));
+      dispatch(setErrors(null));
+      return updatedTask;
+    } catch (err) {
+      dispatch(setErrors(err.errors || baseError));
+      return null;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 
 // Initial state object defining the structure of the project state
 const initialState = {

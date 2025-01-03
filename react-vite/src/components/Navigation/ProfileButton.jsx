@@ -27,10 +27,13 @@ function ProfileButton() {
     return () => document.removeEventListener('click', closeMenu);
   }, []);
 
-  const logout = (e) => {
+  const logout = async (e) => {
     e.preventDefault();
-    dispatch(thunkLogout());
-    navigate('/');
+    const response = await dispatch(thunkLogout());
+    if (response) {
+      setShowMenu(false);
+      navigate('/');
+    }
   };
 
   return (
