@@ -52,17 +52,17 @@ export const setErrors = (errors) => ({
 });
 
 //THUNKS
-export const thunkLoadTasks = () => async (dispatch) => {
+export const thunkLoadTasks = (projectId, featureId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    const response = await csrfFetch('/api/tasks');
+    const response = await csrfFetch(`/projects/${projectId}/features/${featureId}/tasks`);
     const data = await response.json();
-    console.log('our data:', data);
     dispatch(loadTasks(data));
     dispatch(setErrors(null));
-  } catch (error) {
-    // utilizing setErrors so we have easy access to error responses
-    dispatch(setErrors(error.errors || baseError));
+    return data;
+  } catch (err) {
+    dispatch(setErrors(err.errors || baseError));
+    return null;
   } finally {
     dispatch(setLoading(false));
   }
