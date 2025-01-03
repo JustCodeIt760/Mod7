@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { format, eachDayOfInterval, isSameDay } from 'date-fns';
 import { thunkSetSprint } from '../../../redux/sprint';
 import { thunkLoadFeatures, selectAllFeatures, updateFeature } from '../../../redux/feature';
-import { thunkLoadTasks, loadTasks, selectAllTasks } from '../../../redux/task';
-import { csrfFetch } from '../../../utils/csrf';
+import { thunkLoadTasks, selectAllTasks } from '../../../redux/task';
 import styles from './SprintTimeline.module.css';
 
 const TEAM_COLORS = {
