@@ -77,32 +77,42 @@ export const thunkLoadProjects = () => async (dispatch) => {
 export const thunkLoadProjectData = (projectId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
+    console.log('Loading data for project:', projectId);
+
     // Load project
     const projectResponse = await csrfFetch(`/projects/${projectId}`);
     const projectData = await projectResponse.json();
+    console.log('Project data received:', projectData);
     dispatch(setProject(projectData));
 
     // Load features
     const featuresResponse = await csrfFetch(`/projects/${projectId}/features`);
     const featuresData = await featuresResponse.json();
+    console.log('Features data received:', featuresData);
     dispatch(loadFeatures(featuresData));
 
     // Load sprints
     const sprintsResponse = await csrfFetch(`/projects/${projectId}/sprints`);
     const sprintsData = await sprintsResponse.json();
+    console.log('Sprints data received:', sprintsData);
     dispatch(loadSprints(sprintsData));
 
     // Load tasks for each feature
+    console.log('Number of features to load tasks for:', featuresData.length);
     for (const feature of featuresData) {
       const tasksResponse = await csrfFetch(
         `/projects/${projectId}/features/${feature.id}/tasks`
       );
       const tasksData = await tasksResponse.json();
+      console.log(`Tasks for feature ${feature.id}:`, tasksData);
       dispatch(loadTasks(tasksData));
     }
 
+    // Log final state
+    console.log('All data loaded successfully');
     dispatch(setErrors(null));
   } catch (err) {
+    console.error('Error in thunkLoadProjectData:', err);
     dispatch(setErrors(err.errors || baseError));
   } finally {
     dispatch(setLoading(false));
@@ -477,55 +487,67 @@ export const selectProjectPageData = createSelector(
 
     // Get all project sprints ordered by date
     const projectSprints = Object.values(sprints)
-      .filter((sprint) => sprint.project_id === projectId)
-      .sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+      .filter((sprint) => sprint?.project_id === parseInt(projectId))
+      .sort(
+        (a, b) => new Date(a?.start_date || 0) - new Date(b?.start_date || 0)
+      );
 
     // Get features with their associated tasks
-    const enrichFeature = (feature) => ({
-      ...feature,
-      tasks: Object.values(tasks)
-        .filter((task) => task.feature_id === feature.id)
-        .map((task) => ({
-          ...task,
-          display: {
-            dates: `${format(new Date(task.start_date), 'MMM d')} - ${format(
-              new Date(task.due_date),
-              'MMM d'
-            )}`,
-          },
-        })),
-    });
+    const enrichFeature = (feature) => {
+      const featureTasks =
+        feature.tasks
+          ?.map((taskId) => {
+            const task = tasks[taskId];
+            if (!task) return null;
 
-    // Get parking lot features (features with no sprint assigned)
+            return {
+              ...task,
+              display: {
+                dates:
+                  task.start_date && task.due_date
+                    ? `${format(new Date(task.start_date), 'MMM d')} - ${format(
+                        new Date(task.due_date),
+                        'MMM d'
+                      )}`
+                    : 'No dates',
+              },
+            };
+          })
+          .filter(Boolean) || [];
+
+      return {
+        ...feature,
+        tasks: featureTasks,
+      };
+    };
+
+    // Get parking lot features
     const parkingLotFeatures = Object.values(features)
       .filter(
-        (feature) => feature.project_id === projectId && !feature.sprint_id
+        (feature) =>
+          feature?.project_id === parseInt(projectId) && !feature?.sprint_id
       )
       .map(enrichFeature);
 
-    // Get features organized by sprint
-    const sprintFeatures = projectSprints.reduce((acc, sprint) => {
-      acc[sprint.id] = Object.values(features)
-        .filter(
-          (feature) =>
-            feature.project_id === projectId && feature.sprint_id === sprint.id
-        )
-        .map(enrichFeature);
-      return acc;
-    }, {});
-
     return {
-      project: {
-        ...project,
-      },
+      project,
       sprints: projectSprints.map((sprint) => ({
         ...sprint,
-        features: sprintFeatures[sprint.id] || [],
+        features: Object.values(features)
+          .filter(
+            (feature) =>
+              feature?.project_id === parseInt(projectId) &&
+              feature?.sprint_id === sprint.id
+          )
+          .map(enrichFeature),
         display: {
-          dates: `${format(new Date(sprint.start_date), 'MMM d')} - ${format(
-            new Date(sprint.end_date),
-            'MMM d'
-          )}`,
+          dates:
+            sprint?.start_date && sprint?.end_date
+              ? `${format(new Date(sprint.start_date), 'MMM d')} - ${format(
+                  new Date(sprint.end_date),
+                  'MMM d'
+                )}`
+              : 'No dates',
         },
       })),
       parkingLot: {

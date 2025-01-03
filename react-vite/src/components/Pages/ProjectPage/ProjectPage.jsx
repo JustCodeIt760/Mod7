@@ -24,10 +24,6 @@ function ProjectPage() {
   if (isLoading) return <div>Loading...</div>;
   if (!projectData) return <div>Project not Found</div>;
   const { project, sprints, parkingLot } = projectData;
-  console.log(project);
-  console.log(sprints);
-  console.log(parkingLot);
-  console.log(projectData);
   return (
     <div className={styles.projectPage}>
       <ProjectHeader project={project} />
