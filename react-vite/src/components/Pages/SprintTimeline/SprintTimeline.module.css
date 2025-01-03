@@ -269,3 +269,13 @@
   border-color: #d1d5db;
   background-color: #f9fafb;
 }
+
+.errorMessage {
+  background-color: #fee2e2;
+  border: 1px solid #ef4444;
+  color: #dc2626;
+  padding: 0.75rem;
+  margin: 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}

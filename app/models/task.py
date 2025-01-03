@@ -40,13 +40,17 @@ class Task(db.Model):
 
     @start_date.setter
     def start_date(self, value):
+        if isinstance(value, str):
+            value = datetime.fromisoformat(value.replace('Z', '+00:00'))
         if self._due_date and value and value > self._due_date:
             raise ValueError("Start date can't be after due date")
         self._start_date = value
 
     @due_date.setter
     def due_date(self, value):
-        if self._due_date and value and value < self._start_date:
+        if isinstance(value, str):
+            value = datetime.fromisoformat(value.replace('Z', '+00:00'))
+        if self._start_date and value and value < self._start_date:
             raise ValueError("Due date can't be before start date")
         self._due_date = value
 

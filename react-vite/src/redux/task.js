@@ -174,6 +174,28 @@ export const thunkRemoveTask = (taskId) => async (dispatch) => {
   }
 };
 
+export const thunkUpdateTaskPosition =
+  (projectId, featureId, taskId, updates) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await csrfFetch(
+        `/api/projects/${projectId}/features/${featureId}/tasks/${taskId}`,
+        {
+          method: 'PUT',
+          body: JSON.stringify(updates)
+        }
+      );
+      const updatedTask = await response.json();
+      dispatch(updateTask(updatedTask));
+      return updatedTask;
+    } catch (err) {
+      dispatch(setErrors(err.errors || baseError));
+      return null;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
 // Initial state object defining the structure of the project state
 const initialState = {
   allTasks: {}, //Object to store all tasks, keyed by task ID

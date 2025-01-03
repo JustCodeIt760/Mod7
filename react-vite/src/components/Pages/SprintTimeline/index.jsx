@@ -161,6 +161,7 @@ const SprintTimeline = () => {
         });
         return {
           id: task.id,
+          feature_id: feature.id,
           featureName: feature.name,
           taskName: task.name,
           startDate: new Date(task.start_date),
