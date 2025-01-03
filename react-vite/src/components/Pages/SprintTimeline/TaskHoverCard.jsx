@@ -1,46 +1,75 @@
-import { format } from 'date-fns';
+import { useRef, useEffect } from 'react';
+import useMousePosition from '../../../hooks/useMousePosition';
+import { getAssignedMemberColors } from '../../../utils/colors';
 import styles from './SprintTimeline.module.css';
 
-const TEAM_MEMBERS = {
-  '1': 'Demo User',
-  '2': 'Sarah',
-  '3': 'Mike'
-};
+const TaskHoverCard = ({ task }) => {
+  const cardRef = useRef(null);
+  const { x, y } = useMousePosition();
 
-const getAssigneeName = (userId) => {
-  return TEAM_MEMBERS[userId] || `User ${userId}`;
-};
+  useEffect(() => {
+    if (!cardRef.current) return;
 
-const TaskHoverCard = ({ task }) => (
-  <div className={styles.tooltip}>
-    <div className={styles.tooltipHeader}>
-      <span className={styles.tooltipTitle}>{task.taskName}</span>
-      <span className={`${styles.tooltipStatus} ${styles[task.status.toLowerCase()]}`}>
-        {task.status}
-      </span>
-    </div>
-    <div className={styles.tooltipBody}>
-      <div className={styles.tooltipRow}>
-        <span>Feature:</span>
-        <span>{task.featureName}</span>
-      </div>
-      <div className={styles.tooltipRow}>
-        <span>Dates:</span>
-        <span>{format(task.startDate, 'MMM d')} - {format(task.endDate, 'MMM d')}</span>
-      </div>
-      <div className={styles.tooltipRow}>
-        <span>Assigned:</span>
-        <span>{task.assignees[0] ? getAssigneeName(task.assignees[0]) : 'Unassigned'}</span>
+    const card = cardRef.current;
+    const cardRect = card.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // Position card to the right of cursor by default
+    let left = x + 20; // 20px offset from cursor
+    let top = y;
+
+    // Check if card would go off right edge of screen
+    if (left + cardRect.width > viewportWidth) {
+      left = x - cardRect.width - 20; // Position to left of cursor instead
+    }
+
+    // Check if card would go off bottom of screen
+    if (top + cardRect.height > viewportHeight) {
+      top = viewportHeight - cardRect.height - 10; // 10px padding from bottom
+    }
+
+    // Check if card would go off top of screen
+    if (top < 10) {
+      top = 10; // 10px padding from top
+    }
+
+    card.style.left = `${left}px`;
+    card.style.top = `${top}px`;
+  }, [x, y]);
+
+  const { vibrant: borderColor } = task.assigned_to
+    ? getAssignedMemberColors(task.assigned_to)
+    : { vibrant: '#CCCCCC' };
+
+  return (
+    <div
+      ref={cardRef}
+      className={styles.taskHoverCard}
+      style={{
+        position: 'fixed',
+        zIndex: 1000,
+        borderLeft: `4px solid ${borderColor}`
+      }}
+    >
+      <h4 className={styles.taskTitle}>{task.name}</h4>
+      <div className={styles.taskDetails}>
+        <p><strong>Status:</strong> {task.status}</p>
+        <p><strong>Priority:</strong> {task.priority}</p>
+        {task.assigned_to_user && (
+          <p><strong>Assigned to:</strong> {task.assigned_to_user.username}</p>
+        )}
+        <p><strong>Start:</strong> {task.start_date}</p>
+        <p><strong>Due:</strong> {task.due_date}</p>
       </div>
       {task.description && (
-        <div className={styles.tooltipDescription}>
-          {task.description.length > 100
-            ? `${task.description.slice(0, 100)}...`
-            : task.description}
+        <div className={styles.taskDescription}>
+          <strong>Description:</strong>
+          <p>{task.description}</p>
         </div>
       )}
     </div>
-  </div>
-);
+  );
+};
 
 export default TaskHoverCard;
