@@ -1,5 +1,10 @@
 import styles from './TaskItem.module.css';
-function TaskItemContent({ task, onToggleCompletion }) {
+function TaskItemContent({
+  task,
+  onToggleCompletion,
+  status = false,
+  showAssignment = false,
+}) {
   return (
     <>
       <div className={styles.taskHeader}>
@@ -25,16 +30,18 @@ function TaskItemContent({ task, onToggleCompletion }) {
             {task.name}
           </h3>
         </div>
-        <span
-          className={`${styles.priority} ${
-            styles[`priority${task.display.priority}`]
-          }`}
-        >
-          {task.display.priority}
-        </span>
       </div>
 
       <p className={styles.description}>{task.description}</p>
+
+      {showAssignment && task.display.assignedTo && (
+        <div className={styles.assignmentInfo}>
+          <span className={styles.assignedLabel}>Assigned to:</span>
+          <span className={styles.assignedValue}>
+            {task.display.assignedTo}
+          </span>
+        </div>
+      )}
 
       <div className={styles.metadata}>
         <div className={styles.dates}>
@@ -48,12 +55,21 @@ function TaskItemContent({ task, onToggleCompletion }) {
           </div>
         </div>
         <span
-          className={`${styles.status} ${
-            styles[task.status.replace(/\s+/g, '')]
+          className={`${styles.priority} ${
+            styles[`priority${task.display.priority}`]
           }`}
         >
-          {task.status}
+          {task.display.priority}
         </span>
+        {status && (
+          <span
+            className={`${styles.status} ${
+              styles[task.status.replace(/\s+/g, '')]
+            }`}
+          >
+            {task.status}
+          </span>
+        )}
       </div>
     </>
   );

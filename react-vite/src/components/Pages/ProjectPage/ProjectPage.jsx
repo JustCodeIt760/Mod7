@@ -9,7 +9,7 @@ import {
 import ProjectHeader from './ProjectHeader';
 import ParkingLot from './ParkingLot';
 import SprintSection from './SprintSection';
-import styles from './ProjectPage.module.css';
+import styles from './styles/ProjectPage.module.css';
 
 function ProjectPage() {
   const { projectId } = useParams();
@@ -24,6 +24,9 @@ function ProjectPage() {
   if (isLoading) return <div>Loading...</div>;
   if (!projectData) return <div>Project not Found</div>;
   const { project, sprints, parkingLot } = projectData;
+  console.log(project);
+  console.log(parkingLot);
+  console.log(sprints);
   return (
     <div className={styles.projectPage}>
       <ProjectHeader project={project} />

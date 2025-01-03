@@ -1,5 +1,5 @@
 import { FeatureCard } from './';
-import styles from './ProjectPage.module.css';
+import styles from './styles/ParkingLot.module.css';
 
 function ParkingLot({ features = [] }) {
   return (

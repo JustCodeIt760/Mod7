@@ -480,40 +480,35 @@ export const selectProjectPageData = createSelector(
     (state) => state.features.allFeatures,
     (state) => state.tasks.allTasks,
     (state) => state.sprints.allSprints,
+    (state) => state.users?.allUsers || {}, // Add users state if you have it
     (state, projectId) => projectId,
   ],
-  (project, features, tasks, sprints, projectId) => {
+  (project, features, tasks, sprints, users, projectId) => {
     if (!project) return null;
 
-    // Get all project sprints ordered by date
-    const projectSprints = Object.values(sprints)
-      .filter((sprint) => sprint?.project_id === parseInt(projectId))
-      .sort(
-        (a, b) => new Date(a?.start_date || 0) - new Date(b?.start_date || 0)
-      );
+    const formatDate = (dateString) => {
+      try {
+        return dateString ? format(new Date(dateString), 'MMM d') : '';
+      } catch (error) {
+        return '';
+      }
+    };
 
-    // Get features with their associated tasks
     const enrichFeature = (feature) => {
-      const featureTasks =
-        feature.tasks
-          ?.map((taskId) => {
-            const task = tasks[taskId];
-            if (!task) return null;
-
-            return {
-              ...task,
-              display: {
-                dates:
-                  task.start_date && task.due_date
-                    ? `${format(new Date(task.start_date), 'MMM d')} - ${format(
-                        new Date(task.due_date),
-                        'MMM d'
-                      )}`
-                    : 'No dates',
-              },
-            };
-          })
-          .filter(Boolean) || [];
+      const featureTasks = Object.values(tasks)
+        .filter((task) => task.feature_id === feature.id)
+        .map((task) => ({
+          ...task,
+          display: {
+            dates: `${formatDate(task.start_date)} - ${formatDate(
+              task.due_date
+            )}`,
+            priority: ['High', 'Medium', 'Low'][task.priority - 1] || 'Low',
+            dueDate: new Date(task.due_date).toLocaleDateString(),
+            assignedTo: users[task.assigned_to]?.full_name || 'Unassigned', // Add user info
+            assignedToUser: users[task.assigned_to] || null, // Full user object if needed
+          },
+        }));
 
       return {
         ...feature,
@@ -521,35 +516,37 @@ export const selectProjectPageData = createSelector(
       };
     };
 
-    // Get parking lot features
+    // Get parking lot features (features with no sprint assigned)
     const parkingLotFeatures = Object.values(features)
       .filter(
         (feature) =>
-          feature?.project_id === parseInt(projectId) && !feature?.sprint_id
+          feature.project_id === parseInt(projectId) && !feature.sprint_id
       )
       .map(enrichFeature);
 
-    return {
-      project,
-      sprints: projectSprints.map((sprint) => ({
+    // Get sprints with their features and tasks
+    const projectSprints = Object.values(sprints)
+      .filter((sprint) => sprint.project_id === parseInt(projectId))
+      .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
+      .map((sprint) => ({
         ...sprint,
         features: Object.values(features)
           .filter(
             (feature) =>
-              feature?.project_id === parseInt(projectId) &&
-              feature?.sprint_id === sprint.id
+              feature.project_id === parseInt(projectId) &&
+              feature.sprint_id === sprint.id
           )
           .map(enrichFeature),
         display: {
-          dates:
-            sprint?.start_date && sprint?.end_date
-              ? `${format(new Date(sprint.start_date), 'MMM d')} - ${format(
-                  new Date(sprint.end_date),
-                  'MMM d'
-                )}`
-              : 'No dates',
+          dates: `${formatDate(sprint.start_date)} - ${formatDate(
+            sprint.end_date
+          )}`,
         },
-      })),
+      }));
+
+    return {
+      project,
+      sprints: projectSprints,
       parkingLot: {
         features: parkingLotFeatures,
       },

@@ -1,9 +1,10 @@
 import styles from './TaskItem.module.css';
 import { useDispatch } from 'react-redux';
 import TaskItemContent from './TaskItemContent';
+import TaskItemHeader from './TaskItemHeader';
 import { thunkToggleTaskCompletion } from '../../../redux/task';
 
-function TaskItem({ task, showContext = false }) {
+function TaskItem({ task, showContext = true }) {
   const dispatch = useDispatch();
 
   const handleToggleCompletion = async () => {

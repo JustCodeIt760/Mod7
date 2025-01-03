@@ -1,0 +1,12 @@
+.projectPage {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.projectContent {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+}

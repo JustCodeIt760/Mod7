@@ -2,7 +2,7 @@ import { useDispatch } from 'react-redux';
 // we are utilizing the same task item content from our tasks list (to keep same look and ease of change)
 import { TaskItemContent } from '../TasksPage';
 import { thunkToggleTaskCompletion } from '../../../redux/task';
-import styles from './ProjectPage.module.css';
+import styles from './styles/TaskCard.module.css';
 
 function TaskCard({ task, isHovered, onHover }) {
   const dispatch = useDispatch();
@@ -18,6 +18,7 @@ function TaskCard({ task, isHovered, onHover }) {
         onToggleCompletion={handleToggleCompletion}
         isHovered={isHovered}
         onHover={onHover}
+        showAssignment={true}
       />
     </div>
   );

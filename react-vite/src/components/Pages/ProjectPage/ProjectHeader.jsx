@@ -1,4 +1,4 @@
-import styles from './ProjectPage.module.css';
+import styles from './styles/ProjectHeader.module.css';
 
 function ProjectHeader({ project }) {
   if (!project)

@@ -1,5 +1,5 @@
 import { FeatureCard } from './';
-import styles from './ProjectPage.module.css';
+import styles from './styles/SprintContent.module.css';
 
 function SprintContent({ sprint, features }) {
   if (!sprint || !features.length) {
@@ -17,6 +17,7 @@ function SprintContent({ sprint, features }) {
           key={feature.id}
           feature={feature}
           draggable
+          showTasks={true}
           onDragStart={(e) => {
             e.dataTransfer.setData('featureId', feature.id);
           }}

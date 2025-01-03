@@ -168,3 +168,21 @@
   text-decoration: line-through;
   color: #9ca3af;
 }
+
+.assignmentInfo {
+  margin: 0.5rem 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.assignedLabel {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.assignedValue {
+  color: #374151;
+}

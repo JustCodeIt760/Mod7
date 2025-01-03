@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { TaskCard } from './';
-import styles from './ProjectPage.module.css';
+import styles from './styles/TaskList.module.css';
 
 function TaskList({ tasks }) {
   const [hoveredTaskId, setHoveredTaskId] = useState(null);

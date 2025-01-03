@@ -1,4 +1,4 @@
-import styles from './ProjectPage.module.css';
+import styles from './styles/SprintHeader.module.css';
 
 function SprintHeader({ sprint, onPrevious, onNext, onAddSprint }) {
   return (

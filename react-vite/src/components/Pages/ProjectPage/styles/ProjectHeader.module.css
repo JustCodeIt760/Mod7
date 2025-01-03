@@ -1,0 +1,23 @@
+.projectHeader {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.projectHeader h1 {
+  margin: 0;
+  color: #111827;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.projectMeta {
+  margin-top: 0.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  display: flex;
+  justify-content: center;
+}

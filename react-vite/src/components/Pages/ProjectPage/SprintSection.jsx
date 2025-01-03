@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { SprintHeader, SprintContent } from './';
-import styles from './ProjectPage.module.css';
+import styles from './styles/SprintSection.module.css';
 
 function SprintSection({ sprints, projectId }) {
   const [currentSprintIndex, setCurrentSprintIndex] = useState(0);
