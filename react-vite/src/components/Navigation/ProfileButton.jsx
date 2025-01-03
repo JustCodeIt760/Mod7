@@ -9,8 +9,8 @@ function ProfileButton() {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const buttonRef = useRef();
-  const user = useSelector(state => state.session.user);
-  
+  const user = useSelector((state) => state.session.user);
+
   const toggleMenu = (e) => {
     e.stopPropagation();
     setShowMenu(!showMenu);
@@ -27,10 +27,13 @@ function ProfileButton() {
     return () => document.removeEventListener("click", closeMenu);
   }, []);
 
-  const logout = (e) => {
+  const logout = async (e) => {
     e.preventDefault();
-    dispatch(thunkLogout());
-    navigate("/");
+    const response = await dispatch(thunkLogout());
+    if (response) {
+      setShowMenu(false);
+      navigate('/');
+    }
   };
 
   return (
