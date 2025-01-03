@@ -3,6 +3,7 @@ import { csrfFetch } from '../utils/csrf';
 import { loadFeatures } from './feature';
 import { loadSprints } from './sprint';
 import { loadTasks } from './task';
+import { loadUsers } from './user';
 import { format } from 'date-fns';
 
 //! TO IMPLEMENT: optimistic loading, add front end ownership check for update, delete
@@ -84,6 +85,12 @@ export const thunkLoadProjectData = (projectId) => async (dispatch) => {
     const projectData = await projectResponse.json();
     console.log('Project data received:', projectData);
     dispatch(setProject(projectData));
+
+    // Load users for the project
+    const usersResponse = await csrfFetch(`/projects/${projectId}/users`);
+    const usersData = await usersResponse.json();
+    console.log('Users data received:', usersData);
+    dispatch(loadUsers(usersData.users));
 
     // Load features
     const featuresResponse = await csrfFetch(`/projects/${projectId}/features`);
