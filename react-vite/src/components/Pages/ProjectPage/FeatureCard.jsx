@@ -1,16 +1,15 @@
+import { TaskList } from './';
 import styles from './ProjectPage.module.css';
-
-const FeatureCard = ({ feature }) => {
+function FeatureCard({ feature, projectId }) {
   return (
-    <div className={styles.featureCard}>
+    <div
+      className={styles.featureCard}
+      draggable
+      onDragStart={(e) => e.dataTransfer.setData('featureId', feature.id)}
+    >
       <h3>{feature.name}</h3>
-      <p>{feature.description}</p>
-      <div className={styles.featureDetails}>
-        <span className={styles.status}>Status: {feature.status}</span>
-        <span className={styles.priority}>Priority: {feature.priority}</span>
-      </div>
+      <TaskList tasks={feature.tasks} />
     </div>
   );
-};
-
+}
 export default FeatureCard;
