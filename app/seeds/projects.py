@@ -2,6 +2,8 @@ from models import db, Project, User, environment, SCHEMA
 from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 
+# Base date for all projects
+BASE_DATE = datetime(2025, 1, 2)
 
 def seed_projects():
     users = User.query.all()
@@ -11,21 +13,21 @@ def seed_projects():
         name="Website Redesign",
         description="Complete overhaul of company website",
         owner_id=demo.id,
-        due_date=datetime.utcnow() + timedelta(days=90),
+        due_date=BASE_DATE + timedelta(days=14),
     )
 
     mobile_app = Project(
         name="Mobile App Development",
         description="New mobile application for customers",
         owner_id=sarah.id,
-        due_date=datetime.utcnow() + timedelta(days=120),
+        due_date=BASE_DATE + timedelta(days=14),
     )
 
     marketing = Project(
         name="Q1 Marketing Campaign",
         description="Social media marketing campaign",
         owner_id=mike.id,
-        due_date=datetime.utcnow() + timedelta(days=60),
+        due_date=BASE_DATE + timedelta(days=14),
     )
 
     # Add members to projects

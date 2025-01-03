@@ -23,10 +23,25 @@ def require_project_access(f):
 @login_required
 @require_project_access
 def get_all_sprints_project(project_id):
+    try:
+        sprints = Sprint.get_all_sprints_for_project(project_id).all()
+        return jsonify([sprint.to_dict() for sprint in sprints])
+    except Exception as e:
+        # Log the error for debugging
+        print(f"Error fetching sprints for project {project_id}: {e}")
+        return {"message": "Internal server error", "error": str(e)}, 500
 
-    sprints = Sprint.get_all_sprints_for_project(project_id).all()
 
-    return jsonify([sprint.to_dict() for sprint in sprints])
+@sprint_routes.route("/projects/<int:project_id>/sprints/<int:sprint_id>")
+@login_required
+@require_project_access
+def get_single_sprint(project_id, sprint_id):
+    sprint = Sprint.query.get(sprint_id)
+    if not sprint:
+        return {"message": "Sprint couldn't be found"}, 404
+    if sprint.project_id != project_id:
+        return {"message": "Sprint doesn't belong to this project"}, 403
+    return jsonify(sprint.to_dict())
 
 
 @sprint_routes.route("/projects/<int:project_id>/sprints", methods=["POST"])

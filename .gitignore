@@ -7,3 +7,8 @@ __pycache__/
 !.flaskenv
 init.sh
 **/migrations/versions/*
+
+# Documentation files
+**/*.md
+/README.md
+systemPrompt.md

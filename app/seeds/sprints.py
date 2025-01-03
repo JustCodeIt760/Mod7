@@ -2,117 +2,89 @@ from models import db, Sprint, Project, environment, SCHEMA
 from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 
+# Base date for all sprints
+BASE_DATE = datetime(2025, 1, 2)
 
 def seed_sprints():
     projects = Project.query.all()
     website, mobile_app, marketing = projects
 
-    # Website Redesign Sprints
+    # Website Redesign Sprints (1 week each)
     web_sprint1 = Sprint(
         project_id=website.id,
         name="Design Phase",
-        start_date=datetime.utcnow(),
-        end_date=datetime.utcnow() + timedelta(days=14),
+        start_date=BASE_DATE,
+        end_date=BASE_DATE + timedelta(days=6),
     )
 
     web_sprint2 = Sprint(
         project_id=website.id,
         name="Frontend Development",
-        start_date=datetime.utcnow() + timedelta(days=15),
-        end_date=datetime.utcnow() + timedelta(days=29),
+        start_date=BASE_DATE + timedelta(days=7),
+        end_date=BASE_DATE + timedelta(days=13),
     )
 
     web_sprint3 = Sprint(
         project_id=website.id,
         name="Backend Integration",
-        start_date=datetime.utcnow() + timedelta(days=30),
-        end_date=datetime.utcnow() + timedelta(days=44),
+        start_date=BASE_DATE + timedelta(days=14),
+        end_date=BASE_DATE + timedelta(days=20),
     )
 
     web_sprint4 = Sprint(
         project_id=website.id,
         name="Testing & QA",
-        start_date=datetime.utcnow() + timedelta(days=45),
-        end_date=datetime.utcnow() + timedelta(days=59),
+        start_date=BASE_DATE + timedelta(days=21),
+        end_date=BASE_DATE + timedelta(days=27),
     )
 
-    web_sprint5 = Sprint(
-        project_id=website.id,
-        name="Performance Optimization",
-        start_date=datetime.utcnow() + timedelta(days=60),
-        end_date=datetime.utcnow() + timedelta(days=74),
-    )
-
-    web_sprint6 = Sprint(
-        project_id=website.id,
-        name="Launch Preparation",
-        start_date=datetime.utcnow() + timedelta(days=75),
-        end_date=datetime.utcnow() + timedelta(days=89),
-    )
-
-    # Mobile App Sprints
+    # Mobile App Sprints (1 week each)
     app_sprint1 = Sprint(
         project_id=mobile_app.id,
         name="MVP Features",
-        start_date=datetime.utcnow(),
-        end_date=datetime.utcnow() + timedelta(days=21),
+        start_date=BASE_DATE,
+        end_date=BASE_DATE + timedelta(days=6),
     )
 
     app_sprint2 = Sprint(
         project_id=mobile_app.id,
         name="User Authentication",
-        start_date=datetime.utcnow() + timedelta(days=22),
-        end_date=datetime.utcnow() + timedelta(days=42),
+        start_date=BASE_DATE + timedelta(days=7),
+        end_date=BASE_DATE + timedelta(days=13),
     )
 
     app_sprint3 = Sprint(
         project_id=mobile_app.id,
         name="Core Functionality",
-        start_date=datetime.utcnow() + timedelta(days=43),
-        end_date=datetime.utcnow() + timedelta(days=63),
+        start_date=BASE_DATE + timedelta(days=14),
+        end_date=BASE_DATE + timedelta(days=20),
     )
 
-    app_sprint4 = Sprint(
-        project_id=mobile_app.id,
-        name="UI Polish",
-        start_date=datetime.utcnow() + timedelta(days=64),
-        end_date=datetime.utcnow() + timedelta(days=84),
-    )
-
-    # Marketing Sprints
+    # Marketing Sprints (1 week each)
     marketing_sprint1 = Sprint(
         project_id=marketing.id,
         name="Content Creation",
-        start_date=datetime.utcnow(),
-        end_date=datetime.utcnow() + timedelta(days=10),
+        start_date=BASE_DATE,
+        end_date=BASE_DATE + timedelta(days=6),
     )
 
     marketing_sprint2 = Sprint(
         project_id=marketing.id,
         name="Social Media Strategy",
-        start_date=datetime.utcnow() + timedelta(days=11),
-        end_date=datetime.utcnow() + timedelta(days=20),
+        start_date=BASE_DATE + timedelta(days=7),
+        end_date=BASE_DATE + timedelta(days=13),
     )
 
-    marketing_sprint3 = Sprint(
-        project_id=marketing.id,
-        name="Email Campaign",
-        start_date=datetime.utcnow() + timedelta(days=21),
-        end_date=datetime.utcnow() + timedelta(days=30),
-    )
-
-    db.session.add_all(
-        [
-            web_sprint1, web_sprint2, web_sprint3, web_sprint4, web_sprint5, web_sprint6,
-            app_sprint1, app_sprint2, app_sprint3, app_sprint4,
-            marketing_sprint1, marketing_sprint2, marketing_sprint3
-        ]
-    )
+    db.session.add_all([
+        web_sprint1, web_sprint2, web_sprint3, web_sprint4,
+        app_sprint1, app_sprint2, app_sprint3,
+        marketing_sprint1, marketing_sprint2
+    ])
     db.session.commit()
     return [
-        web_sprint1, web_sprint2, web_sprint3, web_sprint4, web_sprint5, web_sprint6,
-        app_sprint1, app_sprint2, app_sprint3, app_sprint4,
-        marketing_sprint1, marketing_sprint2, marketing_sprint3
+        web_sprint1, web_sprint2, web_sprint3, web_sprint4,
+        app_sprint1, app_sprint2, app_sprint3,
+        marketing_sprint1, marketing_sprint2
     ]
 
 

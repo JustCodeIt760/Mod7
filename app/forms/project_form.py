@@ -23,7 +23,7 @@ class ProjectForm(FlaskForm):
             Length(
                 min=10,
                 max=300,
-                message="Description must be less than 300 characters",
+                message="Description must be between 10 and 300 characters",
             ),
         ],
     )

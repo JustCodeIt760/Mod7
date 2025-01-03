@@ -7,6 +7,7 @@ import ProjectPage from '../components/Pages/ProjectPage';
 import SprintDetailsPage from '../components/Pages/SprintDetailsPage';
 import SprintTimeline from '../components/Pages/SprintTimeline';
 import SignupFormPage from '../components/SignupFormPage';
+import { TasksPage } from '../components/Pages/TasksPage';
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ export const router = createBrowserRouter([
       {
         path: 'projects',
         element: <Workspace />,
+      },
+      {
+        path: 'tasks',
+        element: <TasksPage />,
       },
       {
         path: 'projects/:projectId',
