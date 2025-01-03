@@ -18,3 +18,14 @@
   font-size: 1.1rem;
   font-weight: 600;
 }
+
+.parkingLotFeature {
+  text-align: center;
+  font-size: 1.25rem; /* Larger text */
+  font-weight: 600;
+  color: #111827;
+  padding: 0.5rem 0; /* Add some vertical padding */
+}
+.featureCard:not(:has(h3)) {
+  padding: 0.25rem; /* Slightly less padding for parking lot cards */
+}

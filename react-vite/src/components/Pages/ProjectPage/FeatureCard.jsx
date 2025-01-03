@@ -7,7 +7,10 @@ function FeatureCard({ feature, projectId, showTasks = false }) {
       draggable
       onDragStart={(e) => e.dataTransfer.setData('featureId', feature.id)}
     >
-      <h3>{feature.name}</h3>
+      {showTasks && <h3>{feature.name}</h3>}
+      {!showTasks && (
+        <div className={styles.parkingLotFeature}>{feature.name}</div>
+      )}
       {showTasks && <TaskList tasks={feature.tasks} />}
     </div>
   );
