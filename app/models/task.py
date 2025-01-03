@@ -63,6 +63,23 @@ class Task(db.Model):
         return None
 
     @classmethod
+    def get_accessible_tasks(cls, user):
+        from . import Project, Feature  # Import when needed
+
+        accessible_projects = Project.query.filter(
+            db.or_(Project.owner_id == user.id, Project.users.contains(user))
+        ).all()
+
+        return (
+            cls.query.join(Feature)
+            .filter(
+                Feature.project_id.in_([p.id for p in accessible_projects])
+            )
+            .distinct()
+            .all()
+        )
+
+    @classmethod
     def create_task(
         cls,
         feature_id,

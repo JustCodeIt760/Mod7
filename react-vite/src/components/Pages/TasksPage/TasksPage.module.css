@@ -1,0 +1,15 @@
+.tasksPage {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  margin-bottom: 2rem;
+}
+
+.pageHeader h1 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: #111827;
+}
