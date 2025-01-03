@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { thunkUpdateTaskPosition } from '../../../redux/task';
+import { thunkUpdateTaskPosition, thunkRemoveTask } from '../../../redux/task';
 import styles from './SprintTimeline.module.css';
 
 const TEAM_MEMBERS = {
@@ -132,9 +132,31 @@ const TaskModal = ({ task, onClose }) => {
     }
   };
 
-  const handleDelete = () => {
-    // TODO: Implement delete logic
-    onClose();
+  const handleDelete = async () => {
+    if (!projectId || !featureId || !task.id) {
+      setError('Missing required IDs. Please refresh the page.');
+      return;
+    }
+
+    try {
+      const result = await dispatch(thunkRemoveTask(projectId, featureId, task.id));
+      if (result) {
+        onClose();
+      } else {
+        setError('Failed to delete task. Please try again.');
+      }
+    } catch (err) {
+      console.error('Task deletion error:', err);
+      if (err.status === 405) {
+        setError('Invalid API endpoint. Please check feature ID and task ID.');
+      } else if (err.status === 403) {
+        setError('You do not have permission to delete this task.');
+      } else if (err.status === 404) {
+        setError('Task not found. It may have been already deleted.');
+      } else {
+        setError('An unexpected error occurred while deleting the task.');
+      }
+    }
   };
 
   return (
