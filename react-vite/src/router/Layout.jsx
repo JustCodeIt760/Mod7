@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { ModalProvider, Modal } from '../context/Modal';
 import { thunkAuthenticate, selectUser } from '../redux/session';
+import { refreshAllData } from '../redux/shared';
 import SideNav from '../components/SideNav';
 import Navigation from '../components/Navigation/Navigation';
 import styles from './Layout.module.css';
@@ -13,8 +14,10 @@ export default function Layout() {
   const user = useSelector(selectUser);
 
   useEffect(() => {
-    dispatch(thunkAuthenticate()).then(() => setIsLoaded(true));
-  }, [dispatch]);
+    dispatch(thunkAuthenticate())
+      .then(() => dispatch(refreshAllData()))
+      .then(() => setIsLoaded(true));
+  }, [dispatch]); // Remove user from dependencies
 
   return (
     <>
