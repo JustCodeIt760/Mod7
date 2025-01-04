@@ -162,16 +162,6 @@ const SprintTimeline = () => {
       });
     });
 
-  // Split tasks into user's tasks and other tasks
-  const { userTasks, otherTasks } = tasks.reduce((acc, task) => {
-    if (task.assignees.includes(currentUser?.id)) {
-      acc.userTasks.push(task);
-    } else {
-      acc.otherTasks.push(task);
-    }
-    return acc;
-  }, { userTasks: [], otherTasks: [] });
-
   const getTaskStyle = (task, startDate, endDate) => {
     const totalDays = days.length;
     const startDay = days.findIndex(day => isSameDay(day, startDate));
@@ -237,19 +227,10 @@ const SprintTimeline = () => {
         </div>
 
         <div className={styles.contentWrapper}>
-          {userTasks.length > 0 && (
-            <div className={styles.tasksSection}>
-              <h3 className={styles.sectionTitle}>Your Tasks</h3>
-              {userTasks.map(renderTask)}
-            </div>
-          )}
-
-          {otherTasks.length > 0 && (
-            <div className={styles.tasksSection}>
-              <h3 className={styles.sectionTitle}>Team Tasks</h3>
-              {otherTasks.map(renderTask)}
-            </div>
-          )}
+          <div className={styles.tasksSection}>
+            <h3 className={styles.sectionTitle}>Sprint Tasks</h3>
+            {tasks.map(renderTask)}
+          </div>
         </div>
       </div>
     </div>
