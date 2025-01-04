@@ -32,7 +32,10 @@ function ProjectPage() {
       <ProjectHeader project={project} />
 
       <div className={styles.projectContent}>
-        <ParkingLot features={parkingLot?.features || []} />
+        <ParkingLot
+          features={parkingLot?.features || []}
+          projectId={projectId}
+        />
         <SprintSection sprints={sprints || []} projectId={projectId} />
       </div>
     </div>

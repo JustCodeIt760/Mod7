@@ -68,6 +68,9 @@ def create_feature(project_id):
 @feature_routes.route(
     "/projects/<int:project_id>/features/<int:feature_id>", methods=["PUT"]
 )
+@feature_routes.route(
+    "/projects/<int:project_id>/features/<int:feature_id>/", methods=["PUT"]
+)
 @login_required
 @require_project_access
 def update_feature(project_id, feature_id):
