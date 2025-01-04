@@ -1,9 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, NavLink } from 'react-router-dom';
-import { thunkLoadSprints } from '../../../redux/sprint';
-import { thunkLoadProjects } from '../../../redux/project';
-import { thunkLoadTasks } from '../../../redux/task';
+import { refreshAllData } from '../../../redux/shared';
 import { useModal } from '../../../context/Modal';
 import { selectEnrichedProjects } from '../../../redux/project';
 import ProjectFormModal from '../../../context/ProjectFormModal';
@@ -62,23 +60,10 @@ function Workspace() {
   };
 
   useEffect(() => {
-    const loadData = async () => {
-      if (user) {  // Only load if user is logged in
-        try {
-          // Load all data in parallel for better performance
-          await Promise.all([
-            dispatch(thunkLoadProjects()),
-            dispatch(thunkLoadTasks()),
-            dispatch(thunkLoadSprints())
-          ]);
-        } catch (error) {
-          console.error('Error loading workspace data:', error);
-        }
-      }
-    };
-
-    loadData();
-  }, [dispatch, user]); // Add user as dependency
+    if (user) {
+      dispatch(refreshAllData());
+    }
+  }, [dispatch, user]);
 
   return (
     <div className={styles.workspaceContainer}>
