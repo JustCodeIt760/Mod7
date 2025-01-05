@@ -32,7 +32,7 @@ const sprintFeature = Object.values(features).find(
   
  
   const sprintTasks = Object.values(tasks).filter(
-    task => task.feature_id === sprintFeature?.id
+    task => task.feature_id === sprintFeature?.id && task.assigned_to === user?.id
   );
   
   // Calculate task statistics
@@ -125,7 +125,7 @@ const sprintFeature = Object.values(features).find(
           </div>
         ) : (
           <p className={styles.taskInfo}>
-            No tasks in this sprint yet
+            No tasks assigned to you in this sprint yet
           </p>
         )}
       </div>

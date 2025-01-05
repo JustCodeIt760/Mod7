@@ -9,6 +9,7 @@ function TaskFormModal({ projectId, sprintId }) {
   const dispatch = useDispatch();
   const { closeModal } = useModal();
   const currentUser = useSelector((state) => state.session.user);
+  const users = useSelector((state) => state.users.allUsers);
   const [validationErrors, setValidationErrors] = useState({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
@@ -19,8 +20,8 @@ function TaskFormModal({ projectId, sprintId }) {
   const [startDate, setStartDate] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [featureId, setFeatureId] = useState("");
+  const [assignedTo, setAssignedTo] = useState(currentUser.id); //default to current user
   const features = useSelector(selectFeaturesBySprintId(projectId, sprintId));
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,6 +32,7 @@ function TaskFormModal({ projectId, sprintId }) {
     if (!description.length) errors.description = "Description is required";
     if (!startDate) errors.startDate = "Start date is required";
     if (!dueDate) errors.dueDate = "Due date is required";
+    if (!assignedTo) errors, (assignedTo = "Assignee is required");
 
     if (startDate && dueDate && new Date(startDate) > new Date(dueDate)) {
       errors.dueDate = "Due date must be after start date";
@@ -50,10 +52,10 @@ function TaskFormModal({ projectId, sprintId }) {
       start_date: startDate,
       due_date: dueDate,
       assigned_to: null,
+      assigned_to: assignedTo,
     };
 
     try {
-      console.log("PROJECTID", projectId, featureId, taskData);
       const response = await dispatch(
         thunkAddTask(projectId, featureId, taskData)
       );
@@ -124,6 +126,25 @@ function TaskFormModal({ projectId, sprintId }) {
           </select>
         </div>
 
+        <div className={styles.formGroup}>
+          <label htmlFor="assignedTo">Assign to</label>
+          <select
+            id="assignedTo"
+            value={assignedTo}
+            onChange={(e) => setAssignedTo(e.target.value)}
+            required
+          >
+            <option value="">Select Assignee</option>
+            {Object.values(users).map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.username}
+              </option>
+            ))}
+          </select>
+          {validationErrors.assignedTo && hasSubmitted && (
+            <span className={styles.error}>{validationErrors.assignedTo}</span>
+          )}
+        </div>
         <div className={styles.formGroup}>
           <label htmlFor="status">Status</label>
           <select
