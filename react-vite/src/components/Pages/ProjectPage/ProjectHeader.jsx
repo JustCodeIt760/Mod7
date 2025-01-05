@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaPencilAlt, FaTimes } from 'react-icons/fa';
+import { FaPencilAlt, FaTimes, FaCalendar } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import EditableField from '../../utils/EditableField';
 import ConfirmationModal from '../../utils/ConfirmationModal';
 import { thunkUpdateProject, thunkRemoveProject } from '../../../redux/project';
@@ -13,6 +15,7 @@ function ProjectHeader({ project }) {
   const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const currentUser = useSelector((state) => state.session.user);
   const isOwner = currentUser?.id === project?.owner_id;
 
@@ -29,6 +32,19 @@ function ProjectHeader({ project }) {
       setIsEditing(false);
     }
   };
+
+  const handleDateChange = async (date) => {
+    const projectData = {
+      ...project,
+      due_date: date.toISOString(),
+      id: project.id,
+    };
+    const result = await dispatch(thunkUpdateProject(projectData));
+    if (result) {
+      setShowDatePicker(false);
+    }
+  };
+
   const handleCloseModal = () => {
     setShowDeleteModal(false);
     setIsEditing(false);
@@ -87,7 +103,29 @@ function ProjectHeader({ project }) {
           )}
         </div>
         <div className={styles.projectMeta}>
-          <span>Due: {new Date(project.due_date).toLocaleDateString()}</span>
+          {isEditing ? (
+            <div className={styles.datePickerContainer}>
+              <span
+                onClick={() => setShowDatePicker(!showDatePicker)}
+                className={styles.dateDisplay}
+              >
+                Due: {new Date(project.due_date).toLocaleDateString()}
+                <FaCalendar className={styles.calendarIcon} />
+              </span>
+              {showDatePicker && (
+                <div className={styles.datePickerWrapper}>
+                  <DatePicker
+                    selected={new Date(project.due_date)}
+                    onChange={handleDateChange}
+                    inline
+                    minDate={new Date()}
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <span>Due: {new Date(project.due_date).toLocaleDateString()}</span>
+          )}
         </div>
       </div>
       <ConfirmationModal
