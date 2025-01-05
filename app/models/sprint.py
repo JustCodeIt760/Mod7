@@ -21,7 +21,9 @@ class Sprint(db.Model):
     )
 
     project = db.relationship("Project", back_populates="sprints")
-    features = db.relationship("Feature", back_populates="sprint")
+    features = db.relationship(
+        "Feature", back_populates="sprint", cascade="all, delete-orphan"
+    )
 
     @property
     def start_date(self):
