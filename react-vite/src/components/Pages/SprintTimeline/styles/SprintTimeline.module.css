@@ -1,0 +1,435 @@
+/* Base Layout & Container Styles */
+.container {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.timelineWrapper {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Styles */
+.header {
+  padding: 20px 0;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 24px;
+}
+
+.headerContent {
+  margin-top: 16px;
+}
+
+.projectInfo {
+  margin-bottom: 8px;
+}
+
+.projectInfo h1 {
+  font-size: 1.5rem;
+  color: #111827;
+  margin: 0;
+}
+
+.sprintInfo {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.sprintInfo h2 {
+  font-size: 1.25rem;
+  color: #4361ee;
+  margin: 0;
+}
+
+.sprintDates {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Timeline Grid & Header */
+.timelineHeader {
+  display: grid;
+  grid-template-columns: repeat(var(--total-days), minmax(0, 1fr));
+  position: sticky;
+  top: 0;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  z-index: 2;
+  width: 100%;
+}
+
+.dateHeader {
+  padding: 8px 2px;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #374151;
+  border-right: 1px solid #e5e7eb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.timelineBody {
+  position: relative;
+  min-height: 200px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.gridLines {
+  display: grid;
+  grid-template-columns: repeat(var(--total-days), minmax(0, 1fr));
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.gridColumn {
+  border-right: 1px solid #e5e7eb;
+  height: 100%;
+}
+
+/* Task Section Styles */
+.sectionHeader {
+  padding: 12px 16px;
+  font-weight: 500;
+  color: #4361ee;
+  background: #f8f9fd;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+
+.tasksSection {
+  position: relative;
+  padding: 16px 0;
+  min-height: 44px;
+  height: calc(44px * var(--task-count));
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Task Bar Styles */
+.taskBar {
+  position: absolute;
+  height: 36px;
+  background-color: #4361ee;
+  border-radius: 6px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.taskBar:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(67, 97, 238, 0.15);
+}
+
+.userTask {
+  background-color: #3b82f6;
+  border: 2px solid #2563eb;
+  z-index: 2;
+}
+
+/* Task Overflow Styles */
+.taskBar.extendsRight::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 0;
+  height: 100%;
+  width: 12px;
+  background: linear-gradient(to right, #4361ee, transparent);
+  pointer-events: none;
+}
+
+.taskBar.extendsLeft::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 0;
+  height: 100%;
+  width: 12px;
+  background: linear-gradient(to left, #4361ee, transparent);
+  pointer-events: none;
+}
+
+.userTask.extendsRight::after {
+  background: linear-gradient(to right, #3b82f6, transparent);
+}
+
+.userTask.extendsLeft::before {
+  background: linear-gradient(to left, #3b82f6, transparent);
+}
+
+/* Task Content Styles */
+.taskContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.taskName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.featureName {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Hover Card Styles */
+.hoverCard {
+  position: fixed;
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 250px;
+  max-width: 300px;
+  border: 1px solid #e5e7eb;
+  pointer-events: none;
+}
+
+.hoverCardTitle {
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4361ee;
+}
+
+.hoverCardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hoverCardSection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #4361ee;
+}
+
+/* Form Styles */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.formGroup label {
+  font-weight: 500;
+  color: #4b5563;
+  font-size: 0.875rem;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #111827;
+  transition: border-color 0.2s;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #4361ee;
+  box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.1);
+}
+
+/* Button Styles */
+.backButton,
+.editButton,
+.saveButton,
+.cancelButton {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.backButton {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.editButton,
+.saveButton {
+  background-color: #4361ee;
+  color: white;
+}
+
+.editButton:hover,
+.saveButton:hover {
+  background-color: #3b55d9;
+}
+
+.cancelButton {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.cancelButton:hover {
+  background-color: #e5e7eb;
+}
+
+/* Status & Priority Indicators */
+.status,
+.priority {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.not-started {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.in-progress {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.completed {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+/* Utility Classes */
+.label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  min-width: 80px;
+}
+
+.value {
+  font-size: 0.875rem;
+  color: #111827;
+}
+
+/* Error & Loading States */
+.errorMessage {
+  background-color: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  color: #4361ee;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .timelineHeader,
+  .gridLines {
+    grid-template-columns: repeat(var(--total-days), minmax(0, 1fr));
+  }
+
+  .dateHeader {
+    font-size: 0.7rem;
+    padding: 4px 1px;
+  }
+
+  .taskBar {
+    font-size: 0.7rem;
+    padding: 0 2px;
+  }
+
+  .modalContent {
+    width: 95%;
+    padding: 16px;
+  }
+}
+
+p {
+  color: #858686;
+}
