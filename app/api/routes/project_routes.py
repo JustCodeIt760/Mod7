@@ -34,6 +34,7 @@ def get_all_projects():
     return jsonify({"projects": [project.to_dict() for project in projects]})
 
 
+# In project_routes.py
 @project_routes.route(
     "/<int:project_id>/members/<int:user_id>", methods=["POST"]
 )
@@ -46,18 +47,16 @@ def add_project_member(project_id, user_id):
     Add a member to a project
     """
     project = Project.get_project_by_id(project_id, current_user.id)
-
     if not project:
         return {"errors": ["Project not found"]}, 404
 
-    # Only owner can add members
-    if project.owner_id != current_user.id:
-        return {"errors": ["Unauthorized"]}, 403
-
-    if project.add_member(user_id):
+    if Project.add_user_to_project(user_id, project_id):
+        project = Project.get_project_by_id(
+            project_id, current_user.id
+        )  # Get fresh project data
         return jsonify(project.to_dict())
     else:
-        return {"errors": ["User is already a member or not found"]}, 400
+        return {"errors": ["Failed to add member"]}, 400
 
 
 @project_routes.route(
@@ -135,6 +134,20 @@ def update_project(id):
     if not project:
         return {"errors": ["Project not found"]}, 404
 
+    # Handle JSON data
+    if request.is_json:
+        data = request.get_json()
+        try:
+            project.update_project(
+                name=data.get("name", project.name),
+                description=data.get("description", project.description),
+                due_date=data.get("due_date", project.due_date),
+            )
+            return jsonify(project.to_dict())
+        except Exception as e:
+            return {"errors": [str(e)]}, 400
+
+    # Handle form data
     form = ProjectForm()
     form["csrf_token"].data = request.cookies["csrf_token"]
 
@@ -144,7 +157,7 @@ def update_project(id):
             description=form.data["description"],
             due_date=form.data["due_date"],
         )
-        return project.to_dict()
+        return jsonify(project.to_dict())
 
     return {"errors": form.errors}, 400
 

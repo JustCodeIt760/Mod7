@@ -18,12 +18,12 @@ function ProjectMembers({ project }) {
   const currentUser = useSelector((state) => state.session.user);
   const owner = users[project.owner_id];
   if (!owner) return null;
+
   const isOwner = currentUser?.id === project.owner_id;
 
-  const members =
-    project.members
-      .map((id) => users[id])
-      .filter((member) => member.id !== owner.id) || [];
+  const members = (project?.members || [])
+    .map((id) => users[id])
+    .filter((member) => member && member.id !== owner.id);
 
   const handleRemoveMember = (member) => {
     setSelectedMember(member);

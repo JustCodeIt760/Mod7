@@ -15,12 +15,13 @@ const SideNav = () => {
   const user = useSelector(selectUser);
   const ownedProjects = useSelector(selectOwnedProjects(user.id));
   const memberProjects = useSelector(selectMemberProjects(user.id));
+  const projects = useSelector((state) => state.projects.allProjects);
 
   useEffect(() => {
     if (user) {
       dispatch(thunkLoadProjects());
     }
-  }, [dispatch, user]);
+  }, [dispatch, user, Object.keys(projects).length]);
 
   return (
     <nav className={styles.sideNav}>

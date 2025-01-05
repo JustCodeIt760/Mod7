@@ -31,6 +31,7 @@ const AddMemberModal = ({ isOpen, onClose, projectId }) => {
   };
 
   if (!isOpen) return null;
+  if (!currentProject) return null;
 
   // Filter out users already in the project
   const availableUsers = Object.values(allUsers).filter(

@@ -150,3 +150,26 @@ class Project(db.Model):
             print(f"Error in remove_user_from_project: {str(e)}")
             db.session.rollback()
             return False
+
+    @staticmethod
+    def add_user_to_project(user_id, project_id):
+        """
+        Adds a user to a project
+        """
+        try:
+            project = Project.query.get(project_id)
+            user = User.query.get(user_id)
+
+            if not project or not user:
+                return False
+
+            if user in project.users:
+                return False
+
+            project.users.append(user)
+            db.session.commit()
+            return True
+        except Exception as e:
+            print(f"Error in add_user_to_project: {str(e)}")  # Debug log
+            db.session.rollback()
+            return False

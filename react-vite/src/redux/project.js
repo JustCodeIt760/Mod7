@@ -215,28 +215,28 @@ export const thunkAddProjectMember =
   (projectId, userId) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
+      console.log('Adding member:', { projectId, userId }); // Debug log
       const response = await csrfFetch(
         `/projects/${projectId}/members/${userId}`,
         {
           method: 'POST',
         }
       );
-      const data = await response.json();
 
-      if (response.ok) {
-        dispatch(updateProject(data));
-        dispatch(setProject(data)); // Update singleProject too
-        dispatch(thunkLoadProjectData(projectId)); // Reload all project data
-        dispatch(setErrors(null));
-        return data;
-      } else {
-        dispatch(setErrors(data.errors));
-        return { errors: data.errors };
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.errors?.[0] || 'Failed to add member');
       }
-    } catch (err) {
-      const errorData = await err.json?.();
-      dispatch(setErrors(errorData?.errors || baseError));
-      return { errors: errorData?.errors || baseError };
+
+      const data = await response.json();
+      dispatch(updateProject(data));
+      dispatch(setProject(data));
+      dispatch(thunkLoadProjectData(projectId));
+      return data;
+    } catch (error) {
+      console.error('Add member error:', error);
+      dispatch(setErrors(error.message || baseError));
+      return false;
     } finally {
       dispatch(setLoading(false));
     }
@@ -339,17 +339,18 @@ const projectReducer = (state = initialState, action) => {
           ...state.allProjects,
           [action.payload.id]: action.payload,
         },
+        singleProject: action.payload,
       };
     },
 
     [REMOVE_PROJECT]: (state, action) => {
-      // Use object destructuring for immutable removal
-      const { [action.payload.id]: removedProject, ...remainingProjects } =
+      const { [action.payload]: removed, ...remainingProjects } =
         state.allProjects;
 
       return {
         ...state,
         allProjects: remainingProjects,
+        singleProject: null,
       };
     },
 

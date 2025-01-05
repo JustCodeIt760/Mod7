@@ -70,19 +70,22 @@
 
 /* Specific delete button styles */
 .featureDelete {
-  background-color: #dc3545;
+  background-color: #bd4f5a;
+}
+.sprintDelete {
+  background-color: #bd4f5a;
 }
 
 .projectDelete {
-  background-color: #e53e3e;
+  background-color: #ff0000;
 }
 
 .taskDelete {
-  background-color: #dd6b20;
+  background-color: #bd4f5a;
 }
 
-.userDelete {
-  background-color: #2c5282;
+.memberDelete {
+  background-color: #bd4f5a;
 }
 
 .deleteButton:hover {
