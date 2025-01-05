@@ -30,7 +30,7 @@ const sprintFeature = Object.values(features).find(
     feature => feature.sprint_id === sprint.id
   );
   
-  console.log("TASKS:", tasks)
+ 
   const sprintTasks = Object.values(tasks).filter(
     task => task.feature_id === sprintFeature?.id
   );
@@ -47,7 +47,9 @@ const sprintFeature = Object.values(features).find(
     completed: sprintTasks.filter(task => task.status === 'Completed')
   };
 
-  const handleSprintClick = () => {
+
+
+  const handleSprintClick = (e) => {
     if (sprint && sprint.project_id && sprint.id) {
       navigate(`/projects/${sprint.project_id}/sprints/${sprint.id}`);
     }
@@ -70,10 +72,10 @@ const sprintFeature = Object.values(features).find(
 
   
   return (
-    <div className={styles.sprintCard} onClick={handleSprintClick}>
+    <div className={styles.sprintCard}>
       <div className={styles.sprintHeader}>
         <div className={styles.sprintInfo}>
-          <h3>{sprint.name}</h3>
+          <h3 onClick={handleSprintClick}>{sprint.name}</h3>
           <p className={styles.projectName}>Project: {projectName}</p>
           <p className={styles.dates}>
             {new Date(sprint.start_date).toLocaleDateString()} - {new Date(sprint.end_date).toLocaleDateString()}
@@ -91,7 +93,13 @@ const sprintFeature = Object.values(features).find(
         <div className={styles.timelineBar}>
           <div 
             className={styles.progressBar} 
-            style={{ width: `${progressPercentage}%` }}
+            style={{ 
+              width: `${progressPercentage}%`,
+              backgroundColor: '#3498db', // Nice blue color
+              height: '100%',
+              borderRadius: '4px',
+              transition: 'width 0.3s ease'
+            }}
           />
         </div>
         <div className={styles.progressStats}>
@@ -130,7 +138,6 @@ function Sprints() {
   const user = useSelector(state => state.session.user);
   const sprints = useSelector(state => state.sprints.allSprints);
   const projects = useSelector(state => state.projects.allProjects);
-  const tasks = useSelector(state => state.tasks?.allTasks);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

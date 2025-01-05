@@ -30,25 +30,21 @@
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    cursor: pointer;
   }
   
-  .sprintCard::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: linear-gradient(to bottom, #3498db, #2980b9);
+  .sprintCard::before,
+  .sprintCard::after,
+  .sprintCard:hover::before,
+  .sprintCard:hover::after {
+    display: none;
   }
   
   .sprintCard:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    transform: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border-color: #e0e0e0;
   }
   
   .sprintHeader {
@@ -63,9 +59,36 @@
     color: #2c3e50;
     font-size: 1.3rem;
     font-weight: 600;
-    background: linear-gradient(45deg, #2c3e50, #3498db);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    cursor: pointer;
+    transition: color 0.2s;
+    position: relative;
+    display: inline-block;
+  }
+  
+  .sprintInfo h3:hover {
+    color: #2196F3;
+  }
+  
+  .sprintInfo h3::before {
+    display: none;
+  }
+  
+  .sprintInfo h3::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background-color: #2196F3;
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 0.2s;
+  }
+  
+  .sprintInfo h3:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
   }
   
   .sprintInfo p {
@@ -102,17 +125,17 @@
   }
   
   .timeline {
-    margin: 24px 0;
-    padding: 12px 0;
-    position: relative;
+    margin: 15px 0;
   }
   
   .timelineBar {
-    height: 6px;
-    background: linear-gradient(to right, #f0f0f0 70%, #e0e0e0);
-    border-radius: 3px;
-    position: relative;
+    width: 100%;
+    height: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
     overflow: hidden;
+    margin-bottom: 5px;
+    position: relative;
   }
   
   .timelineBar::after {
@@ -120,10 +143,55 @@
     position: absolute;
     top: 0;
     left: 0;
+    width: 100%;
     height: 100%;
-    width: 70%;
-    background: linear-gradient(45deg, #3498db, #2980b9);
-    border-radius: 3px;
+    background: linear-gradient(
+      90deg,
+      rgba(52, 152, 219, 0.1) 0%,
+      rgba(41, 128, 185, 0.1) 100%
+    );
+    pointer-events: none;
+  }
+  
+  .progressBar {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .progressBar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0.1) 100%
+    );
+    animation: shine 2s infinite;
+  }
+  
+  @keyframes shine {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  .progressStats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9em;
+    color: #666;
   }
   
   .taskSection {
@@ -189,32 +257,25 @@
     border-bottom: none;
   }
   
-  .progressBar {
-    height: 100%;
-    background: linear-gradient(45deg, #3498db, #2980b9);
-    border-radius: 3px;
-    transition: width 0.3s ease;
-  }
-  
-  .progressStats {
-    display: flex;
-    justify-content: space-between;
-    color: #666;
-    font-size: 0.9rem;
-    margin-top: 8px;
-  }
-  
   .taskColumns {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
+    margin-top: 20px;
   }
   
   .taskColumn {
-    background: #fff;
+    background: white;
     border-radius: 8px;
     padding: 16px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    transition: all 0.3s ease;
+  }
+  
+  .taskColumn:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-color: rgba(52, 152, 219, 0.3);
   }
   
   .taskColumn h4 {
@@ -222,6 +283,9 @@
     color: #2c3e50;
     font-size: 1rem;
     font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   
   .taskItem {
