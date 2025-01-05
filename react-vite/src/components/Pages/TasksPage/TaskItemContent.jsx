@@ -108,7 +108,6 @@ function TaskItemContent({
           <div className={styles.dateItem}>
             {/* <span className={styles.label}>Duration:</span> */}
             {/* <span className={styles.value}>{task.duration}</span> */}
-            <pre>{JSON.stringify(task, null, 2)}</pre>
           </div>
         </div>
         <span
