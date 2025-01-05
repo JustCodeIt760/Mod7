@@ -1,7 +1,7 @@
 import { FeatureCard } from './';
 import styles from './styles/SprintContent.module.css';
 
-function SprintContent({ sprint, features, projectId }) {
+function SprintContent({ sprint, features, projectId, normalizeTask }) {
   if (!sprint || !features.length) {
     return (
       <div className={styles.emptySprintContent}>
@@ -18,6 +18,7 @@ function SprintContent({ sprint, features, projectId }) {
           feature={feature}
           projectId={projectId}
           showTasks={true}
+          normalizeTask={normalizeTask}
         />
       ))}
     </div>

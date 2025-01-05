@@ -23,10 +23,12 @@ export const setErrors = (errors) => ({
 export const thunkLoadProjectUsers = (projectId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
+    console.log('IN THUNK:', projectId);
     const response = await csrfFetch(`/projects/${projectId}/users`);
     const data = await response.json();
+    console.log('project USERS:', data);
     dispatch(loadUsers(data.users));
-    return data.users;
+    return null;
   } catch (err) {
     dispatch(setErrors(err.errors || { message: 'Failed to load users' }));
     return null;

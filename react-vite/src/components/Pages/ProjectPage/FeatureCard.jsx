@@ -11,7 +11,7 @@ import { thunkUpdateFeature } from '../../../redux/feature';
 import EditableField from '../../utils/EditableField';
 import styles from './styles/FeatureCard.module.css';
 
-function FeatureCard({ feature, projectId, showTasks = false }) {
+function FeatureCard({ feature, projectId, showTasks = false, normalizeTask }) {
   const dispatch = useDispatch();
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingTask, setIsEditingTask] = useState(false);
@@ -105,6 +105,7 @@ function FeatureCard({ feature, projectId, showTasks = false }) {
               featureId={feature.id}
               isEditing={isEditingTask}
               setIsEditing={setIsEditingTask}
+              normalizeTask={normalizeTask}
             />
           )}
         </>

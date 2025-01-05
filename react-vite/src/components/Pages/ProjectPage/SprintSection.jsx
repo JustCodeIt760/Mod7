@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { SprintHeader, SprintContent } from './';
 import styles from './styles/SprintSection.module.css';
 
-function SprintSection({ sprints, projectId }) {
+function SprintSection({ sprints, projectId, normalizeTask }) {
   const [currentSprintIndex, setCurrentSprintIndex] = useState(0);
   const currentSprint = sprints[currentSprintIndex];
 
@@ -32,6 +32,7 @@ function SprintSection({ sprints, projectId }) {
         sprint={currentSprint}
         features={currentSprint?.features || []}
         projectId={projectId}
+        normalizeTask={normalizeTask}
       />
     </section>
   );

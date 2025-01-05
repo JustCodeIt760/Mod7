@@ -168,6 +168,10 @@ def get_task(feature_id, task_id):
     "/projects/<int:project_id>/features/<int:feature_id>/tasks/<int:task_id>",
     methods=["PUT"],
 )
+@task_routes.route(
+    "/projects/<int:project_id>/features/<int:feature_id>/tasks/<int:task_id>/",
+    methods=["PUT"],
+)
 @login_required
 @require_project_access
 def update_task(feature_id, task_id):

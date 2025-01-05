@@ -100,12 +100,15 @@ function TaskItemContent({
       <div className={styles.metadata}>
         <div className={styles.dates}>
           <div className={styles.dateItem}>
+            <span className={styles.label}>Start:</span>
+            <span className={styles.value}>{task.display.startDate}</span>
             <span className={styles.label}>Due:</span>
             <span className={styles.value}>{task.display.dueDate}</span>
           </div>
           <div className={styles.dateItem}>
-            <span className={styles.label}>Duration:</span>
-            <span className={styles.value}>{task.duration}</span>
+            {/* <span className={styles.label}>Duration:</span> */}
+            {/* <span className={styles.value}>{task.duration}</span> */}
+            <pre>{JSON.stringify(task, null, 2)}</pre>
           </div>
         </div>
         <span
