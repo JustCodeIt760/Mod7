@@ -251,4 +251,38 @@ const sprintReducer = (state = initialState, action) => {
   return handlers[action.type] ? handlers[action.type](state, action) : state;
 };
 
+export const selectSprintWithDetails = (state, sprintId) => {
+  const sprint = state.sprints.allSprints[sprintId];
+  if (!sprint) return null;
+
+  // Get all features for this sprint
+  const features = Object.values(state.features.allFeatures).filter(
+    (feature) => feature.sprint_id === sprintId
+  );
+
+  // Get all tasks for these features and include user information
+  const tasksWithDetails = features
+    .reduce((acc, feature) => {
+      const featureTasks = feature.tasks.map((task) => ({
+        ...task,
+        feature: {
+          id: feature.id,
+          name: feature.name,
+          status: feature.status,
+          priority: feature.priority,
+        },
+        assignee: state.users.allUsers[task.assigned_to],
+        creator: state.users.allUsers[task.created_by],
+      }));
+      return [...acc, ...featureTasks];
+    }, [])
+    .sort(sortByDate);
+
+  return {
+    ...sprint,
+    features,
+    tasks: tasksWithDetails,
+  };
+};
+
 export default sprintReducer;
