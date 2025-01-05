@@ -2,7 +2,14 @@ import { useState } from 'react';
 import { TaskCard } from './';
 import styles from './styles/TaskList.module.css';
 
-function TaskList({ tasks, projectId, featureId, isEditing, setIsEditing }) {
+function TaskList({
+  tasks,
+  projectId,
+  featureId,
+  isEditing,
+  setIsEditing,
+  normalizeTask,
+}) {
   const [hoveredTaskId, setHoveredTaskId] = useState(null);
 
   return (
@@ -17,6 +24,7 @@ function TaskList({ tasks, projectId, featureId, isEditing, setIsEditing }) {
           onHover={setHoveredTaskId}
           isEditing={isEditing}
           setIsEditing={setIsEditing}
+          normalizeTask={normalizeTask}
         />
       ))}
     </div>
