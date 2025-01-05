@@ -20,7 +20,7 @@ function TaskFormModal({ projectId, sprintId }) {
   const [dueDate, setDueDate] = useState("");
   const [featureId, setFeatureId] = useState("");
   const features = useSelector(selectFeaturesBySprintId(projectId, sprintId));
-  console.log("I AM FEATURE", features);
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
