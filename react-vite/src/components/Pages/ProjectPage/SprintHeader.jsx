@@ -1,12 +1,11 @@
 // components/Sprints/SprintHeader.js
 import { useSelector } from 'react-redux';
 import SprintControls from './SprintControls';
+import { selectAllSprints } from '../../../redux/sprint';
 import styles from './styles/SprintHeader.module.css';
 
 function SprintHeader({ sprint, onPrevious, onNext, onAddSprint }) {
-  const allSprints = useSelector((state) =>
-    Object.values(state.sprints.allSprints)
-  );
+  const allSprints = useSelector(selectAllSprints);
 
   const handleDeleteSuccess = () => {
     // Get remaining sprints (filter out the one being deleted)

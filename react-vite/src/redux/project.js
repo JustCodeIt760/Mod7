@@ -225,6 +225,8 @@ export const thunkAddProjectMember =
 
       if (response.ok) {
         dispatch(updateProject(data));
+        dispatch(setProject(data)); // Update singleProject too
+        dispatch(thunkLoadProjectData(projectId)); // Reload all project data
         dispatch(setErrors(null));
         return data;
       } else {
@@ -245,25 +247,31 @@ export const thunkRemoveProjectMember =
     dispatch(setLoading(true));
     try {
       const response = await csrfFetch(
-        `/projects/${projectId}/members/${userId}`,
+        `/api/projects/${projectId}/members/${userId}`,
         {
           method: 'DELETE',
         }
       );
-      const data = await response.json();
 
-      if (response.ok) {
-        dispatch(updateProject(data));
-        dispatch(setErrors(null));
-        return data;
-      } else {
-        dispatch(setErrors(data.errors));
-        return { errors: data.errors };
+      if (!response.ok) {
+        throw new Error('Failed to remove member');
       }
-    } catch (err) {
-      const errorData = await err.json?.();
-      dispatch(setErrors(errorData?.errors || baseError));
-      return { errors: errorData?.errors || baseError };
+
+      const updatedProject = await response.json();
+
+      // Update both allProjects and singleProject
+      dispatch(updateProject(updatedProject));
+      dispatch(setProject(updatedProject));
+
+      // Reload project data to ensure all related data is fresh
+      dispatch(thunkLoadProjectData(projectId));
+
+      dispatch(setErrors(null));
+      return true;
+    } catch (error) {
+      console.error('Remove member error:', error);
+      dispatch(setErrors(error.errors || baseError));
+      return false;
     } finally {
       dispatch(setLoading(false));
     }

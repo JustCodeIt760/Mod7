@@ -5,7 +5,15 @@ from models import User, Project
 user_routes = Blueprint("users", __name__)
 
 
-@user_routes.route("users/<int:id>")
+@user_routes.route("/users")
+@user_routes.route("/users/")
+@login_required
+def get_all_users():
+    users = User.query.all()
+    return {"users": [user.to_dict() for user in users]}
+
+
+@user_routes.route("/users/<int:id>")
 @login_required
 def user(id):
     """
