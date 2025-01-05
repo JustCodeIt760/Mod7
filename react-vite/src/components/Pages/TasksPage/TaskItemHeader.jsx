@@ -1,4 +1,4 @@
-import styles from './TaskItem.module.css';
+import styles from './TaskItemHeader.module.css';
 
 function TaskItemHeader({ project, feature }) {
   return (

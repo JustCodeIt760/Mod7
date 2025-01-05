@@ -56,7 +56,9 @@ export const setErrors = (errors) => ({
 export const thunkLoadTasks = (projectId, featureId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    const response = await csrfFetch(`/projects/${projectId}/features/${featureId}/tasks`);
+    const response = await csrfFetch(
+      `/projects/${projectId}/features/${featureId}/tasks`
+    );
     const data = await response.json();
     dispatch(loadTasks(data));
     dispatch(setErrors(null));
@@ -116,31 +118,35 @@ export const thunkAddTask =
     }
   };
 
-export const thunkUpdateTask = (projectId, featureId, taskId, taskData) => async (dispatch) => {
-  dispatch(setLoading(true));
-  try {
-    const response = await csrfFetch(`/projects/${projectId}/features/${featureId}/tasks/${taskId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(taskData)
-    });
+export const thunkUpdateTask =
+  (projectId, featureId, taskId, taskData) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await csrfFetch(
+        `/projects/${projectId}/features/${featureId}/tasks/${taskId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(taskData),
+        }
+      );
 
-    if (response.ok) {
-      const task = await response.json();
-      dispatch(updateTask(task));
-      dispatch(setErrors(null));
-      return task;
+      if (response.ok) {
+        const task = await response.json();
+        dispatch(updateTask(task));
+        dispatch(setErrors(null));
+        return task;
+      }
+      return null;
+    } catch (err) {
+      dispatch(setErrors(err.errors || baseError));
+      return null;
+    } finally {
+      dispatch(setLoading(false));
     }
-    return null;
-  } catch (err) {
-    dispatch(setErrors(err.errors || baseError));
-    return null;
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
+  };
 
 export const thunkToggleTaskCompletion = (taskId) => async (dispatch) => {
   dispatch(setLoading(true));
@@ -165,28 +171,32 @@ export const thunkToggleTaskCompletion = (taskId) => async (dispatch) => {
   }
 };
 
-export const thunkRemoveTask = (projectId, featureId, taskId) => async (dispatch) => {
-  dispatch(setLoading(true));
-  try {
-    const response = await csrfFetch(`/projects/${projectId}/features/${featureId}/tasks/${taskId}`, {
-      method: 'DELETE',
-    });
-    if (response.ok) {
-      dispatch(removeTask(taskId));
-      dispatch(setErrors(null));
-      return true;
-    } else {
-      const data = await response.json();
-      dispatch(setErrors(data.errors || baseError));
+export const thunkRemoveTask =
+  (projectId, featureId, taskId) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await csrfFetch(
+        `/projects/${projectId}/features/${featureId}/tasks/${taskId}`,
+        {
+          method: 'DELETE',
+        }
+      );
+      if (response.ok) {
+        dispatch(removeTask(taskId));
+        dispatch(setErrors(null));
+        return true;
+      } else {
+        const data = await response.json();
+        dispatch(setErrors(data.errors || baseError));
+        return false;
+      }
+    } catch (error) {
+      dispatch(setErrors(error.errors || baseError));
       return false;
+    } finally {
+      dispatch(setLoading(false));
     }
-  } catch (error) {
-    dispatch(setErrors(error.errors || baseError));
-    return false;
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
+  };
 
 export const thunkUpdateTaskPosition =
   (projectId, featureId, taskId, updates) => async (dispatch) => {
@@ -196,13 +206,77 @@ export const thunkUpdateTaskPosition =
         `/api/projects/${projectId}/features/${featureId}/tasks/${taskId}`,
         {
           method: 'PUT',
-          body: JSON.stringify(updates)
+          body: JSON.stringify(updates),
         }
       );
       const updatedTask = await response.json();
       dispatch(updateTask(updatedTask));
       dispatch(setErrors(null));
       return updatedTask;
+    } catch (err) {
+      dispatch(setErrors(err.errors || baseError));
+      return null;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+export const thunkUpdateTaskName =
+  (projectId, featureId, taskId, newName) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await csrfFetch(
+        `/projects/${projectId}/features/${featureId}/tasks/${taskId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: newName,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const task = await response.json();
+        dispatch(updateTask(task));
+        dispatch(setErrors(null));
+        return task;
+      }
+      return null;
+    } catch (err) {
+      dispatch(setErrors(err.errors || baseError));
+      return null;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+export const thunkUpdateTaskDescription =
+  (projectId, featureId, taskId, newDescription) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await csrfFetch(
+        `/projects/${projectId}/features/${featureId}/tasks/${taskId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            description: newDescription,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const task = await response.json();
+        dispatch(updateTask(task));
+        dispatch(setErrors(null));
+        return task;
+      }
+      return null;
     } catch (err) {
       dispatch(setErrors(err.errors || baseError));
       return null;

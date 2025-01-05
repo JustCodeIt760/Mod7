@@ -1,12 +1,40 @@
-import styles from './TaskItem.module.css';
+import { useState } from 'react';
+import { FaPencilAlt, FaTimes } from 'react-icons/fa';
+import EditableField from '../../utils/EditableField';
+import styles from './TaskItemContent.module.css';
+import {
+  thunkUpdateTaskName,
+  thunkUpdateTaskDescription,
+} from '../../../redux/task';
+import { useDispatch } from 'react-redux';
+
 function TaskItemContent({
   task,
+  projectId,
+  featureId,
   onToggleCompletion,
   status = false,
   showAssignment = false,
+  isEditing,
+  setIsEditing,
 }) {
+  const dispatch = useDispatch();
+  const handleSaveName = async (newName) => {
+    const result = await dispatch(
+      thunkUpdateTaskName(projectId, featureId, task.id, newName)
+    );
+    if (result) setIsEditing(false);
+  };
+
+  const handleSaveDescription = async (newDescription) => {
+    const result = await dispatch(
+      thunkUpdateTaskDescription(projectId, featureId, task.id, newDescription)
+    );
+    if (result) setIsEditing(false);
+  };
+
   return (
-    <>
+    <div className={styles.taskContainer}>
       <div className={styles.taskHeader}>
         <div className={styles.titleSection}>
           <button
@@ -22,17 +50,43 @@ function TaskItemContent({
           >
             {task.status === 'Completed' ? '✓' : ''}
           </button>
-          <h3
+          <EditableField
+            value={task.name}
+            onSave={handleSaveName}
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
             className={`${styles.taskName} ${
               task.status === 'Completed' ? styles.completedText : ''
             }`}
-          >
-            {task.name}
-          </h3>
+            containerClassName={styles.taskContainer}
+            excludeClassNames={[styles.editIcon, styles.deleteIcon]}
+          />
+        </div>
+        <div className={styles.taskControls}>
+          <FaPencilAlt
+            className={styles.editIcon}
+            onClick={() => setIsEditing(!isEditing)}
+          />
+          {isEditing && (
+            <FaTimes
+              className={styles.deleteIcon}
+              onClick={() => {
+                /* Handle delete */
+              }}
+            />
+          )}
         </div>
       </div>
 
-      <p className={styles.description}>{task.description}</p>
+      <EditableField
+        value={task.description}
+        onSave={handleSaveDescription}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
+        className={styles.description}
+        containerClassName={styles.taskContainer}
+        excludeClassNames={[styles.editIcon, styles.deleteIcon]}
+      />
 
       {showAssignment && task.display.assignedTo && (
         <div className={styles.assignmentInfo}>
@@ -71,7 +125,7 @@ function TaskItemContent({
           </span>
         )}
       </div>
-    </>
+    </div>
   );
 }
 

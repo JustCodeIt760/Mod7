@@ -1,7 +1,7 @@
 import { FeatureCard } from './';
 import styles from './styles/SprintContent.module.css';
 
-function SprintContent({ sprint, features }) {
+function SprintContent({ sprint, features, projectId }) {
   if (!sprint || !features.length) {
     return (
       <div className={styles.emptySprintContent}>
@@ -16,11 +16,8 @@ function SprintContent({ sprint, features }) {
         <FeatureCard
           key={feature.id}
           feature={feature}
-          draggable
+          projectId={projectId}
           showTasks={true}
-          onDragStart={(e) => {
-            e.dataTransfer.setData('featureId', feature.id);
-          }}
         />
       ))}
     </div>

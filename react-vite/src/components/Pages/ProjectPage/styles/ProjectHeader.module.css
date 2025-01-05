@@ -5,19 +5,39 @@
   border: 1px solid #e5e7eb;
   margin-bottom: 2rem;
   text-align: center;
+  position: relative;
 }
 
 .projectHeader h1 {
   margin: 0;
   color: #111827;
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 600;
 }
 
 .projectMeta {
   margin-top: 0.5rem;
   color: #6b7280;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   display: flex;
   justify-content: center;
+}
+
+.editIcon {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  opacity: 0;
+}
+
+.projectHeader:hover .editIcon {
+  opacity: 1;
+}
+
+.editIcon:hover {
+  color: #666;
 }
