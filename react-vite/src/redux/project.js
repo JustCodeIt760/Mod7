@@ -211,6 +211,64 @@ export const thunkRemoveProject = (projectId) => async (dispatch) => {
   }
 };
 
+export const thunkAddProjectMember =
+  (projectId, userId) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await csrfFetch(
+        `/projects/${projectId}/members/${userId}`,
+        {
+          method: 'POST',
+        }
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        dispatch(updateProject(data));
+        dispatch(setErrors(null));
+        return data;
+      } else {
+        dispatch(setErrors(data.errors));
+        return { errors: data.errors };
+      }
+    } catch (err) {
+      const errorData = await err.json?.();
+      dispatch(setErrors(errorData?.errors || baseError));
+      return { errors: errorData?.errors || baseError };
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+export const thunkRemoveProjectMember =
+  (projectId, userId) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await csrfFetch(
+        `/projects/${projectId}/members/${userId}`,
+        {
+          method: 'DELETE',
+        }
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        dispatch(updateProject(data));
+        dispatch(setErrors(null));
+        return data;
+      } else {
+        dispatch(setErrors(data.errors));
+        return { errors: data.errors };
+      }
+    } catch (err) {
+      const errorData = await err.json?.();
+      dispatch(setErrors(errorData?.errors || baseError));
+      return { errors: errorData?.errors || baseError };
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
 // Initial state object defining the structure of the project state
 const initialState = {
   allProjects: {}, // Object to store all projects, keyed by project ID
@@ -487,7 +545,7 @@ export const selectProjectPageData = createSelector(
     (state) => state.features.allFeatures,
     (state) => state.tasks.allTasks,
     (state) => state.sprints.allSprints,
-    (state) => state.users?.allUsers || {}, // Add users state if you have it
+    (state) => state.users?.allUsers || {},
     (state, projectId) => projectId,
   ],
   (project, features, tasks, sprints, users, projectId) => {

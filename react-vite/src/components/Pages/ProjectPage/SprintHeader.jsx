@@ -1,3 +1,5 @@
+// components/Sprints/SprintHeader.js
+import SprintControls from './SprintControls';
 import styles from './styles/SprintHeader.module.css';
 
 function SprintHeader({ sprint, onPrevious, onNext, onAddSprint }) {
@@ -28,9 +30,7 @@ function SprintHeader({ sprint, onPrevious, onNext, onAddSprint }) {
         </button>
       </div>
 
-      <button className={styles.addSprintButton} onClick={onAddSprint}>
-        Add Sprint
-      </button>
+      <SprintControls sprint={sprint} onAddSprint={onAddSprint} />
     </div>
   );
 }

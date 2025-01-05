@@ -6,6 +6,7 @@ import { useModal } from '../../../context/Modal';
 import { selectEnrichedProjects } from '../../../redux/project';
 import ProjectFormModal from '../../../context/ProjectFormModal';
 import styles from './Workspace.module.css';
+import TestThunk from './TEST';
 
 function ProjectCard({ project }) {
   return (
@@ -89,6 +90,7 @@ function Workspace() {
           ))}
         </div>
       </div>
+      <TestThunk />
     </div>
   );
 }

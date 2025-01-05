@@ -1,0 +1,17 @@
+.content {
+  display: inline-block;
+}
+
+.content[contenteditable='true'] {
+  outline: none;
+  min-width: 1px;
+}
+
+.editing {
+  border-bottom: 1px solid #ccc;
+  padding: 2px 4px;
+}
+
+.editing:focus {
+  border-bottom-color: #666;
+}

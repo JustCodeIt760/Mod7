@@ -31,6 +31,7 @@ function SprintSection({ sprints, projectId }) {
       <SprintContent
         sprint={currentSprint}
         features={currentSprint?.features || []}
+        projectId={projectId}
       />
     </section>
   );

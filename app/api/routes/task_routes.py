@@ -105,6 +105,10 @@ def toggle_task_completion(task_id):
     "/projects/<int:project_id>/features/<int:feature_id>/tasks",
     methods=["POST"],
 )
+@task_routes.route(
+    "/projects/<int:project_id>/features/<int:feature_id>/tasks/",
+    methods=["POST"],
+)
 @login_required
 @require_project_access
 def create_task(feature_id):

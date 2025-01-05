@@ -1,0 +1,39 @@
+.sprintControls {
+  position: absolute;
+  right: 1rem;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.controlButton {
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  color: #aaa;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.controlButton:hover:not(:disabled) {
+  background: #f3f4f6;
+  color: #666;
+}
+
+.controlButton:disabled {
+  color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.controlButton.deleteButton {
+  color: rgba(239, 68, 68, 0.6);
+}
+
+.controlButton.deleteButton:hover {
+  color: rgb(239, 68, 68);
+  background: #fee2e2;
+}

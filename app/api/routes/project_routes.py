@@ -19,6 +19,58 @@ def get_all_projects():
     return jsonify({"projects": [project.to_dict() for project in projects]})
 
 
+@project_routes.route(
+    "/<int:project_id>/members/<int:user_id>", methods=["POST"]
+)
+@project_routes.route(
+    "/<int:project_id>/members/<int:user_id>/", methods=["POST"]
+)
+@login_required
+def add_project_member(project_id, user_id):
+    """
+    Add a member to a project
+    """
+    project = Project.get_project_by_id(project_id, current_user.id)
+
+    if not project:
+        return {"errors": ["Project not found"]}, 404
+
+    # Only owner can add members
+    if project.owner_id != current_user.id:
+        return {"errors": ["Unauthorized"]}, 403
+
+    if project.add_member(user_id):
+        return jsonify(project.to_dict())
+    else:
+        return {"errors": ["User is already a member or not found"]}, 400
+
+
+@project_routes.route(
+    "/<int:project_id>/members/<int:user_id>", methods=["DELETE"]
+)
+@project_routes.route(
+    "/<int:project_id>/members/<int:user_id>/", methods=["DELETE"]
+)
+@login_required
+def remove_project_member(project_id, user_id):
+    """
+    Remove a member from a project
+    """
+    project = Project.get_project_by_id(project_id, current_user.id)
+
+    if not project:
+        return {"errors": ["Project not found"]}, 404
+
+    # Only owner can remove members
+    if project.owner_id != current_user.id:
+        return {"errors": ["Unauthorized"]}, 403
+
+    if project.remove_member(user_id):
+        return jsonify(project.to_dict())
+    else:
+        return {"errors": ["User is not a member or is the owner"]}, 400
+
+
 @project_routes.route("/<int:id>", methods=["GET"])
 @project_routes.route("/<int:id>/", methods=["GET"])
 @login_required
