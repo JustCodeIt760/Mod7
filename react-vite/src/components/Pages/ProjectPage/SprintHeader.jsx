@@ -1,8 +1,30 @@
 // components/Sprints/SprintHeader.js
+import { useSelector } from 'react-redux';
 import SprintControls from './SprintControls';
 import styles from './styles/SprintHeader.module.css';
 
 function SprintHeader({ sprint, onPrevious, onNext, onAddSprint }) {
+  const allSprints = useSelector((state) =>
+    Object.values(state.sprints.allSprints)
+  );
+
+  const handleDeleteSuccess = () => {
+    // Get remaining sprints (filter out the one being deleted)
+    const remainingSprints = allSprints.filter((s) => s.id !== sprint.id);
+
+    if (remainingSprints.length > 0) {
+      const currentIndex = allSprints.findIndex((s) => s.id === sprint.id);
+
+      if (currentIndex === 0) {
+        // If we're deleting the first sprint, always go to the next one
+        onNext();
+      } else {
+        // For any other position, go to the previous sprint
+        onPrevious();
+      }
+    }
+  };
+
   return (
     <div className={styles.sprintHeader}>
       <div className={styles.sprintNavigation}>
@@ -30,7 +52,11 @@ function SprintHeader({ sprint, onPrevious, onNext, onAddSprint }) {
         </button>
       </div>
 
-      <SprintControls sprint={sprint} onAddSprint={onAddSprint} />
+      <SprintControls
+        sprint={sprint}
+        onAddSprint={onAddSprint}
+        onDeleteSuccess={handleDeleteSuccess}
+      />
     </div>
   );
 }

@@ -9,13 +9,17 @@ import {
 } from 'react-icons/fa';
 import { thunkUpdateFeature } from '../../../redux/feature';
 import EditableField from '../../utils/EditableField';
+import { thunkRemoveFeature } from '../../../redux/feature';
+import ConfirmationModal from '../../utils/ConfirmationModal';
 import styles from './styles/FeatureCard.module.css';
+import modalStyles from '../../utils/styles/ConfirmationModal.module.css';
 
 function FeatureCard({ feature, projectId, showTasks = false, normalizeTask }) {
   const dispatch = useDispatch();
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingTask, setIsEditingTask] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleSaveName = async (newName) => {
     if (newName !== feature.name) {
@@ -28,12 +32,12 @@ function FeatureCard({ feature, projectId, showTasks = false, normalizeTask }) {
     }
   };
 
-  const isEditing = isEditingName || isEditingTask;
+  const handleDeleteButton = async (e, featureId) => {
+    e.stopPropagation();
+    await dispatch(thunkRemoveFeature(featureId));
+  };
 
-  console.log('isEditingName:', isEditingName);
-  console.log('isEditingTask:', isEditingTask);
-  console.log('combined isEditing:', isEditing);
-  console.log('draggable:', !isEditing);
+  const isEditing = isEditingName || isEditingTask;
 
   return (
     <div
@@ -74,6 +78,11 @@ function FeatureCard({ feature, projectId, showTasks = false, normalizeTask }) {
                     styles.deleteIcon,
                     styles.featureControls,
                   ]}
+                  modalClasses={[
+                    modalStyles.modalOverlay,
+                    modalStyles.modal,
+                    modalStyles.modalButtons,
+                  ]}
                 />
               </div>
               <div className={styles.featureControls}>
@@ -88,12 +97,22 @@ function FeatureCard({ feature, projectId, showTasks = false, normalizeTask }) {
                   }}
                 />
                 {isEditingName && (
-                  <FaTimes
-                    className={styles.deleteIcon}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  />
+                  <>
+                    <FaTimes
+                      className={styles.deleteIcon}
+                      onClick={() => setShowDeleteModal(true)}
+                    />
+                    <ConfirmationModal
+                      isOpen={showDeleteModal}
+                      onClose={() => setShowDeleteModal(false)}
+                      itemType="feature"
+                      itemId={feature.id}
+                      itemName={feature.name}
+                      deleteFunction={(featureId) =>
+                        thunkRemoveFeature(featureId, projectId)
+                      }
+                    />
+                  </>
                 )}
               </div>
             </div>
@@ -120,6 +139,11 @@ function FeatureCard({ feature, projectId, showTasks = false, normalizeTask }) {
               className={styles.featureName}
               containerClassName={styles.featureCard}
               excludeClassNames={[styles.editIcon]}
+              modalClasses={[
+                modalStyles.modalOverlay,
+                modalStyles.modal,
+                modalStyles.modalButtons,
+              ]}
             />
             <FaPencilAlt
               className={styles.editIcon}

@@ -109,6 +109,9 @@ def update_sprint(project_id, sprint_id):
 @sprint_routes.route(
     "/projects/<int:project_id>/sprints/<int:sprint_id>", methods=["DELETE"]
 )
+@sprint_routes.route(
+    "/projects/<int:project_id>/sprints/<int:sprint_id>/", methods=["DELETE"]
+)
 @login_required
 @require_project_access
 def delete_sprint(project_id, sprint_id):

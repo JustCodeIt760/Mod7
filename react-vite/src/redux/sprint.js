@@ -144,10 +144,10 @@ export const thunkUpdateSprint =
     }
   };
 
-export const thunkRemoveSprint = (sprintId) => async (dispatch) => {
+export const thunkRemoveSprint = (sprintId, projectId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    await csrfFetch(`/sprints/${sprintId}`, {
+    await csrfFetch(`/api/projects/${projectId}/sprints/${sprintId}`, {
       method: 'DELETE',
     });
     dispatch(removeSprint(sprintId));

@@ -9,10 +9,20 @@ function EditableField({
   className = '',
   containerClassName,
   excludeClassNames = [],
+  modalClasses = [], // Add modalClasses prop with default empty array
 }) {
   useEffect(() => {
     if (isEditing) {
       const handleClickOutside = (e) => {
+        // Check for modal clicks first
+        const isModalClick = modalClasses.some((className) =>
+          e.target.closest(`.${className}`)
+        );
+
+        if (isModalClick) {
+          return; // Don't handle clicks inside modal
+        }
+
         const container = containerClassName
           ? e.target.closest(`.${containerClassName}`)
           : e.target.closest(`.${styles.content}`);
@@ -33,7 +43,13 @@ function EditableField({
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }
-  }, [isEditing, setIsEditing, containerClassName, excludeClassNames]);
+  }, [
+    isEditing,
+    setIsEditing,
+    containerClassName,
+    excludeClassNames,
+    modalClasses,
+  ]);
 
   const handleEdit = (e) => {};
 

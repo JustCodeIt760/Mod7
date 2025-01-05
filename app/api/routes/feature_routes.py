@@ -106,12 +106,22 @@ def update_feature(project_id, feature_id):
 @feature_routes.route(
     "/projects/<int:project_id>/features/<int:feature_id>", methods=["DELETE"]
 )
+@feature_routes.route(
+    "/projects/<int:project_id>/features/<int:feature_id>/", methods=["DELETE"]
+)
 @login_required
 @require_project_access
 def delete_feature(project_id, feature_id):
-    if Feature.delete_feature(feature_id):
-        return {}, 204
-    return {"message": "Feature couldn't be found"}, 404
+    try:
+        print(
+            f"Attempting to delete feature {feature_id} from project {project_id}"
+        )  # Debug log
+        if Feature.delete_feature(feature_id):
+            return {}, 204
+        return {"message": "Feature couldn't be found"}, 404
+    except Exception as e:
+        print(f"Error deleting feature: {str(e)}")  # Debug log
+        return {"message": str(e)}, 500
 
 
 @feature_routes.route("/projects/<int:project_id>/features/<int:feature_id>")
