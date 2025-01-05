@@ -95,8 +95,7 @@ export const thunkSetTask = (taskId) => async (dispatch, getState) => {
   }
 };
 
-export const thunkAddTask =
-  (projectId, featureId, taskData) => async (dispatch) => {
+export const thunkAddTask = (projectId, featureId, taskData) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
       const response = await csrfFetch(
@@ -203,7 +202,7 @@ export const thunkUpdateTaskPosition =
     dispatch(setLoading(true));
     try {
       const response = await csrfFetch(
-        `/api/projects/${projectId}/features/${featureId}/tasks/${taskId}`,
+        `/projects/${projectId}/features/${featureId}/tasks/${taskId}`,
         {
           method: 'PUT',
           body: JSON.stringify(updates),
