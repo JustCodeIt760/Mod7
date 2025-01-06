@@ -14,12 +14,19 @@ import ConfirmationModal from '../../utils/ConfirmationModal';
 import styles from './styles/FeatureCard.module.css';
 import modalStyles from '../../utils/styles/ConfirmationModal.module.css';
 
-function FeatureCard({ feature, projectId, showTasks = false, normalizeTask }) {
+function FeatureCard({
+  feature,
+  projectId,
+  showTasks = false,
+  normalizeTask,
+  sourceType,
+}) {
   const dispatch = useDispatch();
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingTask, setIsEditingTask] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleSaveName = async (newName) => {
     if (newName !== feature.name) {
@@ -37,17 +44,31 @@ function FeatureCard({ feature, projectId, showTasks = false, normalizeTask }) {
     await dispatch(thunkRemoveFeature(featureId));
   };
 
+  const handleDragStart = (e) => {
+    if (!isEditing) {
+      console.log('Drag start:', { featureId: feature.id, sourceType });
+      e.dataTransfer.setData('featureId', feature.id.toString());
+      e.dataTransfer.setData('sourceType', sourceType);
+      setIsDragging(true);
+      e.target.classList.add(styles.dragging);
+    }
+  };
+
+  const handleDragEnd = (e) => {
+    setIsDragging(false);
+    e.target.classList.remove(styles.dragging);
+  };
+
   const isEditing = isEditingName || isEditingTask;
 
   return (
     <div
-      className={`${styles.featureCard} ${isEditing ? styles.editing : ''}`}
+      className={`${styles.featureCard} ${isEditing ? styles.editing : ''} ${
+        isDragging ? styles.dragging : ''
+      }`}
       draggable={!isEditing}
-      onDragStart={(e) => {
-        if (!isEditing) {
-          e.dataTransfer.setData('featureId', feature.id);
-        }
-      }}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
     >
       {showTasks ? (
         <>
@@ -77,8 +98,6 @@ function FeatureCard({ feature, projectId, showTasks = false, normalizeTask }) {
                     styles.editIcon,
                     styles.deleteIcon,
                     styles.featureControls,
-                  ]}
-                  modalClasses={[
                     modalStyles.modalOverlay,
                     modalStyles.modal,
                     modalStyles.modalButtons,
@@ -131,20 +150,25 @@ function FeatureCard({ feature, projectId, showTasks = false, normalizeTask }) {
       ) : (
         <div className={styles.parkingLotFeature}>
           <div className={styles.featureNameDisplay}>
-            <EditableField
-              value={feature.name}
-              onSave={handleSaveName}
-              isEditing={isEditingName}
-              setIsEditing={setIsEditingName}
-              className={styles.featureName}
-              containerClassName={styles.featureCard}
-              excludeClassNames={[styles.editIcon]}
-              modalClasses={[
-                modalStyles.modalOverlay,
-                modalStyles.modal,
-                modalStyles.modalButtons,
-              ]}
-            />
+            <div className={styles.nameAndTasks}>
+              <EditableField
+                value={feature.name}
+                onSave={handleSaveName}
+                isEditing={isEditingName}
+                setIsEditing={setIsEditingName}
+                className={styles.featureName}
+                containerClassName={styles.featureCard}
+                excludeClassNames={[
+                  styles.editIcon,
+                  modalStyles.modalOverlay,
+                  modalStyles.modal,
+                  modalStyles.modalButtons,
+                ]}
+              />
+              <span className={styles.taskCount}>
+                {feature.tasks?.length || 0} Tasks
+              </span>
+            </div>
             <FaPencilAlt
               className={styles.editIcon}
               onClick={() => setIsEditingName(!isEditingName)}

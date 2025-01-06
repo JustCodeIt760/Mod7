@@ -17,6 +17,12 @@ const AddMemberModal = ({ isOpen, onClose, projectId }) => {
     }
   }, [isOpen, dispatch]);
 
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (selectedUserId) {
@@ -33,14 +39,13 @@ const AddMemberModal = ({ isOpen, onClose, projectId }) => {
   if (!isOpen) return null;
   if (!currentProject) return null;
 
-  // Filter out users already in the project
   const availableUsers = Object.values(allUsers).filter(
     (user) => !currentProject.members.includes(user.id)
   );
 
   return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modal}>
+    <div className={styles.modalOverlay} onClick={handleOverlayClick}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <h2>Add Project Member</h2>
         <form onSubmit={handleSubmit}>
           <select

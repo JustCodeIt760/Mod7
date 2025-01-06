@@ -159,10 +159,11 @@ export const thunkAddProject = (projectData) => async (dispatch) => {
 
     if (response.ok) {
       dispatch(addProject(data));
+      // Add the owner as a project member
+      await dispatch(thunkAddProjectMember(data.id, data.owner_id));
       dispatch(setErrors(null));
       return data;
     } else {
-      // WTForms sends errors in a specific format
       dispatch(setErrors(data.errors));
       return { errors: data.errors };
     }

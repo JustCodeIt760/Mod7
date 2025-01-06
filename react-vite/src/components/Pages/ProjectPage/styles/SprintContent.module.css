@@ -1,10 +1,44 @@
 .sprintContent {
+  flex: 1;
+  min-height: 400px; /* Or whatever height matches your design */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   padding: 1rem;
+  background-color: #f9fafb; /* Light background to show drop area */
+  border-radius: 8px;
+  border: 2px solid transparent; /* Invisible border by default */
+  transition: all 0.2s ease;
 }
 
-.emptyState {
-  padding: 2rem;
-  text-align: center;
+.emptySprintContent {
+  flex: 1;
+  min-height: 400px; /* Match the height of non-empty content */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 2px dashed #e5e7eb;
   color: #6b7280;
-  font-size: 0.875rem;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.dragOver {
+  background-color: rgba(79, 70, 229, 0.1);
+  border: 2px dashed #4f46e5;
+}
+
+.dragging {
+  opacity: 0.5;
+}
+
+.dropZone {
+  min-height: 100px;
+  border: 2px dashed #e5e7eb;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

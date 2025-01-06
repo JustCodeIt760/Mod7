@@ -9,6 +9,7 @@ import { useModal } from '../../../context/Modal';
 import TaskFormModal from '../../../context/TaskFormModal';
 import styles from './sprints.module.css';
 import { refreshAllData } from '../../../redux/shared';
+import { thunkLoadProjectUsers } from '../../../redux/user';
 
 function SprintCard({ sprint, projectName }) {
   const dispatch = useDispatch();
@@ -19,20 +20,21 @@ function SprintCard({ sprint, projectName }) {
   // Get features for this sprint
   const features = useSelector(state => state.features.allFeatures || {});
   
-  useEffect(() => {
-    if (user) {
-      dispatch(refreshAllData());
-    }
-  }, [dispatch, user]);
+//   useEffect(() => {
+//     if (user) {
+//       dispatch(refreshAllData());
+//     }
+//   }, [dispatch, user]);
 
-  // Find tasks for a specific feature
-const sprintFeature = Object.values(features).find(
+  // Find all features for this sprint
+  const sprintFeatures = Object.values(features).filter(
     feature => feature.sprint_id === sprint.id
   );
-  
- 
+
+  // Get all tasks for any feature in this sprint
   const sprintTasks = Object.values(tasks).filter(
-    task => task.feature_id === sprintFeature?.id
+    task => sprintFeatures.some(feature => feature.id === task.feature_id) && 
+    task.assigned_to === user?.id
   );
   
   // Calculate task statistics
@@ -55,12 +57,15 @@ const sprintFeature = Object.values(features).find(
     }
   };
 
-  const handleAddTask = (e) => {
+  const handleAddTask = async(e) => {
     e.stopPropagation();
-    if (!sprintFeature) {
+    if (!sprintFeatures) {
       console.error('No feature found for this sprint');
       return;
     }
+     // Load project users before opening modal
+    await dispatch(thunkLoadProjectUsers(sprint.project_id));
+
     openModal(
       <TaskFormModal 
         projectId={Number(sprint.project_id)}
@@ -81,12 +86,21 @@ const sprintFeature = Object.values(features).find(
             {new Date(sprint.start_date).toLocaleDateString()} - {new Date(sprint.end_date).toLocaleDateString()}
           </p>
         </div>
-        <button 
-          className={styles.addTaskButton}
-          onClick={handleAddTask}
-        >
-          Add Task
-        </button>
+        <div className={styles.addTaskButtonContainer}>
+          <button 
+            className={styles.addTaskButton}
+            onClick={handleAddTask}
+            disabled={!sprintFeatures}
+            title={!sprintFeatures ? "A feature is required to add tasks" : ""}
+          >
+            Add Task
+          </button>
+          {!sprintFeatures && (
+            <p className={styles.helperText}>
+              Create a feature in this sprint to add tasks
+            </p>
+          )}
+        </div>
       </div>
 
       <div className={styles.timeline}>
@@ -155,7 +169,8 @@ function Sprints() {
             await Promise.all([
               ...projectIds.map(projectId => dispatch(thunkLoadSprints(projectId))),
               ...projectIds.map(projectId => dispatch(thunkLoadFeatures(projectId))),
-              ...projectIds.map(projectId => dispatch(thunkLoadTasks(projectId)))
+              ...projectIds.map(projectId => dispatch(thunkLoadTasks(projectId))),
+              ...projectIds.map(projectId => dispatch(thunkLoadProjectUsers(projectId)))
             ]);
           }
         } catch (error) {
