@@ -70,11 +70,15 @@ class Sprint(db.Model):
         db.session.commit()
         return sprint
 
-    def update_sprint(self, name, start_date, end_date):
+    def update_sprint(self, name=None, start_date=None, end_date=None):
         try:
-            self.name = name
-            self.start_date = start_date
-            self.end_date = end_date
+            if name is not None:
+                self.name = name
+            if start_date is not None:
+                self._start_date = start_date
+            if end_date is not None:
+                self._end_date = end_date
+
             db.session.commit()
             return self
         except ValueError as e:

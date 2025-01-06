@@ -7,25 +7,19 @@ import ConfirmationModal from '../../utils/ConfirmationModal';
 import modalStyles from '../../utils/styles/ConfirmationModal.module.css';
 import styles from './styles/SprintControls.module.css';
 
-function SprintControls({ sprint, onAddSprint, onDeleteSuccess }) {
+function SprintControls({
+  sprint,
+  onAddSprint,
+  isEditing,
+  setIsEditing,
+  onDeleteSuccess,
+}) {
   const dispatch = useDispatch();
-  const [isEditMode, setIsEditMode] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-  const handleEditToggle = () => {
-    setIsEditMode(!isEditMode);
-    if (showDeleteModal) {
-      setShowDeleteModal(false);
-    }
-  };
-
-  const handleDeleteClick = () => {
-    setShowDeleteModal(true);
-  };
 
   const handleCloseModal = () => {
     setShowDeleteModal(false);
-    setIsEditMode(false); // Also reset edit mode
+    setIsEditing(false);
   };
 
   return (
@@ -39,17 +33,17 @@ function SprintControls({ sprint, onAddSprint, onDeleteSuccess }) {
       </button>
       <button
         className={styles.controlButton}
-        onClick={handleEditToggle}
+        onClick={() => setIsEditing(!isEditing)}
         title="Edit Sprint"
         disabled={!sprint}
       >
         <FaPencilAlt />
       </button>
-      {isEditMode && sprint && (
+      {isEditing && sprint && (
         <>
           <button
             className={`${styles.controlButton} ${styles.deleteButton}`}
-            onClick={handleDeleteClick}
+            onClick={() => setShowDeleteModal(true)}
             title="Delete Sprint"
           >
             <FaTimes />
@@ -66,15 +60,10 @@ function SprintControls({ sprint, onAddSprint, onDeleteSuccess }) {
               );
               if (result) {
                 handleCloseModal(); // Close modal first
-                onDeleteSuccess?.(); // Then navigate
+                onDeleteSuccess?.(); // Then handle navigation
               }
               return result;
             }}
-            modalClasses={[
-              modalStyles.modalOverlay,
-              modalStyles.modal,
-              modalStyles.modalButtons,
-            ]}
           />
         </>
       )}

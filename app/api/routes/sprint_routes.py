@@ -80,15 +80,23 @@ def create_sprint(project_id):
 @sprint_routes.route(
     "/projects/<int:project_id>/sprints/<int:sprint_id>", methods=["PUT"]
 )
+@sprint_routes.route(
+    "/projects/<int:project_id>/sprints/<int:sprint_id>/", methods=["PUT"]
+)
 @login_required
 @require_project_access
 def update_sprint(project_id, sprint_id):
+    print(
+        "Received data:", request.get_json()
+    )  # Debug log to see what we're getting
 
     sprint = Sprint.query.get(sprint_id)
     if not sprint:
         return {"message": "Sprint couldn't be found"}, 404
 
-    data = request.json
+    # Make sure we're getting JSON data
+    data = request.get_json()  # Change from request.json to request.get_json()
+    print("Processing data:", data)  # Debug log
 
     try:
         updated_sprint = sprint.update_sprint(
@@ -96,7 +104,6 @@ def update_sprint(project_id, sprint_id):
             start_date=data.get("start_date"),
             end_date=data.get("end_date"),
         )
-
         return updated_sprint.to_dict(), 200
 
     except ValueError as e:
