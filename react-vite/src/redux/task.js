@@ -457,9 +457,10 @@ export const selectEnrichedTasks = createSelector(
     (state) => state.tasks.allTasks,
     (state) => state.features.allFeatures,
     (state) => state.projects.allProjects,
+    (state) => state.users.allUsers,
   ],
-  (tasks, features, projects) => {
-    console.log('Recomputing enriched tasks'); // Debug log
+  (tasks, features, projects, users) => {
+    console.log('Recomputing enriched tasks');
     return Object.values(tasks).map((task) => ({
       ...task,
       context: {
@@ -485,6 +486,9 @@ export const selectEnrichedTasks = createSelector(
         priority: ['High', 'Medium', 'Low'][task.priority - 1] || 'Low',
         isOverdue:
           new Date(task.due_date) < new Date() && task.status !== 'Completed',
+        assignedTo: task.assigned_to
+          ? users[task.assigned_to]?.full_name
+          : 'Unassigned',
       },
     }));
   }

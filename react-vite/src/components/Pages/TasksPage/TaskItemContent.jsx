@@ -18,6 +18,7 @@ function TaskItemContent({
   onToggleCompletion,
   status = false,
   showAssignment = false,
+  editable = false,
   isEditing,
   setIsEditing,
 }) {
@@ -72,18 +73,20 @@ function TaskItemContent({
             excludeClassNames={[styles.editIcon, styles.deleteIcon]}
           />
         </div>
-        <div className={styles.taskControls}>
-          <FaPencilAlt
-            className={styles.editIcon}
-            onClick={() => setIsEditing(!isEditing)}
-          />
-          {isEditing && (
-            <FaTimes
-              className={styles.deleteIcon}
-              onClick={() => setShowDeleteModal(true)}
+        {editable && ( // Only show controls if status is false
+          <div className={styles.taskControls}>
+            <FaPencilAlt
+              className={styles.editIcon}
+              onClick={() => setIsEditing(!isEditing)}
             />
-          )}
-        </div>
+            {isEditing && (
+              <FaTimes
+                className={styles.deleteIcon}
+                onClick={() => setShowDeleteModal(true)}
+              />
+            )}
+          </div>
+        )}
       </div>
 
       <EditableField

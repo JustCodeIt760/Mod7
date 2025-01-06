@@ -7,14 +7,14 @@ function TaskCard({
   task,
   projectId,
   featureId,
-  normalizeTask, // Add this
+  normalizeTask,
   isHovered,
   onHover,
   isEditing,
   setIsEditing,
 }) {
   const dispatch = useDispatch();
-  const normalizedTask = normalizeTask ? normalizeTask(task) : task; // Normalize if function provided
+  const normalizedTask = normalizeTask ? normalizeTask(task) : task;
 
   const handleToggleCompletion = async () => {
     await dispatch(thunkToggleTaskCompletion(task.id));
@@ -23,17 +23,19 @@ function TaskCard({
   return (
     <div className={styles.taskItem}>
       <TaskItemContent
-        task={normalizedTask} // Use normalized task
+        task={normalizedTask}
         projectId={projectId}
         featureId={featureId}
         onToggleCompletion={handleToggleCompletion}
         isHovered={isHovered}
         onHover={onHover}
-        showAssignment={true}
+        showAssignment={true} // This is correct
         isEditing={isEditing}
         setIsEditing={setIsEditing}
+        editable={true}
       />
     </div>
   );
 }
+
 export default TaskCard;
