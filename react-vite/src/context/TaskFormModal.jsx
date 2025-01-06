@@ -52,7 +52,7 @@ function TaskFormModal({ projectId, sprintId }) {
     if (!description.length) errors.description = "Description is required";
     if (!startDate) errors.startDate = "Start date is required";
     if (!dueDate) errors.dueDate = "Due date is required";
-    if (!assignedTo) errors, (assignedTo = "Assignee is required");
+    if (!assignedTo) errors.assignedTo = "Assignee is required";
 
     if (startDate && dueDate && new Date(startDate) > new Date(dueDate)) {
       errors.dueDate = "Due date must be after start date";

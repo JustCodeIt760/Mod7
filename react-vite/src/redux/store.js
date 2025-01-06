@@ -12,7 +12,8 @@ import sprintReducer from './sprint';
 import featureReducer from './feature';
 import userReducer from './user';
 
-const rootReducer = combineReducers({
+// Create root reducer with reset functionality
+const appReducer = combineReducers({
   session: sessionReducer,
   projects: projectReducer,
   features: featureReducer,
@@ -20,6 +21,15 @@ const rootReducer = combineReducers({
   tasks: taskReducer,
   users: userReducer,
 });
+
+// Root reducer that can handle store reset
+const rootReducer = (state, action) => {
+  // Clear all data when RESET_STORE action is dispatched
+  if (action.type === 'RESET_STORE') {
+    state = undefined;
+  }
+  return appReducer(state, action);
+};
 
 let enhancer;
 if (import.meta.env.MODE === 'production') {

@@ -9,6 +9,7 @@ const REMOVE_USER = 'session/removeUser';
 
 const SET_LOADING = 'session/setLoading';
 const SET_ERRORS = 'session/setErrors';
+const RESET_STORE = 'RESET_STORE';
 
 const baseError = { server: 'Something went wrong' };
 
@@ -30,6 +31,10 @@ const setLoading = (isLoading) => ({
 export const setErrors = (errors) => ({
   type: SET_ERRORS,
   payload: errors,
+});
+
+export const resetStore = () => ({
+  type: RESET_STORE,
 });
 
 export const thunkAuthenticate = () => async (dispatch) => {
@@ -84,6 +89,7 @@ export const thunkSignup = (user) => async (dispatch) => {
       body: JSON.stringify(user),
     });
     const data = await response.json();
+    dispatch(resetStore());
     dispatch(setUser(data));
     dispatch(setErrors(null));
     return data;
@@ -100,6 +106,7 @@ export const thunkLogout = () => async (dispatch) => {
   dispatch(setLoading(true));
   try {
     await csrfFetch('/auth/logout');
+    dispatch(resetStore());
     dispatch(removeUser());
     dispatch(setErrors(null));
     return true;
