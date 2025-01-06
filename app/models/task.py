@@ -112,26 +112,16 @@ class Task(db.Model):
         try:
             # If both dates are being updated, handle them together
             if "start_date" in kwargs and "due_date" in kwargs:
-                start_date = kwargs.pop("start_date")
-                due_date = kwargs.pop("due_date")
+                # Store current dates in case we need to rollback
+                old_start = self._start_date
+                old_due = self._due_date
 
-                # Convert dates if they're strings
-                if isinstance(start_date, str):
-                    start_date = datetime.fromisoformat(
-                        start_date.replace("Z", "+00:00")
-                    )
-                if isinstance(due_date, str):
-                    due_date = datetime.fromisoformat(
-                        due_date.replace("Z", "+00:00")
-                    )
-
-                # Validate dates together
-                if start_date > due_date:
-                    raise ValueError("Start date can't be after due date")
-
-                # Set both dates
-                self._start_date = start_date
-                self._due_date = due_date
+                # Temporarily set due date to None to avoid validation errors
+                self._due_date = None
+                # Use the property setter for start_date
+                self.start_date = kwargs.pop("start_date")
+                # Use the property setter for due_date
+                self.due_date = kwargs.pop("due_date")
 
             # Handle remaining updates
             for key, value in kwargs.items():

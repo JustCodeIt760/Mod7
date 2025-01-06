@@ -440,9 +440,9 @@ export const selectEnrichedTask = (taskId) =>
           dueDate: new Date(task.due_date).toLocaleDateString(),
           startDate: new Date(task.start_date).toLocaleDateString(),
           priority:
-            task.priority === 1
-              ? 'High'
-              : task.priority === 2
+            task.priority === 0
+              ? 'Low'
+              : task.priority === 1
               ? 'Medium'
               : 'Low',
           isOverdue:
@@ -483,7 +483,7 @@ export const selectEnrichedTasks = createSelector(
       display: {
         dueDate: new Date(task.due_date).toLocaleDateString(),
         startDate: new Date(task.start_date).toLocaleDateString(),
-        priority: ['High', 'Medium', 'Low'][task.priority - 1] || 'Low',
+        priority: ['Low', 'Medium', 'High'][task.priority] || 'Low',
         isOverdue:
           new Date(task.due_date) < new Date() && task.status !== 'Completed',
         assignedTo: task.assigned_to
