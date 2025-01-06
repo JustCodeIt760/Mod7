@@ -9,6 +9,7 @@ import { useModal } from '../../../context/Modal';
 import TaskFormModal from '../../../context/TaskFormModal';
 import styles from './sprints.module.css';
 import { refreshAllData } from '../../../redux/shared';
+import { thunkLoadProjectUsers } from '../../../redux/user';
 
 function SprintCard({ sprint, projectName }) {
   const dispatch = useDispatch();
@@ -19,11 +20,11 @@ function SprintCard({ sprint, projectName }) {
   // Get features for this sprint
   const features = useSelector(state => state.features.allFeatures || {});
   
-  useEffect(() => {
-    if (user) {
-      dispatch(refreshAllData());
-    }
-  }, [dispatch, user]);
+//   useEffect(() => {
+//     if (user) {
+//       dispatch(refreshAllData());
+//     }
+//   }, [dispatch, user]);
 
   // Find tasks for a specific feature
 const sprintFeature = Object.values(features).find(
@@ -32,7 +33,7 @@ const sprintFeature = Object.values(features).find(
   
  
   const sprintTasks = Object.values(tasks).filter(
-    task => task.feature_id === sprintFeature?.id
+    task => task.feature_id === sprintFeature?.id && task.assigned_to === user?.id
   );
   
   // Calculate task statistics
@@ -55,12 +56,15 @@ const sprintFeature = Object.values(features).find(
     }
   };
 
-  const handleAddTask = (e) => {
+  const handleAddTask = async(e) => {
     e.stopPropagation();
     if (!sprintFeature) {
       console.error('No feature found for this sprint');
       return;
     }
+     // Load project users before opening modal
+    await dispatch(thunkLoadProjectUsers(sprint.project_id));
+
     openModal(
       <TaskFormModal 
         projectId={Number(sprint.project_id)}
@@ -155,7 +159,8 @@ function Sprints() {
             await Promise.all([
               ...projectIds.map(projectId => dispatch(thunkLoadSprints(projectId))),
               ...projectIds.map(projectId => dispatch(thunkLoadFeatures(projectId))),
-              ...projectIds.map(projectId => dispatch(thunkLoadTasks(projectId)))
+              ...projectIds.map(projectId => dispatch(thunkLoadTasks(projectId))),
+              ...projectIds.map(projectId => dispatch(thunkLoadProjectUsers(projectId)))
             ]);
           }
         } catch (error) {
