@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useModal } from "./Modal";
 import { thunkAddTask, thunkLoadTasks } from "../redux/task";
 import { selectFeaturesBySprintId } from "../redux/feature";
 import styles from "./Modal.css";
+import { thunkLoadProjectUsers } from "../redux/user";
 
 function TaskFormModal({ projectId, sprintId }) {
   const dispatch = useDispatch();
@@ -22,6 +23,25 @@ function TaskFormModal({ projectId, sprintId }) {
   const [featureId, setFeatureId] = useState("");
   const [assignedTo, setAssignedTo] = useState(currentUser.id); //default to current user
   const features = useSelector(selectFeaturesBySprintId(projectId, sprintId));
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+
+  // Load users when component mounts
+  useEffect(() => {
+    const loadUsers = async () => {
+      setIsLoadingUsers(true);
+      try {
+        const response = await dispatch(thunkLoadProjectUsers(projectId));
+        if (!response) {
+          console.error("Failed to load users");
+        }
+      } catch (error) {
+        console.error("Error loading users:", error);
+      } finally {
+        setIsLoadingUsers(false);
+      }
+    };
+    loadUsers();
+  }, [dispatch, projectId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -133,13 +153,20 @@ function TaskFormModal({ projectId, sprintId }) {
             value={assignedTo}
             onChange={(e) => setAssignedTo(e.target.value)}
             required
+            disabled={isLoadingUsers}
           >
             <option value="">Select Assignee</option>
-            {Object.values(users).map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.username}
+            {isLoadingUsers ? (
+              <option value="" disabled>
+                Loading users...
               </option>
-            ))}
+            ) : (
+              Object.values(users || {}).map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.username}
+                </option>
+              ))
+            )}
           </select>
           {validationErrors.assignedTo && hasSubmitted && (
             <span className={styles.error}>{validationErrors.assignedTo}</span>
