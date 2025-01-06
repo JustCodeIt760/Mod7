@@ -6,10 +6,11 @@ import {
   FaChevronDown,
   FaChevronRight,
   FaTimes,
+  FaPlus,
 } from 'react-icons/fa';
-import { thunkUpdateFeature } from '../../../redux/feature';
+import { thunkUpdateFeature, thunkRemoveFeature } from '../../../redux/feature';
+import { thunkAddTask } from '../../../redux/task';
 import EditableField from '../../utils/EditableField';
-import { thunkRemoveFeature } from '../../../redux/feature';
 import ConfirmationModal from '../../utils/ConfirmationModal';
 import styles from './styles/FeatureCard.module.css';
 import modalStyles from '../../utils/styles/ConfirmationModal.module.css';
@@ -42,6 +43,31 @@ function FeatureCard({
   const handleDeleteButton = async (e, featureId) => {
     e.stopPropagation();
     await dispatch(thunkRemoveFeature(featureId));
+  };
+
+  const handleQuickAddTask = async (e) => {
+    e.stopPropagation();
+
+    const startDate = new Date();
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 7);
+
+    const taskData = {
+      name: 'New Task',
+      description: 'Task description here',
+      status: 'Not Started',
+      priority: 0,
+      start_date: startDate.toISOString(),
+      due_date: dueDate.toISOString(),
+      assigned_to: null,
+    };
+
+    try {
+      await dispatch(thunkAddTask(projectId, feature.id, taskData));
+      setIsExpanded(true);
+    } catch (error) {
+      console.error('Failed to create task:', error);
+    }
   };
 
   const handleDragStart = (e) => {
@@ -108,6 +134,11 @@ function FeatureCard({
                 <span className={styles.taskCount}>
                   {feature.tasks?.length || 0} Tasks
                 </span>
+                <FaPlus
+                  className={styles.addTaskIcon}
+                  onClick={handleQuickAddTask}
+                  title="Quick Add Task"
+                />
                 <FaPencilAlt
                   className={styles.editIcon}
                   onClick={(e) => {
