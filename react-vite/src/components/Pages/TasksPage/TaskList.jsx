@@ -39,7 +39,16 @@ function TaskList() {
         case 'dueDate':
           return new Date(a.due_date) - new Date(b.due_date);
         case 'priority':
-          return a.priority - b.priority;
+          // Map priority levels to numeric values for proper sorting
+          const priorityMap = {
+            'high': 3,
+            'medium': 2,
+            'low': 1
+          };
+          const priorityA = priorityMap[a.display.priority.toLowerCase()];
+          const priorityB = priorityMap[b.display.priority.toLowerCase()];
+          // Sort in descending order (high to low)
+          return priorityB - priorityA;
         default:
           return 0;
       }
