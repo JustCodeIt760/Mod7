@@ -1,4 +1,5 @@
 import { csrfFetch } from '../utils/csrf';
+import { createSelector } from '@reduxjs/toolkit';
 
 const baseError = { server: 'Something went wrong' };
 
@@ -75,7 +76,7 @@ export const thunkSetSprint =
       dispatch(setSprint(cachedSprint));
       dispatch(setErrors(null));
       dispatch(setLoading(false));
-      return;
+      return cachedSprint;
     }
 
     // If not cached, fetch the sprint details from the API
@@ -84,11 +85,17 @@ export const thunkSetSprint =
         `/projects/${projectId}/sprints/${sprintId}`
       );
       const data = await response.json();
-      dispatch(setSprint(data));
-      dispatch(setErrors(null));
-      return data;
+      if (response.ok) {
+        dispatch(setSprint(data));
+        dispatch(setErrors(null));
+        return data;
+      } else {
+        dispatch(setErrors(data));
+        return null;
+      }
     } catch (err) {
       dispatch(setErrors(err.errors || baseError));
+      return null;
     } finally {
       dispatch(setLoading(false));
     }
@@ -138,10 +145,10 @@ export const thunkUpdateSprint =
     }
   };
 
-export const thunkRemoveSprint = (sprintId) => async (dispatch) => {
+export const thunkRemoveSprint = (sprintId, projectId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    await csrfFetch(`/api/sprints/${sprintId}`, {
+    await csrfFetch(`/api/projects/${projectId}/sprints/${sprintId}`, {
       method: 'DELETE',
     });
     dispatch(removeSprint(sprintId));
@@ -167,68 +174,128 @@ const initialState = {
 const sprintReducer = (state = initialState, action) => {
   const handlers = {
     [LOAD_SPRINTS]: (state, action) => {
-      const newState = { ...state };
-      const newSprints = {};
-      action.payload.forEach((sprint) => {
-        newSprints[sprint.id] = sprint;
-      });
-      newState.allSprints = {
-        ...newState.allSprints,
-        ...newSprints,
+      // Convert array to object in single operation
+      const newSprints = action.payload.reduce(
+        (acc, sprint) => ({
+          ...acc,
+          [sprint.id]: sprint,
+        }),
+        {}
+      );
+
+      return {
+        ...state,
+        allSprints: {
+          ...state.allSprints,
+          ...newSprints,
+        },
       };
-      return newState;
     },
 
     [SET_SPRINT]: (state, action) => {
-      const newState = { ...state };
-      newState.singleSprint = action.payload;
-      newState.allSprints = {
-        ...newState.allSprints,
-        [action.payload.id]: action.payload,
+      return {
+        ...state,
+        singleSprint: action.payload,
+        allSprints: {
+          ...state.allSprints,
+          [action.payload.id]: action.payload,
+        },
       };
-      return newState;
     },
 
     [ADD_SPRINT]: (state, action) => {
-      const newState = { ...state };
-      newState.allSprints = {
-        ...newState.allSprints,
-        [action.payload.id]: action.payload,
+      return {
+        ...state,
+        allSprints: {
+          ...state.allSprints,
+          [action.payload.id]: action.payload,
+        },
       };
-      return newState;
     },
 
     [UPDATE_SPRINT]: (state, action) => {
-      const newState = { ...state };
-      newState.allSprints = {
-        ...newState.allSprints,
-        [action.payload.id]: action.payload,
+      return {
+        ...state,
+        allSprints: {
+          ...state.allSprints,
+          [action.payload.id]: action.payload,
+        },
       };
-      return newState;
     },
 
     [REMOVE_SPRINT]: (state, action) => {
-      const newState = { ...state };
-      const { ...remainingSprints } = newState.allSprints;
-      delete remainingSprints[action.payload];
-      newState.allSprints = remainingSprints;
-      return newState;
+      // Use object destructuring to remove the sprint
+      const { [action.payload]: removedSprint, ...remainingSprints } =
+        state.allSprints;
+
+      return {
+        ...state,
+        allSprints: remainingSprints,
+      };
     },
 
     [SET_LOADING]: (state, action) => {
-      const newState = { ...state };
-      newState.isLoading = action.payload;
-      return newState;
+      return {
+        ...state,
+        isLoading: action.payload,
+      };
     },
 
     [SET_ERRORS]: (state, action) => {
-      const newState = { ...state };
-      newState.errors = action.payload;
-      return newState;
+      return {
+        ...state,
+        errors: action.payload,
+      };
     },
   };
 
   return handlers[action.type] ? handlers[action.type](state, action) : state;
 };
+
+export const selectAllSprints = createSelector(
+  (state) => state.sprints.allSprints,
+  (allSprints) => Object.values(allSprints)
+);
+export const selectSprintWithDetails = createSelector(
+  // Input selectors
+  (state) => state.sprints.allSprints,
+  (state) => state.features.allFeatures,
+  (state) => state.users.allUsers,
+  (_, sprintId) => sprintId, // Second argument passed to selector
+  // Result function
+  (allSprints, allFeatures, allUsers, sprintId) => {
+    const sprint = allSprints[sprintId];
+    if (!sprint) return null;
+
+    // Get all features for this sprint
+    const features = Object.values(allFeatures).filter(
+      (feature) => feature.sprint_id === sprintId
+    );
+
+    // Get all tasks for these features and include user information
+    const tasksWithDetails = features
+      .reduce((acc, feature) => {
+        const featureTasks = feature.tasks.map((task) => ({
+          ...task,
+          feature: {
+            id: feature.id,
+            name: feature.name,
+            status: feature.status,
+            priority: feature.priority,
+          },
+          assignee: allUsers[task.assigned_to],
+          creator: allUsers[task.created_by],
+        }));
+        return [...acc, ...featureTasks];
+      }, [])
+      .sort(sortByDate);
+
+    return {
+      ...sprint,
+      features,
+      tasks: tasksWithDetails,
+    };
+  }
+);
 
 export default sprintReducer;

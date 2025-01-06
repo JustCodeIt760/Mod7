@@ -1,0 +1,145 @@
+.featureCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.featureCard:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.featureCard h3 {
+  margin: 0 0 1rem 0;
+  color: #111827;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.parkingLotFeature {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  width: 100%;
+  word-break: break-word;
+}
+
+.featureCard:not(:has(h3)) {
+  padding-right: 30px;
+}
+
+.featureNameDisplay {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+  position: relative;
+  padding-right: 20px;
+}
+
+.featureNameDisplay span {
+  flex-grow: 1;
+  text-align: center;
+  word-break: break-word;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.featureHeader {
+  cursor: pointer;
+}
+
+.featureTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+.chevron {
+  color: #666;
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.featureControls {
+  position: absolute;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.taskCount {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.editIcon {
+  color: #aaa;
+  cursor: pointer;
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.parkingLotFeature .editIcon {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.featureHeader .editIcon {
+  opacity: 0;
+}
+
+.featureHeader:hover .editIcon {
+  opacity: 1;
+}
+
+.editIcon:hover {
+  color: #666;
+}
+
+.deleteIcon {
+  color: rgba(239, 68, 68, 0.6);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.deleteIcon:hover {
+  color: rgb(239, 68, 68);
+}
+
+.featureName {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.featureNameDisplay span[contenteditable='true'] {
+  border-bottom: 1px solid #ccc;
+  outline: none;
+  padding: 2px 4px;
+  margin-right: 20px;
+}
+
+.featureNameDisplay span[contenteditable='true']:focus {
+  border-bottom-color: #666;
+}

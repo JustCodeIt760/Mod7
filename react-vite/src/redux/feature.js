@@ -1,4 +1,5 @@
 import { csrfFetch } from '../utils/csrf';
+import { createSelector } from '@reduxjs/toolkit';
 
 //! TO IMPLEMENT: optimistic loading, add front end ownership check for update, delete
 
@@ -76,8 +77,10 @@ export const thunkLoadFeatures = (projectId) => async (dispatch) => {
     const data = await response.json();
     dispatch(loadFeatures(data));
     dispatch(setErrors(null));
+    return data;
   } catch (err) {
     dispatch(setErrors(err.errors || baseError));
+    return null;
   } finally {
     dispatch(setLoading(false));
   }
@@ -100,8 +103,10 @@ export const thunkSetFeature =
       const data = await response.json();
       dispatch(setFeature(data));
       dispatch(setErrors(null));
+      return data;
     } catch (err) {
       dispatch(setErrors(err.errors || baseError));
+      return null;
     } finally {
       dispatch(setLoading(false));
     }
@@ -149,22 +154,25 @@ export const thunkUpdateFeature =
     }
   };
 
-export const thunkRemoveFeature = (featureId) => async (dispatch) => {
-  dispatch(setLoading(true));
-  try {
-    await csrfFetch(`/api/features/${featureId}`, {
-      method: 'DELETE',
-    });
-    dispatch(removeFeature(featureId));
-    dispatch(setErrors(null));
-    return true;
-  } catch (error) {
-    dispatch(setErrors(error.errors || baseError));
-    return false;
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
+export const thunkRemoveFeature =
+  (featureId, projectId) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      console.log('Deleting feature:', { featureId, projectId }); // Debug log
+      await csrfFetch(`/api/projects/${projectId}/features/${featureId}`, {
+        method: 'DELETE',
+      });
+      dispatch(removeFeature(featureId));
+      dispatch(setErrors(null));
+      return true;
+    } catch (error) {
+      console.error('Thunk error:', error);
+      dispatch(setErrors(error.errors || baseError));
+      return false;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 
 //! this needs checked to see if we can reuse the API endpoint for update or if we need a special one. patch vs put for two endpoints or?
 export const thunkMoveFeature =
@@ -227,145 +235,249 @@ const initialState = {
 const featureReducer = (state = initialState, action) => {
   const handlers = {
     [LOAD_FEATURES]: (state, action) => {
-      const newState = { ...state };
       const features = Array.isArray(action.payload) ? action.payload : [];
-      features.forEach((feature) => {
-        newState.allFeatures[feature.id] = feature;
-      });
-      return newState;
+
+      return {
+        ...state,
+        allFeatures: {
+          ...state.allFeatures,
+          ...features.reduce(
+            (acc, feature) => ({
+              ...acc,
+              [feature.id]: feature,
+            }),
+            {}
+          ),
+        },
+      };
     },
+
     [SET_FEATURE]: (state, action) => {
-      const newState = { ...state };
-      newState.currentFeature = action.payload;
-      if (action.payload) {
-        newState.allFeatures[action.payload.id] = action.payload;
-      }
-      return newState;
+      if (!action.payload) return state;
+
+      return {
+        ...state,
+        currentFeature: action.payload,
+        allFeatures: {
+          ...state.allFeatures,
+          [action.payload.id]: action.payload,
+        },
+      };
     },
+
     [ADD_FEATURE]: (state, action) => {
-      const newState = { ...state };
-      newState.allFeatures[action.payload.id] = action.payload;
-      return newState;
+      return {
+        ...state,
+        allFeatures: {
+          ...state.allFeatures,
+          [action.payload.id]: action.payload,
+        },
+      };
     },
+
     [UPDATE_FEATURE]: (state, action) => {
-      const newState = { ...state };
-      newState.allFeatures[action.payload.id] = action.payload;
-      return newState;
+      return {
+        ...state,
+        allFeatures: {
+          ...state.allFeatures,
+          [action.payload.id]: action.payload,
+        },
+      };
     },
+
     [REMOVE_FEATURE]: (state, action) => {
-      const newState = { ...state };
-      delete newState.allFeatures[action.payload.id];
-      return newState;
+      const { [action.payload]: removed, ...remainingFeatures } =
+        state.allFeatures;
+
+      return {
+        ...state,
+        allFeatures: remainingFeatures,
+      };
     },
     [MOVE_FEATURE]: (state, action) => {
-      const newState = { ...state };
       const { featureId, sprintId } = action.payload;
-      //! updated the feature in allfeatures if it exists
-      if (newState.allFeatures[featureId]) {
-        newState.allFeatures[featureId] = {
-          ...newState.allFeatures[featureId],
-          sprint_id: sprintId,
-        };
-      }
-      //! updated current feature if it matches the move feature
-      if (newState.currentFeature?.id === featureId) {
-        newState.currentFeature = {
-          ...newState.currentFeature,
-          sprint_id: sprintId,
-        };
-      }
-      return newState;
+      const targetFeature = state.allFeatures[featureId];
+
+      if (!targetFeature) return state;
+
+      const updatedFeature = {
+        ...targetFeature,
+        sprint_id: sprintId,
+      };
+
+      return {
+        ...state,
+        allFeatures: {
+          ...state.allFeatures,
+          [featureId]: updatedFeature,
+        },
+        currentFeature:
+          state.currentFeature?.id === featureId
+            ? updatedFeature
+            : state.currentFeature,
+      };
     },
+
     [SET_FEATURES_BY_SPRINT]: (state, action) => {
-      const newState = { ...state };
       const { projectId, sprintId, features } = action.payload;
 
-      //! initialize proj if not exists
-      if (!newState.featuresBySprint[projectId]) {
-        newState.featuresBySprint[projectId] = {};
+      // Create new features mapping
+      const newFeatures = features.reduce(
+        (acc, feature) => ({
+          ...acc,
+          [feature.id]: feature,
+        }),
+        {}
+      );
 
-        //! set features for specific sprint
-        newState.featuresBySprint[projectId][sprintId] = features;
-
-        //! update all featues with the new features
-        features.forEach((feature) => {
-          newState.allFeatures[feature.id] = feature;
-        });
-        return newState;
-      }
+      return {
+        ...state,
+        featuresBySprint: {
+          ...state.featuresBySprint,
+          [projectId]: {
+            ...(state.featuresBySprint[projectId] || {}),
+            [sprintId]: features,
+          },
+        },
+        allFeatures: {
+          ...state.allFeatures,
+          ...newFeatures,
+        },
+      };
     },
+
     [SET_PARKING_LOT]: (state, action) => {
-      const newState = { ...state };
       const featureId = action.payload;
-      //! sets feature's sprint_id to null moving it into the parking lot and updates both the all feats and current feats if needed.
-      if (newState.allFEatures[featureId]) {
-        newState.allFeatures[featureId] = {
-          ...newState.allFeatures[featureId],
-          sprint_id: null,
-        };
-      }
-      if (newState.currentFeature?.Id === featureId) {
-        newState.currentFeature = {
-          ...newState.currentFeature,
-          sprint_id: null,
-        };
-      }
-      return newState;
+      const targetFeature = state.allFeatures[featureId];
+
+      if (!targetFeature) return state;
+
+      const updatedFeature = {
+        ...targetFeature,
+        sprint_id: null,
+      };
+
+      return {
+        ...state,
+        allFeatures: {
+          ...state.allFeatures,
+          [featureId]: updatedFeature,
+        },
+        currentFeature:
+          state.currentFeature?.id === featureId
+            ? updatedFeature
+            : state.currentFeature,
+      };
     },
 
-    [SET_LOADING]: (state, action) => {
-      const newState = { ...state };
-      newState.isLoading = action.payload;
-      return newState;
-    },
+    [SET_LOADING]: (state, action) => ({
+      ...state,
+      isLoading: action.payload,
+    }),
 
-    [SET_ERRORS]: (state, action) => {
-      const newState = { ...state };
-      newState.errors = action.payload;
-      return newState;
-    },
+    [SET_ERRORS]: (state, action) => ({
+      ...state,
+      errors: action.payload,
+    }),
   };
-  return handlers[action.type] ? handlers[action.type](state, action) : state;
+
+  // Add error boundary and validation
+  try {
+    const handler = handlers[action.type];
+    if (!handler) return state;
+
+    // Validate payloads for relevant actions
+    if ([ADD_FEATURE, UPDATE_FEATURE, SET_FEATURE].includes(action.type)) {
+      if (!action.payload?.id) {
+        console.warn(`Invalid payload for ${action.type}`);
+        return state;
+      }
+    }
+
+    if (action.type === MOVE_FEATURE) {
+      if (!action.payload?.featureId || !action.payload?.sprintId) {
+        console.warn('Invalid payload for MOVE_FEATURE');
+        return state;
+      }
+    }
+
+    if (action.type === SET_FEATURES_BY_SPRINT) {
+      if (
+        !action.payload?.projectId ||
+        !action.payload?.sprintId ||
+        !Array.isArray(action.payload?.features)
+      ) {
+        console.warn('Invalid payload for SET_FEATURES_BY_SPRINT');
+        return state;
+      }
+    }
+
+    return handler(state, action);
+  } catch (error) {
+    console.error(`Error in featureReducer handling ${action.type}:`, error);
+    return state;
+  }
 };
 
-// Selectors
-export const selectAllFeatures = (state) => state.features.allFeatures;
+// Memoized Selectors
+export const selectAllFeatures = (state) =>
+  Object.values(state.features.allFeatures);
+
+export const selectFeaturesBySprintId = (projectId, sprintId) =>
+  createSelector(
+    (state) => state.features.allFeatures,
+    (allFeatures) =>
+      Object.values(allFeatures).filter(
+        (feature) =>
+          feature.project_id === projectId && feature.sprint_id === sprintId
+      )
+  );
+
+export const selectParkingLotFeatures = (projectId) =>
+  createSelector(
+    (state) => state.features.allFeatures,
+    (allFeatures) =>
+      Object.values(allFeatures).filter(
+        (feature) => feature.project_id === projectId && !feature.sprint_id
+      )
+  );
+
+export const selectFeaturesByStatus = (status) =>
+  createSelector(
+    (state) => state.features.allFeatures,
+    (allFeatures) =>
+      Object.values(allFeatures).filter((feature) => feature.status === status)
+  );
+
+export const selectFeaturesByAssignee = (userId) =>
+  createSelector(
+    (state) => state.features.allFeatures,
+    (allFeatures) =>
+      Object.values(allFeatures).filter(
+        (feature) => feature.assigned_to === userId
+      )
+  );
+
+// Simple selectors (no need for memoization as they return direct values)
 export const selectCurrentFeature = (state) => state.features.currentFeature;
 export const selectIsLoading = (state) => state.features.isLoading;
 export const selectErrors = (state) => state.features.errors;
 export const selectFeaturesBySprint = (state) =>
   state.features.featuresBySprint;
-
 export const selectFeatureById = (featureId) => (state) =>
   state.features.allFeatures[featureId];
 
-export const selectFeaturesBySprintId = (projectId, sprintId) => (state) =>
-  Object.values(state.features.allFeatures).filter(
-    (feature) =>
-      feature.project_id === projectId && feature.sprint_id === sprintId
+// Memoized computed selector
+export const selectFeatureCompletion = (featureId) =>
+  createSelector(
+    (state) => state.features.allFeatures[featureId],
+    (feature) => {
+      if (!feature || !feature.tasks) return 0;
+      const completedTasks = feature.tasks.filter(
+        (task) => task.completed
+      ).length;
+      return (completedTasks / feature.tasks.length) * 100;
+    }
   );
-
-export const selectParkingLotFeatures = (projectId) => (state) =>
-  Object.values(state.features.allFeatures).filter(
-    (feature) => feature.project_id === projectId && !feature.sprint_id
-  );
-
-export const selectFeaturesByStatus = (status) => (state) =>
-  Object.values(state.features.allFeatures).filter(
-    (feature) => feature.status === status
-  );
-
-export const selectFeaturesByAssignee = (userId) => (state) =>
-  Object.values(state.features.allFeatures).filter(
-    (feature) => feature.assigned_to === userId
-  );
-
-export const selectFeatureCompletion = (featureId) => (state) => {
-  const feature = state.features.allFeatures[featureId];
-  if (!feature || !feature.tasks) return 0;
-
-  const completedTasks = feature.tasks.filter((task) => task.completed).length;
-  return (completedTasks / feature.tasks.length) * 100;
-};
 
 export default featureReducer;

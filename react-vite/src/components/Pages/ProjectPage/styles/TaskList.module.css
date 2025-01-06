@@ -1,0 +1,13 @@
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 15px;
+}
+
+.emptyState {
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+}

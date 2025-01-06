@@ -1,14 +1,15 @@
-import { useState, useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
-import { thunkLogout } from "../../redux/session";
-import { useNavigate } from "react-router-dom";
-import "./Navigation.css";
+import { useState, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { thunkLogout } from '../../redux/session';
+import { useNavigate } from 'react-router-dom';
+import './Navigation.css';
 
-function ProfileButton({ user }) {
+function ProfileButton() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const buttonRef = useRef();
+  const user = useSelector((state) => state.session.user);
 
   const toggleMenu = (e) => {
     e.stopPropagation();
@@ -22,14 +23,17 @@ function ProfileButton({ user }) {
       }
     };
 
-    document.addEventListener("click", closeMenu);
-    return () => document.removeEventListener("click", closeMenu);
+    document.addEventListener('click', closeMenu);
+    return () => document.removeEventListener('click', closeMenu);
   }, []);
 
-  const logout = (e) => {
+  const logout = async (e) => {
     e.preventDefault();
-    dispatch(thunkLogout());
-    navigate("/");
+    const response = await dispatch(thunkLogout());
+    if (response) {
+      setShowMenu(false);
+      navigate('/');
+    }
   };
 
   return (
@@ -42,7 +46,7 @@ function ProfileButton({ user }) {
           <div className="profile-info">
             <i className="fas fa-user-circle profile-icon" />
             <div className="user-details">
-              <span className="username">{user?.username}</span>
+              <span className="welcome">Welcome, {user?.username}</span>
               <span className="email">{user?.email}</span>
             </div>
           </div>

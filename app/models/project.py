@@ -1,5 +1,6 @@
 from .db import db, environment, SCHEMA, add_prefix_for_prod
 from datetime import datetime
+from .user import User
 
 # Association Tables for Many-to-Many
 project_users = db.Table(
@@ -51,6 +52,7 @@ class Project(db.Model):
             "description": self.description,
             "owner_id": self.owner_id,
             "due_date": self.due_date.isoformat(),
+            "members": [user.id for user in self.users],
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
@@ -70,13 +72,18 @@ class Project(db.Model):
 
     # Read method (fetch all projects for a specific user)
     @classmethod
-    def get_all_projects(cls, owner_id):
-        return cls.query.filter_by(owner_id=owner_id).all()
+    def get_all_projects(cls, user_id):
+        return cls.query.filter(
+            db.or_(cls.owner_id == user_id, cls.users.any(id=user_id))
+        ).all()
 
     # Get a single project by ID
     @classmethod
-    def get_project_by_id(cls, id, owner_id):
-        return cls.query.filter_by(id=id, owner_id=owner_id).first()
+    def get_project_by_id(cls, id, user_id):
+        return cls.query.filter(
+            cls.id == id,
+            db.or_(cls.owner_id == user_id, cls.users.any(id=user_id)),
+        ).first()
 
     # Update method (modify project)
     def update_project(self, name, description, due_date):
@@ -105,3 +112,64 @@ class Project(db.Model):
         except Exception as e:
             db.session.rollback()
             raise e  # Let the route handler deal with the error
+
+    @staticmethod
+    def remove_user_from_project(user_id, project_id):
+        try:
+            print(f"Starting removal: user={user_id}, project={project_id}")
+
+            # Check current state
+            current_members = (
+                db.session.query(project_users)
+                .filter_by(project_id=project_id)
+                .all()
+            )
+            print(f"Current members in project: {current_members}")
+
+            project = Project.query.get(project_id)
+            user = User.query.get(user_id)
+            print(f"Found project: {bool(project)}, Found user: {bool(user)}")
+
+            if user in project.users:
+                project.users.remove(user)
+                db.session.commit()
+
+                # Verify removal
+                updated_members = (
+                    db.session.query(project_users)
+                    .filter_by(project_id=project_id)
+                    .all()
+                )
+                print(f"Updated members in project: {updated_members}")
+                return True
+            else:
+                print("User not in project members")
+                return False
+
+        except Exception as e:
+            print(f"Error in remove_user_from_project: {str(e)}")
+            db.session.rollback()
+            return False
+
+    @staticmethod
+    def add_user_to_project(user_id, project_id):
+        """
+        Adds a user to a project
+        """
+        try:
+            project = Project.query.get(project_id)
+            user = User.query.get(user_id)
+
+            if not project or not user:
+                return False
+
+            if user in project.users:
+                return False
+
+            project.users.append(user)
+            db.session.commit()
+            return True
+        except Exception as e:
+            print(f"Error in add_user_to_project: {str(e)}")  # Debug log
+            db.session.rollback()
+            return False

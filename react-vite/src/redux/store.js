@@ -10,6 +10,7 @@ import projectReducer from './project';
 import taskReducer from './task';
 import sprintReducer from './sprint';
 import featureReducer from './feature';
+import userReducer from './user';
 
 const rootReducer = combineReducers({
   session: sessionReducer,
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   features: featureReducer,
   sprints: sprintReducer,
   tasks: taskReducer,
+  users: userReducer,
 });
 
 let enhancer;

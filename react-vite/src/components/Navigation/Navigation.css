@@ -115,7 +115,7 @@ main {
 .profile-info {
   padding: 20px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
 }
 
@@ -127,17 +127,19 @@ main {
 .user-details {
   display: flex;
   flex-direction: column;
+  gap: 4px;
 }
 
-.username {
+.welcome {
   font-weight: 500;
   font-size: 1.1rem;
   color: #2c3e50;
 }
 
 .email {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #666;
+  margin-top: 2px;
 }
 
 .dropdown-divider {

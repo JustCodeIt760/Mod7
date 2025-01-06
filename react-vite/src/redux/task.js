@@ -1,4 +1,6 @@
 import { csrfFetch } from '../utils/csrf';
+import { createSelector } from '@reduxjs/toolkit';
+import { isWithinInterval } from 'date-fns';
 
 //! TO IMPLEMENT: optimistic loading, add front end ownership check for update, delete
 
@@ -51,16 +53,19 @@ export const setErrors = (errors) => ({
 });
 
 //THUNKS
-export const thunkLoadTasks = () => async (dispatch) => {
+export const thunkLoadTasks = (projectId, featureId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    const response = await csrfFetch('/api/tasks');
+    const response = await csrfFetch(
+      `/projects/${projectId}/features/${featureId}/tasks`
+    );
     const data = await response.json();
     dispatch(loadTasks(data));
     dispatch(setErrors(null));
-  } catch (error) {
-    // utilizing setErrors so we have easy access to error responses
-    dispatch(setErrors(error.errors || baseError));
+    return data;
+  } catch (err) {
+    dispatch(setErrors(err.errors || baseError));
+    return null;
   } finally {
     dispatch(setLoading(false));
   }
@@ -113,18 +118,52 @@ export const thunkAddTask =
     }
   };
 
-export const thunkUpdateTask = (taskData) => async (dispatch) => {
+export const thunkUpdateTask =
+  (projectId, featureId, taskId, taskData) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await csrfFetch(
+        `/projects/${projectId}/features/${featureId}/tasks/${taskId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(taskData),
+        }
+      );
+
+      if (response.ok) {
+        const task = await response.json();
+        dispatch(updateTask(task));
+        dispatch(setErrors(null));
+        return task;
+      }
+      return null;
+    } catch (err) {
+      dispatch(setErrors(err.errors || baseError));
+      return null;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+export const thunkToggleTaskCompletion = (taskId) => async (dispatch) => {
   dispatch(setLoading(true));
   try {
-    const response = await csrfFetch(`/api/tasks/${taskData.id}`, {
-      method: 'PUT',
-      body: JSON.stringify(taskData),
+    console.log('Attempting to toggle task:', taskId);
+    const response = await csrfFetch(`/api/tasks/${taskId}/toggle`, {
+      method: 'PATCH',
+      body: JSON.stringify({}), // Empty body since backend handles toggle logic
     });
     const updatedTask = await response.json();
+    console.log('Task updated:', updatedTask);
+
     dispatch(updateTask(updatedTask));
     dispatch(setErrors(null));
     return updatedTask;
   } catch (error) {
+    console.error('Toggle task error:', error);
     dispatch(setErrors(error.errors || baseError));
     return null;
   } finally {
@@ -132,22 +171,119 @@ export const thunkUpdateTask = (taskData) => async (dispatch) => {
   }
 };
 
-export const thunkRemoveTask = (taskId) => async (dispatch) => {
-  dispatch(setLoading(true));
-  try {
-    await csrfFetch(`/api/tasks/${taskId}`, {
-      method: 'DELETE',
-    });
-    dispatch(removeTask(taskId));
-    dispatch(setErrors(null));
-    return true;
-  } catch (error) {
-    dispatch(setErrors(error.errors || baseError));
-    return null;
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
+export const thunkRemoveTask =
+  (projectId, featureId, taskId) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await csrfFetch(
+        `/projects/${projectId}/features/${featureId}/tasks/${taskId}`,
+        {
+          method: 'DELETE',
+        }
+      );
+      if (response.ok) {
+        dispatch(removeTask(taskId));
+        dispatch(setErrors(null));
+        return true;
+      } else {
+        const data = await response.json();
+        dispatch(setErrors(data.errors || baseError));
+        return false;
+      }
+    } catch (error) {
+      dispatch(setErrors(error.errors || baseError));
+      return false;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+export const thunkUpdateTaskPosition =
+  (projectId, featureId, taskId, updates) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await csrfFetch(
+        `/projects/${projectId}/features/${featureId}/tasks/${taskId}`,
+        {
+          method: 'PUT',
+          body: JSON.stringify(updates),
+        }
+      );
+      const updatedTask = await response.json();
+      dispatch(updateTask(updatedTask));
+      dispatch(setErrors(null));
+      return updatedTask;
+    } catch (err) {
+      dispatch(setErrors(err.errors || baseError));
+      return null;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+export const thunkUpdateTaskName =
+  (projectId, featureId, taskId, newName) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await csrfFetch(
+        `/projects/${projectId}/features/${featureId}/tasks/${taskId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: newName,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const task = await response.json();
+        dispatch(updateTask(task));
+        dispatch(setErrors(null));
+        return task;
+      }
+      return null;
+    } catch (err) {
+      dispatch(setErrors(err.errors || baseError));
+      return null;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+export const thunkUpdateTaskDescription =
+  (projectId, featureId, taskId, newDescription) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await csrfFetch(
+        `/projects/${projectId}/features/${featureId}/tasks/${taskId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            description: newDescription,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const task = await response.json();
+        dispatch(updateTask(task));
+        dispatch(setErrors(null));
+        return task;
+      }
+      return null;
+    } catch (err) {
+      dispatch(setErrors(err.errors || baseError));
+      return null;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 
 // Initial state object defining the structure of the project state
 const initialState = {
@@ -161,84 +297,84 @@ const initialState = {
 const taskReducer = (state = initialState, action) => {
   const handlers = {
     [LOAD_TASKS]: (state, action) => {
-      //Handler for loading tasks
-      const newState = { ...state };
-      //Iterate through each task in the payload and add it to the allTasks object
-      action.payload.forEach((task) => {
-        //Add each project to allProjects object
-        newState.allTasks[task.id] = task;
-      });
-      //Return the updated state
-      return newState;
+      const tasks = Array.isArray(action.payload)
+        ? action.payload
+        : [action.payload];
+
+      // Create new allTasks object with all tasks
+      const newAllTasks = tasks.reduce(
+        (acc, task) => ({
+          ...acc,
+          [task.id]: task,
+        }),
+        { ...state.allTasks }
+      );
+
+      return {
+        ...state,
+        allTasks: newAllTasks,
+      };
     },
 
-    // Handler for setting a single task
     [SET_TASK]: (state, action) => {
-      //Create a copy of the current state
-      const newState = { ...state };
-      //Set the single task to the action payload
-      newState.singleTask = action.payload;
-      // If a project is provided, update/add it to the allTasks object
-      if (action.payload) {
-        newState.allTasks[action.payload.id] = action.payload;
-      }
-      //Return the updated state
-      return newState;
+      return {
+        ...state,
+        singleTask: action.payload,
+        // Only update allTasks if we have a payload
+        ...(action.payload && {
+          allTasks: {
+            ...state.allTasks,
+            [action.payload.id]: action.payload,
+          },
+        }),
+      };
     },
 
-    //Handler for adding a task
     [ADD_TASK]: (state, action) => {
-      //Create a copy of the current state
-      const newState = { ...state };
-      //Add the new task to the allTasks using the task ID as the key
-      newState.allTasks[action.payload.id] = action.payload;
-      //Return the updated state
-      return newState;
+      return {
+        ...state,
+        allTasks: {
+          ...state.allTasks,
+          [action.payload.id]: action.payload,
+        },
+      };
     },
 
-    //Handler for updating a task
     [UPDATE_TASK]: (state, action) => {
-      //Create a copy of the current state
-      const newState = { ...state };
-      //Update the task in allTasks object
-      newState.allTasks[action.payload.id] = action.payload;
-      //return the updated state
-      return newState;
+      return {
+        ...state,
+        allTasks: {
+          ...state.allTasks,
+          [action.payload.id]: action.payload,
+        },
+      };
     },
 
-    //Handler for removing a task
     [REMOVE_TASK]: (state, action) => {
-      //Create a copy of the current state
-      const newState = { ...state };
-      //Remove the task from allTasks object
-      delete newState.allTasks[action.payload];
-      //Return the updated state
-      return newState;
+      // Create new allTasks object without the removed task
+      const { [action.payload]: removed, ...remainingTasks } = state.allTasks;
+
+      return {
+        ...state,
+        allTasks: remainingTasks,
+      };
     },
 
-    //Handler for setting loading state
     [SET_LOADING]: (state, action) => {
-      //Create a copy of the current state
-      const newState = { ...state };
-      //Update isLoading to the flag;
-      newState.isLoading = action.payload;
-      //Return the updated state
-      return newState;
+      return {
+        ...state,
+        isLoading: action.payload,
+      };
     },
 
-    //Handler for setting errors
     [SET_ERROR]: (state, action) => {
-      //Create a copy of the current state
-      const newState = { ...state };
-      //Update errors to the action payload
-      newState.errors = action.payload;
-      //Return the updated state
-      return newState;
+      return {
+        ...state,
+        errors: action.payload,
+      };
     },
   };
 
-  //Check if a handler exists for the action type
-  //If it does, call the handler; otherwise, return the current state
   return handlers[action.type] ? handlers[action.type](state, action) : state;
 };
 
@@ -269,5 +405,97 @@ export const selectOverdueTasks = (state) =>
     (task) =>
       new Date(task.due_date) < new Date() && task.status !== 'completed'
   );
+
+export const selectEnrichedTask = (taskId) =>
+  createSelector(
+    [
+      (state) => state.tasks.allTasks[taskId],
+      (state) => state.features.allFeatures,
+      (state) => state.projects.allProjects,
+    ],
+    (task, features, projects) => {
+      if (!task) return null;
+
+      const feature = features[task.feature_id];
+      const project = feature ? projects[feature.project_id] : null;
+
+      return {
+        ...task,
+        context: {
+          feature: feature
+            ? {
+                id: feature.id,
+                name: feature.name,
+                status: feature.status,
+              }
+            : null,
+          project: project
+            ? {
+                id: project.id,
+                name: project.name,
+              }
+            : null,
+        },
+        display: {
+          dueDate: new Date(task.due_date).toLocaleDateString(),
+          startDate: new Date(task.start_date).toLocaleDateString(),
+          priority:
+            task.priority === 1
+              ? 'High'
+              : task.priority === 2
+              ? 'Medium'
+              : 'Low',
+          isOverdue:
+            new Date(task.due_date) < new Date() && task.status !== 'Completed',
+        },
+      };
+    }
+  );
+
+export const selectEnrichedTasks = createSelector(
+  [
+    (state) => state.tasks.allTasks,
+    (state) => state.features.allFeatures,
+    (state) => state.projects.allProjects,
+  ],
+  (tasks, features, projects) => {
+    console.log('Recomputing enriched tasks'); // Debug log
+    return Object.values(tasks).map((task) => ({
+      ...task,
+      context: {
+        feature: features[task.feature_id]
+          ? {
+              id: features[task.feature_id].id,
+              name: features[task.feature_id].name,
+              status: features[task.feature_id].status,
+            }
+          : null,
+        project:
+          features[task.feature_id] &&
+          projects[features[task.feature_id].project_id]
+            ? {
+                id: projects[features[task.feature_id].project_id].id,
+                name: projects[features[task.feature_id].project_id].name,
+              }
+            : null,
+      },
+      display: {
+        dueDate: new Date(task.due_date).toLocaleDateString(),
+        startDate: new Date(task.start_date).toLocaleDateString(),
+        priority: ['High', 'Medium', 'Low'][task.priority - 1] || 'Low',
+        isOverdue:
+          new Date(task.due_date) < new Date() && task.status !== 'Completed',
+      },
+    }));
+  }
+);
+
+export const selectMyEnrichedTasks = createSelector(
+  [selectEnrichedTasks, (state) => state.session.user],
+  (enrichedTasks, currentUser) => {
+    if (!currentUser) return [];
+    return enrichedTasks.filter((task) => task.assigned_to === currentUser.id);
+  }
+);
 
 export default taskReducer;

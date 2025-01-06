@@ -1,0 +1,22 @@
+.sprintSection {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sprintContent {
+  padding: 1rem;
+}
+
+.dragOver {
+  background-color: #f3f4f6;
+  border: 2px dashed #9ca3af;
+}
+
+.emptyState {
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+}

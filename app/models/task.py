@@ -40,14 +40,14 @@ class Task(db.Model):
 
     @start_date.setter
     def start_date(self, value):
-        if self._due_date and value and value > self._due_date:
-            raise ValueError("Start date can't be after due date")
+        if isinstance(value, str):
+            value = datetime.fromisoformat(value.replace("Z", "+00:00"))
         self._start_date = value
 
     @due_date.setter
     def due_date(self, value):
-        if self._due_date and value and value < self._start_date:
-            raise ValueError("Due date can't be before start date")
+        if isinstance(value, str):
+            value = datetime.fromisoformat(value.replace("Z", "+00:00"))
         self._due_date = value
 
     @property
@@ -61,6 +61,23 @@ class Task(db.Model):
             else:
                 return int(total_hours)
         return None
+
+    @classmethod
+    def get_accessible_tasks(cls, user):
+        from . import Project, Feature  # Import when needed
+
+        accessible_projects = Project.query.filter(
+            db.or_(Project.owner_id == user.id, Project.users.contains(user))
+        ).all()
+
+        return (
+            cls.query.join(Feature)
+            .filter(
+                Feature.project_id.in_([p.id for p in accessible_projects])
+            )
+            .distinct()
+            .all()
+        )
 
     @classmethod
     def create_task(
@@ -93,8 +110,33 @@ class Task(db.Model):
 
     def update_task(self, **kwargs):
         try:
+            # If both dates are being updated, handle them together
+            if "start_date" in kwargs and "due_date" in kwargs:
+                start_date = kwargs.pop("start_date")
+                due_date = kwargs.pop("due_date")
+
+                # Convert dates if they're strings
+                if isinstance(start_date, str):
+                    start_date = datetime.fromisoformat(
+                        start_date.replace("Z", "+00:00")
+                    )
+                if isinstance(due_date, str):
+                    due_date = datetime.fromisoformat(
+                        due_date.replace("Z", "+00:00")
+                    )
+
+                # Validate dates together
+                if start_date > due_date:
+                    raise ValueError("Start date can't be after due date")
+
+                # Set both dates
+                self._start_date = start_date
+                self._due_date = due_date
+
+            # Handle remaining updates
             for key, value in kwargs.items():
                 setattr(self, key, value)
+
             db.session.commit()
             return self
         except Exception as e:

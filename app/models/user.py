@@ -26,7 +26,10 @@ class User(db.Model, UserMixin):
         "Task", foreign_keys="Task._created_by", backref="creator"
     )
     assigned_tasks = db.relationship(
-        "Task", foreign_keys="Task.assigned_to", backref="assignee"
+        "Task",
+        foreign_keys="Task.assigned_to",
+        backref="assignee",
+        passive_deletes="all",
     )
 
     @property
@@ -47,8 +50,7 @@ class User(db.Model, UserMixin):
     def has_project_access(self, project_id):
         # Check if user is owner
         is_owner = any(
-            project.id == project_id and project.owner_id == self.id
-            for project in self.projects
+            project.id == project_id for project in self.owned_projects
         )
 
         # Check if user is member

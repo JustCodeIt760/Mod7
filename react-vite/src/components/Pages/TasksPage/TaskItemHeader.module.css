@@ -1,0 +1,25 @@
+/* TaskItemHeader.module.css */
+.contextHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.projectName {
+  color: #4b5563;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.separator {
+  color: #9ca3af;
+}
+
+.featureName {
+  color: #6b7280;
+  font-style: italic;
+  font-size: 0.875rem;
+}
