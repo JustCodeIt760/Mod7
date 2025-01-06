@@ -5,6 +5,7 @@
   padding: 1rem;
   margin-bottom: 1rem;
   transition: all 0.2s ease;
+  cursor: grab;
 }
 
 .featureCard:hover {
@@ -12,47 +13,53 @@
   transform: translateY(-1px);
 }
 
-.featureCard h3 {
-  margin: 0 0 1rem 0;
-  color: #111827;
-  font-size: 1.1rem;
-  font-weight: 600;
+.featureCard.editing {
+  cursor: default;
 }
 
+.featureCard.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+  transition: opacity 0.2s, transform 0.2s;
+  cursor: grabbing;
+}
+
+/* Parking Lot Feature Styles */
 .parkingLotFeature {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #111827;
   width: 100%;
-  word-break: break-word;
-}
-
-.featureCard:not(:has(h3)) {
-  padding-right: 30px;
+  text-align: center;
 }
 
 .featureNameDisplay {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
   width: 100%;
-  gap: 8px;
   position: relative;
-  padding-right: 20px;
 }
 
-.featureNameDisplay span {
-  flex-grow: 1;
-  text-align: center;
-  word-break: break-word;
-  min-width: 0;
-  overflow-wrap: break-word;
+.nameAndTasks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
 }
 
+.featureName {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.taskCount {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: normal;
+}
+
+/* Sprint Feature Styles */
 .featureHeader {
   cursor: pointer;
 }
@@ -60,15 +67,15 @@
 .featureTitle {
   display: flex;
   align-items: center;
-  gap: 8px;
-  position: relative;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .titleSection {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-grow: 1;
+  flex: 1;
 }
 
 .chevron {
@@ -78,38 +85,18 @@
 }
 
 .featureControls {
-  position: absolute;
-  right: 0;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.taskCount {
-  color: #666;
-  font-size: 0.9em;
-}
-
+/* Icon Styles */
 .editIcon {
   color: #aaa;
   cursor: pointer;
   font-size: 14px;
   transition: color 0.2s ease;
-}
-
-.parkingLotFeature .editIcon {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.featureHeader .editIcon {
-  opacity: 0;
-}
-
-.featureHeader:hover .editIcon {
-  opacity: 1;
+  margin-left: 8px;
 }
 
 .editIcon:hover {
@@ -127,17 +114,11 @@
   color: rgb(239, 68, 68);
 }
 
-.featureName {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #111827;
-}
-
+/* Editable Field Styles */
 .featureNameDisplay span[contenteditable='true'] {
   border-bottom: 1px solid #ccc;
   outline: none;
   padding: 2px 4px;
-  margin-right: 20px;
 }
 
 .featureNameDisplay span[contenteditable='true']:focus {
