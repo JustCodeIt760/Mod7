@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useModal } from "./Modal";
-import { thunkAddTask, thunkLoadTasks } from "../redux/task";
-import { selectFeaturesBySprintId } from "../redux/feature";
-import styles from "./Modal.css";
-import { thunkLoadProjectUsers } from "../redux/user";
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useModal } from './Modal';
+import { thunkAddTask, thunkLoadTasks } from '../redux/task';
+import { selectFeaturesBySprintId } from '../redux/feature';
+import styles from './Modal.css';
+import { thunkLoadProjectUsers } from '../redux/user';
 
 function TaskFormModal({ projectId, sprintId }) {
   const dispatch = useDispatch();
@@ -14,13 +14,13 @@ function TaskFormModal({ projectId, sprintId }) {
   const [validationErrors, setValidationErrors] = useState({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("Not Started");
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [status, setStatus] = useState('Not Started');
   const [priority, setPriority] = useState(0);
-  const [startDate, setStartDate] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [featureId, setFeatureId] = useState("");
+  const [startDate, setStartDate] = useState('');
+  const [dueDate, setDueDate] = useState('');
+  const [featureId, setFeatureId] = useState('');
   const [assignedTo, setAssignedTo] = useState(currentUser.id); //default to current user
   const features = useSelector(selectFeaturesBySprintId(projectId, sprintId));
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
@@ -32,10 +32,10 @@ function TaskFormModal({ projectId, sprintId }) {
       try {
         const response = await dispatch(thunkLoadProjectUsers(projectId));
         if (!response) {
-          console.error("Failed to load users");
+          console.error('Failed to load users');
         }
       } catch (error) {
-        console.error("Error loading users:", error);
+        console.error('Error loading users:', error);
       } finally {
         setIsLoadingUsers(false);
       }
@@ -48,14 +48,14 @@ function TaskFormModal({ projectId, sprintId }) {
     setHasSubmitted(true);
 
     const errors = {};
-    if (!name.length) errors.name = "Task name is required";
-    if (!description.length) errors.description = "Description is required";
-    if (!startDate) errors.startDate = "Start date is required";
-    if (!dueDate) errors.dueDate = "Due date is required";
-    if (!assignedTo) errors.assignedTo = "Assignee is required";
+    if (!name.length) errors.name = 'Task name is required';
+    if (!description.length) errors.description = 'Description is required';
+    if (!startDate) errors.startDate = 'Start date is required';
+    if (!dueDate) errors.dueDate = 'Due date is required';
+    if (!assignedTo) errors.assignedTo = 'Assignee is required';
 
     if (startDate && dueDate && new Date(startDate) > new Date(dueDate)) {
-      errors.dueDate = "Due date must be after start date";
+      errors.dueDate = 'Due date must be after start date';
     }
 
     setValidationErrors(errors);
@@ -85,9 +85,9 @@ function TaskFormModal({ projectId, sprintId }) {
         closeModal();
       }
     } catch (error) {
-      console.error("Task creation error:", error);
+      console.error('Task creation error:', error);
       setValidationErrors({
-        submit: error.message || "Failed to create task",
+        submit: error.message || 'Failed to create task',
       });
     }
   };
@@ -133,6 +133,7 @@ function TaskFormModal({ projectId, sprintId }) {
           <select
             value={featureId} // value is the ID
             onChange={(e) => setFeatureId(parseInt(e.target.value, 10))}
+            required
           >
             <option value="">Select a feature</option>
             {features.map((feature) => (
@@ -204,8 +205,8 @@ function TaskFormModal({ projectId, sprintId }) {
           <input
             type="date"
             id="startDate"
-            value={startDate ? startDate.split("T")[0] : ""}
-            onChange={(e) => setStartDate(e.target.value + "T00:00:00Z")}
+            value={startDate ? startDate.split('T')[0] : ''}
+            onChange={(e) => setStartDate(e.target.value + 'T00:00:00Z')}
             required
           />
           {validationErrors.startDate && hasSubmitted && (
@@ -218,8 +219,8 @@ function TaskFormModal({ projectId, sprintId }) {
           <input
             type="date"
             id="dueDate"
-            value={dueDate ? dueDate.split("T")[0] : ""}
-            onChange={(e) => setDueDate(e.target.value + "T00:00:00Z")}
+            value={dueDate ? dueDate.split('T')[0] : ''}
+            onChange={(e) => setDueDate(e.target.value + 'T00:00:00Z')}
             required
           />
           {validationErrors.dueDate && hasSubmitted && (
