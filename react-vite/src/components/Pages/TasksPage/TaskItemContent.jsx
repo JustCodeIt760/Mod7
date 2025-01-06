@@ -1,12 +1,15 @@
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { FaPencilAlt, FaTimes } from 'react-icons/fa';
 import EditableField from '../../utils/EditableField';
-import styles from './TaskItemContent.module.css';
+import ConfirmationModal from '../../utils/ConfirmationModal';
+import modalStyles from '../../utils/styles/ConfirmationModal.module.css';
 import {
   thunkUpdateTaskName,
   thunkUpdateTaskDescription,
+  thunkRemoveTask,
 } from '../../../redux/task';
-import { useDispatch } from 'react-redux';
+import styles from './TaskItemContent.module.css';
 
 function TaskItemContent({
   task,
@@ -19,6 +22,8 @@ function TaskItemContent({
   setIsEditing,
 }) {
   const dispatch = useDispatch();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const handleSaveName = async (newName) => {
     const result = await dispatch(
       thunkUpdateTaskName(projectId, featureId, task.id, newName)
@@ -31,6 +36,11 @@ function TaskItemContent({
       thunkUpdateTaskDescription(projectId, featureId, task.id, newDescription)
     );
     if (result) setIsEditing(false);
+  };
+
+  const handleCloseModal = () => {
+    setShowDeleteModal(false);
+    setIsEditing(false);
   };
 
   return (
@@ -70,9 +80,7 @@ function TaskItemContent({
           {isEditing && (
             <FaTimes
               className={styles.deleteIcon}
-              onClick={() => {
-                /* Handle delete */
-              }}
+              onClick={() => setShowDeleteModal(true)}
             />
           )}
         </div>
@@ -108,7 +116,6 @@ function TaskItemContent({
           <div className={styles.dateItem}>
             {/* <span className={styles.label}>Duration:</span> */}
             {/* <span className={styles.value}>{task.duration}</span> */}
-            <pre>{JSON.stringify(task, null, 2)}</pre>
           </div>
         </div>
         <span
@@ -128,6 +135,22 @@ function TaskItemContent({
           </span>
         )}
       </div>
+
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={handleCloseModal}
+        itemType="task"
+        itemId={task.id}
+        itemName={task.name}
+        deleteFunction={(taskId) =>
+          thunkRemoveTask(projectId, featureId, taskId)
+        }
+        modalClasses={[
+          modalStyles.modalOverlay,
+          modalStyles.modal,
+          modalStyles.modalButtons,
+        ]}
+      />
     </div>
   );
 }

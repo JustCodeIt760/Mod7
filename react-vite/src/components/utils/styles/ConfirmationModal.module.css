@@ -1,0 +1,98 @@
+/* src/components/utils/styles/ConfirmationModal.module.css */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal {
+  position: relative;
+  background-color: white;
+  padding: 24px;
+  border-radius: 8px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10000;
+}
+
+.modalTitle {
+  margin: 0 0 16px 0;
+  font-size: 1.5rem;
+  color: #2c3e50;
+}
+
+.modalMessage {
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+  color: #4a5568;
+}
+
+.modalButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancelButton {
+  padding: 8px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background-color: white;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton:hover {
+  background-color: #f7fafc;
+}
+
+.deleteButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: #dc3545;
+  font-weight: 500;
+}
+
+/* Specific delete button styles */
+.featureDelete {
+  background-color: #bd4f5a;
+}
+.sprintDelete {
+  background-color: #bd4f5a;
+}
+
+.projectDelete {
+  background-color: #ff0000;
+}
+
+.taskDelete {
+  background-color: #bd4f5a;
+}
+
+.memberDelete {
+  background-color: #bd4f5a;
+}
+
+.deleteButton:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.deleteButton:active {
+  transform: translateY(0);
+}

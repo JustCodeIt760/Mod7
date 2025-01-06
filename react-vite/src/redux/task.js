@@ -95,7 +95,8 @@ export const thunkSetTask = (taskId) => async (dispatch, getState) => {
   }
 };
 
-export const thunkAddTask = (projectId, featureId, taskData) => async (dispatch) => {
+export const thunkAddTask =
+  (projectId, featureId, taskData) => async (dispatch) => {
     dispatch(setLoading(true));
     try {
       const response = await csrfFetch(

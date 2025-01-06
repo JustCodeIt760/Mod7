@@ -25,7 +25,9 @@ class Feature(db.Model):
 
     project = db.relationship("Project", back_populates="features")
     sprint = db.relationship("Sprint", back_populates="features")
-    tasks = db.relationship("Task", back_populates="feature")
+    tasks = db.relationship(
+        "Task", back_populates="feature", cascade="all, delete-orphan"
+    )
 
     @classmethod
     def create_feature(
@@ -104,5 +106,5 @@ class Feature(db.Model):
             "priority": self.priority,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
-            "tasks": [task.to_dict() for task in self.tasks]
+            "tasks": [task.to_dict() for task in self.tasks],
         }

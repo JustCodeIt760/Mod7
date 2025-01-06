@@ -1,43 +1,81 @@
 .projectHeader {
   background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  border: 1px solid #e5e7eb;
-  margin-bottom: 2rem;
-  text-align: center;
+  padding: 1rem;
+  margin-bottom: 1rem;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.projectHeader h1 {
+.projectContent {
+  width: 100%;
+  text-align: center;
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 0.5rem 0;
+}
+
+.projectName {
   margin: 0;
-  color: #111827;
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  font-weight: 800;
+  background: linear-gradient(45deg, #2563eb, #4f46e5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text; /* For Firefox */
+  color: transparent; /* Fallback */
+  line-height: 1.1;
 }
 
 .projectMeta {
-  margin-top: 0.5rem;
-  color: #6b7280;
-  font-size: 0.9rem;
-  display: flex;
-  justify-content: center;
+  color: #666;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
 }
 
-.editIcon {
+.projectControls {
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  color: #aaa;
-  cursor: pointer;
-  font-size: 14px;
-  transition: opacity 0.2s ease, color 0.2s ease;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 0.5rem;
   opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
-.projectHeader:hover .editIcon {
+.titleSection:hover .projectControls {
   opacity: 1;
 }
 
-.editIcon:hover {
+.editIcon,
+.deleteIcon {
   color: #666;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color 0.2s ease;
+}
+
+.editIcon:hover,
+.deleteIcon:hover {
+  color: #333;
+}
+
+.deleteIcon {
+  color: #dc3545;
+}
+
+.deleteIcon:hover {
+  color: #c82333;
+}
+
+/* When editing is active, always show controls */
+.titleSection.editing .projectControls {
+  opacity: 1;
 }

@@ -154,22 +154,25 @@ export const thunkUpdateFeature =
     }
   };
 
-export const thunkRemoveFeature = (featureId) => async (dispatch) => {
-  dispatch(setLoading(true));
-  try {
-    await csrfFetch(`/features/${featureId}`, {
-      method: 'DELETE',
-    });
-    dispatch(removeFeature(featureId));
-    dispatch(setErrors(null));
-    return true;
-  } catch (error) {
-    dispatch(setErrors(error.errors || baseError));
-    return false;
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
+export const thunkRemoveFeature =
+  (featureId, projectId) => async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      console.log('Deleting feature:', { featureId, projectId }); // Debug log
+      await csrfFetch(`/api/projects/${projectId}/features/${featureId}`, {
+        method: 'DELETE',
+      });
+      dispatch(removeFeature(featureId));
+      dispatch(setErrors(null));
+      return true;
+    } catch (error) {
+      console.error('Thunk error:', error);
+      dispatch(setErrors(error.errors || baseError));
+      return false;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 
 //! this needs checked to see if we can reuse the API endpoint for update or if we need a special one. patch vs put for two endpoints or?
 export const thunkMoveFeature =
@@ -283,7 +286,7 @@ const featureReducer = (state = initialState, action) => {
     },
 
     [REMOVE_FEATURE]: (state, action) => {
-      const { [action.payload.id]: removed, ...remainingFeatures } =
+      const { [action.payload]: removed, ...remainingFeatures } =
         state.allFeatures;
 
       return {
@@ -291,7 +294,6 @@ const featureReducer = (state = initialState, action) => {
         allFeatures: remainingFeatures,
       };
     },
-
     [MOVE_FEATURE]: (state, action) => {
       const { featureId, sprintId } = action.payload;
       const targetFeature = state.allFeatures[featureId];
