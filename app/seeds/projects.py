@@ -1,4 +1,4 @@
-from models import db, Project, User, environment, SCHEMA
+from models import db, Project, User
 from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 
@@ -41,10 +41,5 @@ def seed_projects():
 
 
 def undo_projects():
-    if environment == "production":
-        db.session.execute(
-            f"TRUNCATE table {SCHEMA}.projects RESTART IDENTITY CASCADE;"
-        )
-    else:
-        db.session.execute(text("DELETE FROM projects"))
+    db.session.execute(text("TRUNCATE TABLE projects RESTART IDENTITY CASCADE;"))
     db.session.commit()

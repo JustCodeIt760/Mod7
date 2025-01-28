@@ -1,28 +1,37 @@
-# Use Node.js 18 with Alpine Linux
-FROM node:18-alpine
+# Build stage
+FROM node:18-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files first to leverage Docker cache
-# This layer will only rebuild if package files change
+# Copy package files
 COPY package*.json ./
-
-# Use npm install instead of npm ci for development
 RUN npm ci
 
-# Copy the rest of the application
-# This layer will rebuild on any code changes
+# Copy source code
 COPY . .
 
-# Add these environment variables
-ENV NODE_ENV=development
-ENV VITE_BASE_URL=http://localhost:5000
+# Debug: Show what files we have
+RUN echo "Contents before build:" && ls -la
 
-# Expose port 5173 (Vite's default port)
-# This is documentation only - you still need to map ports in docker-compose
-EXPOSE 5173
+# Build the application
+RUN npm run build
 
-# Set host to 0.0.0.0 to allow external connections
-# --host flag makes the server accessible from outside the container
-CMD ["npm", "run", "dev"]
+# Debug: Show what's in dist
+RUN echo "Contents of dist after build:" && ls -la dist/
+
+# Production stage
+FROM node:18-alpine
+
+WORKDIR /app
+RUN npm install -g serve
+
+# Copy built assets from builder stage
+COPY --from=builder /app/dist ./dist
+
+# Debug: Show what's in dist in production stage
+RUN echo "Contents of dist in production:" && ls -la dist/
+
+EXPOSE 3000
+
+# -s flag handles SPA routing
+CMD ["serve", "-s", "dist", "-l", "3000", "--single"]
