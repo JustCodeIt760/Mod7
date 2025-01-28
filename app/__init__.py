@@ -22,7 +22,7 @@ Migrate(app, db)
 
 # Setup login manager
 login = LoginManager(app)
-login.login_view = "auth.unauthorized"
+login.login_view = "api.auth.unauthorized"
 
 
 @login.user_loader
