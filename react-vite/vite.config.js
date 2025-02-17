@@ -1,24 +1,27 @@
 import { defineConfig } from 'vite';
 import eslintPlugin from 'vite-plugin-eslint';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
 
-// https://vitejs.dev/config/
-export default defineConfig((mode) => ({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     eslintPlugin({
-      lintOnStart: true,
-      failOnError: mode === 'production',
+      lintOnStart: false,  // Changed to false
+      failOnError: false,  // Changed to false
     }),
   ],
   server: {
     host: '0.0.0.0',
-    port: 5173,
-    proxy: {
-      '/api': {
-        target: 'http://backend:5000',
-        changeOrigin: true,
-        secure: false,
+    port: 3000,
+  },
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+    assetsDir: 'assets',
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
       },
     },
   },

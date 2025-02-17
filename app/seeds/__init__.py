@@ -5,25 +5,24 @@ from .sprints import seed_sprints, undo_sprints
 from .features import seed_features, undo_features
 from .tasks import seed_tasks, undo_tasks
 
-from models import db, environment, SCHEMA
+from models import db
 
 seed_commands = AppGroup("seed")
 
-
 @seed_commands.command("all")
 def seed():
-    if environment == "production":
-        undo_tasks()
-        undo_features()
-        undo_sprints()
-        undo_projects()
-        undo_users()
+    # Always undo before seeding
+    undo_tasks()
+    undo_features()
+    undo_sprints()
+    undo_projects()
+    undo_users()
+    
     seed_users()
     seed_projects()
     seed_sprints()
     seed_features()
     seed_tasks()
-
 
 @seed_commands.command("undo")
 def undo():

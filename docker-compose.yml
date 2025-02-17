@@ -5,52 +5,76 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
-    container_name: backend
+    container_name: taskflow-backend
     environment:
       - FLASK_APP=__init__.py
-      - FLASK_DEBUG=1
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
       - SECRET_KEY=${SECRET_KEY}
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      - SCHEMA=${SCHEMA}
-      - REFRESH_DB=true
-    ports:
-      - '5000:5000'
+      - SCHEMA=${SCHEMA:-public}
+      - REFRESH_DB=${REFRESH_DB:-true}
+    expose:
+      - '5000'
     volumes:
       - ./app:/app
-      - ./react-app/build:/app/react-app/build
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - default
+      - shared_portainer_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
 
   frontend:
     build:
       context: ./react-vite
       dockerfile: Dockerfile
-    container_name: frontend
-    ports:
-      - '5173:5173'
-    volumes:
-      - ./react-vite:/app
-      - /app/node_modules
+    container_name: taskflow-frontend
+    expose:
+      - '3000'
+    environment:
+      - NODE_ENV=production
+      - VITE_BASE_URL=http://localhost:5000  # Adjust this based on your domain
     depends_on:
       - backend
+    networks:
+      - default
+      - shared_portainer_network
+    restart: unless-stopped
 
   db:
     image: postgres:14-alpine
-    container_name: mod7_db
+    container_name: taskflow-db
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - '5432:5432'
+      - taskflow_postgres_data:/var/lib/postgresql/data
+    expose:
+      - '5432'
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - default
+      - shared_portainer_network
+    restart: unless-stopped
 
 volumes:
-  postgres_data:
+  taskflow_postgres_data:
+    name: taskflow_postgres_data
+
+networks:
+  default:
+  shared_portainer_network:
+    external: true
