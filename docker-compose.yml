@@ -12,7 +12,7 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - SCHEMA=${SCHEMA}
-      - REFRESH_DB=${REFRESH_DB:-false}
+      - REFRESH_DB=true
     ports:
       - '5000:5000'
     volumes:
