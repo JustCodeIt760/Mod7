@@ -31,7 +31,6 @@ function TaskItemContent({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateType, setDateType] = useState(null);
   const [datePickerPosition, setDatePickerPosition] = useState({ x: 0, y: 0 });
-  const [taskBeingEdited, setTaskBeingEdited] = useState(null);
   const users = useSelector((state) =>
     Object.values(state.users.allUsers || {})
   );
@@ -42,7 +41,6 @@ function TaskItemContent({
     );
     if (result) {
       setIsEditing(false);
-      setTaskBeingEdited(null);
     }
   };
 
@@ -52,7 +50,6 @@ function TaskItemContent({
     );
     if (result) {
       setIsEditing(false);
-      setTaskBeingEdited(null);
     }
   };
 
@@ -63,25 +60,19 @@ function TaskItemContent({
       const element = event.currentTarget;
       const rect = element.getBoundingClientRect();
 
-      // Calculate position to avoid overflow
       const viewportHeight = window.innerHeight;
       const viewportWidth = window.innerWidth;
-
-      // Default position below the clicked element
       let y = rect.bottom + window.scrollY;
       let x = rect.left;
 
-      // Check if DatePicker would overflow bottom of viewport
-      const datePickerHeight = 300; // Approximate height of DatePicker
+      const datePickerHeight = 300;
       if (y + datePickerHeight > viewportHeight) {
-        // Position above the clicked element if it would overflow bottom
         y = rect.top - datePickerHeight + window.scrollY;
       }
 
-      // Check if DatePicker would overflow right of viewport
-      const datePickerWidth = 300; // Approximate width of DatePicker
+      const datePickerWidth = 300;
       if (x + datePickerWidth > viewportWidth) {
-        x = viewportWidth - datePickerWidth - 10; // 10px padding from viewport edge
+        x = viewportWidth - datePickerWidth - 10;
       }
 
       setDatePickerPosition({ x, y });
@@ -95,7 +86,6 @@ function TaskItemContent({
     }
 
     const formattedDate = new Date(date.setHours(0, 0, 0, 0)).toISOString();
-
     const updates = {
       [dateType === 'start' ? 'start_date' : 'due_date']: formattedDate,
     };
@@ -110,7 +100,7 @@ function TaskItemContent({
   };
 
   const handleAssigneeChange = async (userId) => {
-    const result = await dispatch(
+    await dispatch(
       thunkUpdateTask(projectId, featureId, task.id, {
         assigned_to: userId || null,
       })
@@ -118,7 +108,7 @@ function TaskItemContent({
   };
 
   const handlePriorityChange = async (priority) => {
-    const result = await dispatch(
+    await dispatch(
       thunkUpdateTask(projectId, featureId, task.id, {
         priority: Number(priority),
       })
@@ -128,7 +118,6 @@ function TaskItemContent({
   const handleCloseModal = () => {
     setShowDeleteModal(false);
     setIsEditing(false);
-    setTaskBeingEdited(null);
   };
 
   return (
@@ -151,7 +140,7 @@ function TaskItemContent({
           <EditableField
             value={task.name}
             onSave={handleSaveName}
-            isEditing={isEditing && taskBeingEdited === task.id}
+            isEditing={isEditing}
             setIsEditing={setIsEditing}
             className={`${styles.taskName} ${
               task.status === 'Completed' ? styles.completedText : ''
@@ -164,12 +153,9 @@ function TaskItemContent({
           <div className={styles.taskControls}>
             <FaPencilAlt
               className={styles.editIcon}
-              onClick={() => {
-                setTaskBeingEdited(task.id);
-                setIsEditing(!isEditing);
-              }}
+              onClick={() => setIsEditing(!isEditing)}
             />
-            {isEditing && taskBeingEdited === task.id && (
+            {isEditing && (
               <FaTimes
                 className={styles.deleteIcon}
                 onClick={() => setShowDeleteModal(true)}
@@ -182,7 +168,7 @@ function TaskItemContent({
       <EditableField
         value={task.description}
         onSave={handleSaveDescription}
-        isEditing={isEditing && taskBeingEdited === task.id}
+        isEditing={isEditing}
         setIsEditing={setIsEditing}
         className={styles.description}
         containerClassName={styles.taskContainer}
@@ -192,7 +178,7 @@ function TaskItemContent({
       {showAssignment && (
         <div className={styles.assignmentInfo}>
           <span className={styles.assignedLabel}>Assigned to:</span>
-          {isEditing && taskBeingEdited === task.id ? (
+          {isEditing ? (
             <select
               value={task.assigned_to || ''}
               onChange={(e) => handleAssigneeChange(e.target.value || null)}
@@ -206,11 +192,7 @@ function TaskItemContent({
               ))}
             </select>
           ) : (
-            <span
-              className={`${styles.assignedValue} ${
-                isEditing && taskBeingEdited === task.id ? styles.editable : ''
-              }`}
-            >
+            <span className={styles.assignedValue}>
               {task.display.assignedTo || 'Unassigned'}
             </span>
           )}
@@ -224,16 +206,12 @@ function TaskItemContent({
             <div className={styles.dateWrapper}>
               <span
                 className={`${styles.value} ${
-                  isEditing && taskBeingEdited === task.id
-                    ? styles.editable
-                    : ''
+                  isEditing ? styles.editable : ''
                 }`}
                 onClick={(e) => handleDateClick('start', e)}
               >
                 {task.display.startDate}
-                {isEditing && taskBeingEdited === task.id && (
-                  <FaCalendar className={styles.calendarIcon} />
-                )}
+                {isEditing && <FaCalendar className={styles.calendarIcon} />}
               </span>
               {showDatePicker &&
                 dateType === 'start' &&
@@ -265,16 +243,12 @@ function TaskItemContent({
             <div className={styles.dateWrapper}>
               <span
                 className={`${styles.value} ${
-                  isEditing && taskBeingEdited === task.id
-                    ? styles.editable
-                    : ''
+                  isEditing ? styles.editable : ''
                 }`}
                 onClick={(e) => handleDateClick('end', e)}
               >
                 {task.display.dueDate}
-                {isEditing && taskBeingEdited === task.id && (
-                  <FaCalendar className={styles.calendarIcon} />
-                )}
+                {isEditing && <FaCalendar className={styles.calendarIcon} />}
               </span>
               {showDatePicker &&
                 dateType === 'end' &&
@@ -304,7 +278,7 @@ function TaskItemContent({
             </div>
           </div>
         </div>
-        {isEditing && taskBeingEdited === task.id ? (
+        {isEditing ? (
           <select
             value={task.priority}
             onChange={(e) => handlePriorityChange(e.target.value)}
