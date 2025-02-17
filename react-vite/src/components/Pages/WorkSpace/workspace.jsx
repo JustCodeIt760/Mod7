@@ -69,7 +69,9 @@ function Workspace() {
   return (
     <div className={styles.workspaceContainer}>
       <div className={styles.header}>
-        <h1>WorkSpace</h1>
+        <div className={styles.headerContent}>
+          <h1>Workspace</h1>
+        </div>
         <button className={styles.createButton} onClick={handleCreateProject}>
           Create a Project
         </button>

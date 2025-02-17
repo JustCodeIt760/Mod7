@@ -13,21 +13,21 @@ while ! nc -z db 5432; do
 done
 echo "PostgreSQL started successfully!"
 
-# Clean start - remove old migrations
+# Clean start - remove all migration data
 echo "Cleaning old migrations..."
-rm -rf migrations/
+rm -rf migrations
 flask db init
 
-# Create and run migrations
+# Create and run fresh migrations
 echo "Creating and running migrations..."
+export FLASK_APP=__init__.py
 flask db migrate -m "initial migration"
 flask db upgrade
-echo "Migrations completed!"
 
-# Seeds (no need to undo since we just recreated tables)
+# Run seeds
 echo "Running seeds..."
 flask seed all
-echo "Seeds completed!"
+echo "Database refresh completed!"
 
 echo "Starting Gunicorn server..."
 exec gunicorn --bind 0.0.0.0:5000 "__init__:app"

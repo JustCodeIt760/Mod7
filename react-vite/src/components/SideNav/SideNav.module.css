@@ -1,124 +1,130 @@
 .sideNav {
-    width: 200px;
-    height: calc(100vh - 60px);
-    background-color: #f8f9fa;  
-    border-right: 1px solid #e0e0e0;
+    width: 250px;
+    height: calc(100vh - 70px);
+    background: linear-gradient(180deg, #3a6491 0%, #4875a5 100%);
     position: fixed;
-    top: 60px;
+    top: 70px;
     left: 0;
-    padding: 20px;
+    padding: 28px 20px;
     overflow-y: auto;
   }
   
   .navLinks {
     display: flex;
     flex-direction: column;
-    gap: 25px;  
-    margin-top: 80px;
+    gap: 16px;
+    margin-top: 40px;
     align-items: center;
     text-align: center;
   }
   
   .navItem {
     text-decoration: none;
-    color: #2c3e50; 
-    padding: 12px;
+    color: rgba(255, 255, 255, 0.85);
+    padding: 12px 16px;
     border-radius: 8px;
     transition: all 0.2s ease;
-    width: 80%;
+    width: 90%;
     text-align: center;
     font-weight: 500;
+    background: rgba(255, 255, 255, 0.05);
+    position: relative;
+    overflow: hidden;
   }
   
   .navItem:hover {
-    background-color: #e3e8ec; 
-    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    transform: translateY(-1px);
   }
   
   .navItem.active {
-    background-color: #3498db; 
+    background: linear-gradient(135deg, #66b088, #7fc2a0);
     color: white;
-    font-weight: bold;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
   
   .projectsSection {
-    margin: 0; 
-    width: 80%;
-    align-self: center; 
+    width: 90%;
+    margin-top: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
   
   .projectsHeader {
     display: flex;
-    justify-content: center; 
+    justify-content: center;
     align-items: center;
-    padding: 12px;
+    padding: 12px 16px;
     cursor: pointer;
     border-radius: 8px;
-    color: #2c3e50;
-    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
     position: relative;
-  }
-  
-  .projectsHeader span:first-child {
-    margin-right: 20px;  
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.05);
   }
   
   .projectsHeader:hover {
-    background-color: #e3e8ec;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
   }
   
   .projectsList {
-    max-height: 300px;
+    max-height: 400px;
     overflow-y: auto;
-    margin-top: 4px;
+    margin-top: 8px;
     border-radius: 8px;
-    background-color: transparent;
-    padding: 4px 0;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    box-shadow: none;
-  }
-  
-  .projectsList::-webkit-scrollbar {
-    display: none;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
   }
   
   .projectItem {
-    padding: 8px 16px;
+    padding: 10px 16px;
     text-decoration: none;
-    color: #2c3e50;
-    text-align: center;
+    color: rgba(255, 255, 255, 0.75);
+    text-align: left;
     transition: all 0.2s ease;
     font-size: 0.9rem;
     display: block;
-    font-weight: 400;
-    border: none;
-    margin: 0;
-    border-radius: 8px;
+    font-weight: 500;
+    border-radius: 6px;
+    margin: 4px 0;
   }
   
   .projectItem:hover {
-    background-color: #e3e8ec;
-    transform: translateX(3px);
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    transform: translateX(4px);
+  }
+  
+  .projectItem.active {
+    background: linear-gradient(135deg, rgba(102, 176, 136, 0.3), rgba(127, 194, 160, 0.3));
+    color: #ffffff;
+    font-weight: 600;
   }
   
   .arrow {
     font-size: 12px;
     position: absolute;
-    right: 15px;
+    right: 16px;
+    color: rgba(255, 255, 255, 0.6);
+    transition: transform 0.2s ease;
   }
   
   .projectsCategoryHeader {
     padding: 8px 16px;
-    color: #94a3b8;
-    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 500;
-    background: transparent;
-    text-align: center;
-    margin: 4px 0 0 0;
-    border: none;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    margin: 12px 0 4px 0;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
   }
   
   .projectItem:last-child {

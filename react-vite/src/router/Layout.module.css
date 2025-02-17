@@ -1,9 +1,19 @@
 .layout {
   min-height: 100vh;
+  background-color: var(--background-light);
 }
 
 .mainContent {
   margin-left: 250px;
-  margin-top: 60px;
-  padding: 20px;
+  margin-top: 70px;
+  padding: 30px;
+  background-color: var(--background-light);
+  min-height: calc(100vh - 70px);
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    margin-left: 0;
+    padding: 20px;
+  }
 }
