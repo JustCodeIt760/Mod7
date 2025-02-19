@@ -1,16 +1,22 @@
+/* Card Base Styles */
 .featureCard {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1rem;
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
   margin-bottom: 1rem;
   transition: all 0.2s ease;
   cursor: grab;
+  box-shadow: 0 2px 8px rgba(74, 123, 183, 0.05);
+}
+.featureCard .editIcon {
+  cursor: pointer;
 }
 
 .featureCard:hover {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(74, 123, 183, 0.1);
+  transform: translateY(-2px);
+  border-color: rgba(74, 123, 183, 0.2);
 }
 
 .featureCard.editing {
@@ -20,8 +26,9 @@
 .featureCard.dragging {
   opacity: 0.5;
   transform: scale(0.95);
-  transition: opacity 0.2s, transform 0.2s;
+  transition: all 0.2s ease;
   cursor: grabbing;
+  box-shadow: 0 8px 24px rgba(74, 123, 183, 0.15);
 }
 
 /* Parking Lot Feature Styles */
@@ -43,20 +50,21 @@
 .nameAndTasks {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.5rem;
   flex: 1;
 }
 
 .featureName {
-  font-size: 1.1rem;
+  font-size: var(--font-md);
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
+  transition: color 0.2s ease;
 }
 
 .taskCount {
-  font-size: 0.875rem;
-  color: #6b7280;
-  font-weight: normal;
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 /* Sprint Feature Styles */
@@ -74,64 +82,111 @@
 .titleSection {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex: 1;
 }
 
 .chevron {
-  color: #666;
-  font-size: 12px;
+  color: var(--text-secondary);
+  font-size: 14px;
   transition: transform 0.2s ease;
 }
 
 .featureControls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.featureCard:hover .featureControls {
+  opacity: 1;
 }
 
 /* Icon Styles */
-.editIcon {
-  color: #aaa;
+.editIcon svg,
+.addTaskIcon svg,
+.deleteIcon svg {
+  width: 14px;
+  height: 14px;
   cursor: pointer;
-  font-size: 14px;
-  transition: color 0.2s ease;
-  margin-left: 8px;
-}
-
-.editIcon:hover {
-  color: #666;
-}
-
-.deleteIcon {
-  color: rgba(239, 68, 68, 0.6);
-  cursor: pointer;
-  font-size: 14px;
   transition: all 0.2s ease;
 }
 
+.editIcon,
+.addTaskIcon {
+  color: var(--text-secondary);
+}
+
+.deleteIcon {
+  color: var(--overdue-color);
+  opacity: 0.7;
+}
+
+.editIcon:hover,
+.addTaskIcon:hover {
+  color: var(--primary-blue);
+}
+
 .deleteIcon:hover {
-  color: rgb(239, 68, 68);
+  color: var(--overdue-color);
+  opacity: 1;
 }
 
 /* Editable Field Styles */
 .featureNameDisplay span[contenteditable='true'] {
-  border-bottom: 1px solid #ccc;
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--primary-blue);
   outline: none;
-  padding: 2px 4px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--background-light);
+  transition: all 0.2s ease;
+  color: var(--primary-blue);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.featureNameDisplay span[contenteditable='true']:hover {
+  background: white;
+  border-color: var(--primary-blue);
+  box-shadow: 0 2px 8px rgba(74, 123, 183, 0.1);
 }
 
 .featureNameDisplay span[contenteditable='true']:focus {
-  border-bottom-color: #666;
-}
-.addTaskIcon {
-  color: #aaa;
-  cursor: pointer;
-  font-size: 14px;
-  transition: color 0.2s ease;
-  margin: 0 8px;
+  border-color: var(--primary-blue);
+  background: white;
+  box-shadow: 0 4px 12px rgba(74, 123, 183, 0.15);
 }
 
-.addTaskIcon:hover {
-  color: #666;
+/* Animations */
+@keyframes expandFeature {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.featureCard .taskList {
+  animation: expandFeature 0.2s ease forwards;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .featureCard {
+    padding: 1rem;
+  }
+
+  .featureControls {
+    opacity: 1;
+  }
+
+  .titleSection {
+    gap: 8px;
+  }
 }

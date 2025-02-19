@@ -18,14 +18,38 @@ function SprintSection({ sprints, projectId, normalizeTask }) {
   }, [sprints, currentSprintIndex]);
 
   const handleAddSprint = async () => {
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 7);
+    const currentDate = new Date();
+
+    // Create start date at beginning of day (00:00:00)
+    const startDate = new Date(
+      Date.UTC(
+        currentDate.getUTCFullYear(),
+        currentDate.getUTCMonth(),
+        currentDate.getUTCDate(),
+        0,
+        0,
+        0,
+        0
+      )
+    );
+
+    // Create end date at end of day (23:59:59.999) 7 days later
+    const endDate = new Date(
+      Date.UTC(
+        currentDate.getUTCFullYear(),
+        currentDate.getUTCMonth(),
+        currentDate.getUTCDate() + 7,
+        23,
+        59,
+        59,
+        999
+      )
+    );
 
     const sprintData = {
       name: 'New Sprint',
-      start_date: startDate,
-      end_date: endDate,
+      start_date: startDate.toISOString(),
+      end_date: endDate.toISOString(),
     };
 
     const result = await dispatch(thunkAddSprint(projectId, sprintData));

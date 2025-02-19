@@ -1,8 +1,10 @@
 .parkingLotSection {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1rem;
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(74, 123, 183, 0.06);
+  transition: all 0.2s ease;
 }
 
 .parkingLotHeader {
@@ -10,33 +12,92 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1rem;
 }
 
 .parkingLotHeader h2 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--font-lg);
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* If you want to add an icon next to the header */
+.parkingLotHeader h2 i {
+  color: var(--primary-blue);
+  font-size: 1.25rem;
+  opacity: 0.9;
 }
 
 .addFeatureButton {
-  width: 28px;
-  height: 28px;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  background: white;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--background-light);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--primary-blue);
 }
 
 .addFeatureButton:hover {
-  background: #f3f4f6;
+  background: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 123, 183, 0.15);
+  border-color: var(--primary-blue);
 }
 
 .dragOver {
-  background-color: #f3f4f6;
-  border: 2px dashed #9ca3af;
+  background: linear-gradient(
+    135deg,
+    var(--primary-light) 0%,
+    rgba(212, 227, 247, 0.5) 100%
+  );
+  border: 2px dashed var(--primary-blue);
+  box-shadow: 0 4px 20px rgba(74, 123, 183, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Add some animation for the drag state */
+.parkingLotSection {
+  transition: all 0.3s ease;
+}
+
+/* Add a hover state for the section */
+.parkingLotSection:hover {
+  box-shadow: 0 6px 20px rgba(74, 123, 183, 0.08);
+}
+
+/* Style for empty state */
+.parkingLotEmpty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
+  background: var(--background-light);
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+/* animation for adding new features */
+@keyframes featureAdd {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.newFeature {
+  animation: featureAdd 0.3s ease forwards;
 }

@@ -61,11 +61,11 @@ const AddMemberModal = ({ isOpen, onClose, projectId }) => {
             ))}
           </select>
           <div className={styles.buttonContainer}>
-            <button type="button" onClick={onClose}>
-              Cancel
-            </button>
             <button type="submit" disabled={!selectedUserId}>
               Add Member
+            </button>
+            <button type="button" onClick={onClose}>
+              Cancel
             </button>
           </div>
         </form>

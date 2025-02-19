@@ -16,14 +16,14 @@
   --gradient-start: #e1eaf6;
   --gradient-middle: #edf0f9;
   --gradient-end: #f0f4f9;
-  
+
   /* Typography Scale */
-  --font-xxl: 2.25rem;   /* 36px */
-  --font-xl: 1.75rem;    /* 28px */
-  --font-lg: 1.375rem;   /* 22px */
-  --font-md: 1.125rem;   /* 18px */
-  --font-sm: 0.9375rem;  /* 15px */
-  --font-xs: 0.8125rem;  /* 13px */
+  --font-xxl: 2.25rem; /* 36px */
+  --font-xl: 1.75rem; /* 28px */
+  --font-lg: 1.375rem; /* 22px */
+  --font-md: 1.125rem; /* 18px */
+  --font-sm: 0.9375rem; /* 15px */
+  --font-xs: 0.8125rem; /* 13px */
 }
 
 .workspaceContainer {
@@ -31,24 +31,7 @@
   /* max-width: 1200px; */
   margin: 0 55px;
   min-height: calc(100vh - 70px);
-  background: linear-gradient(135deg, 
-    var(--gradient-start) 0%,
-    var(--gradient-middle) 50%,
-    var(--gradient-end) 100%);
   position: relative;
-}
-
-.workspaceContainer::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 200px;
-  background: linear-gradient(180deg, 
-    rgba(74, 123, 183, 0.08) 0%,
-    rgba(74, 123, 183, 0) 100%);
-  pointer-events: none;
 }
 
 .header {
@@ -72,7 +55,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(circle at top right, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 60%);
+  background: radial-gradient(
+    circle at top right,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0) 60%
+  );
   pointer-events: none;
 }
 

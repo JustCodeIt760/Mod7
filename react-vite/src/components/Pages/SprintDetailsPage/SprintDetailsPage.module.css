@@ -1,76 +1,95 @@
 .sprintDetailsContainer {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  background: white;
-  border: 2px solid #1e1e1e;
-  border-radius: 8px;
-  margin-top: 2rem;
+  padding: 32px;
+  margin: 0 55px;
+  min-height: calc(100vh - 70px);
+  background: linear-gradient(
+    135deg,
+    var(--gradient-start) 0%,
+    var(--gradient-middle) 50%,
+    var(--gradient-end) 100%
+  );
+  position: relative;
 }
 
 .header {
+  position: relative;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  border-bottom: 2px solid #1e1e1e;
-  padding-bottom: 1rem;
+  margin-bottom: 32px;
+  padding: 28px 32px;
+  background: linear-gradient(135deg, #3a6491, #4875a5);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(58, 100, 145, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
 }
 
 .header h1 {
+  color: white;
+  font-size: var(--font-xl);
+  font-weight: 700;
+  letter-spacing: -0.5px;
   margin: 0;
-  font-size: 2rem;
-  color: #1e1e1e;
 }
 
 .backButton {
-  padding: 0.5rem 1rem;
-  background: none;
-  border: 2px solid #1e1e1e;
-  border-radius: 4px;
-  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s;
+  font-weight: 600;
+  font-size: var(--font-sm);
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
 }
 
 .backButton:hover {
-  background: #1e1e1e;
-  color: white;
-}
-
-.sprintOverview {
-  margin-bottom: 2rem;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .sprintStats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 28px;
+  margin-bottom: 32px;
 }
 
 .statCard {
   background: white;
-  border: 2px solid #1e1e1e;
-  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
   padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(74, 123, 183, 0.06);
+  transition: all 0.2s ease;
+}
+
+.statCard:hover {
+  box-shadow: 0 8px 24px rgba(74, 123, 183, 0.1);
+  transform: translateY(-2px);
 }
 
 .statCard h3 {
+  color: var(--text-primary);
+  font-size: var(--font-md);
+  font-weight: 600;
   margin: 0 0 1rem 0;
-  font-size: 1.25rem;
-  color: #1e1e1e;
 }
 
 .statCard p {
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
   margin: 0.5rem 0;
-  color: #666;
 }
 
 .progressBar {
   width: 100%;
   height: 8px;
-  background: #f0f0f0;
+  background: var(--background-light);
   border-radius: 4px;
   overflow: hidden;
   margin: 1rem 0;
@@ -78,37 +97,38 @@
 
 .progressFill {
   height: 100%;
-  background: #4CAF50;
+  background: linear-gradient(90deg, var(--primary-blue), #4875a5);
   transition: width 0.3s ease;
 }
 
 .daysRemaining {
-  margin-top: 1rem;
-  font-weight: bold;
-  color: #2196F3;
+  color: var(--primary-blue);
+  font-weight: 600;
+  font-size: var(--font-sm);
 }
 
 .featureBoards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin-top: 2rem;
+  gap: 28px;
+  margin-top: 32px;
 }
 
 .featureColumn {
-  background: #f8f8f8;
-  border: 2px solid #1e1e1e;
-  border-radius: 8px;
+  background: var(--background-light);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
   padding: 1.5rem;
 }
 
 .featureColumn h2 {
+  color: var(--text-primary);
+  font-size: var(--font-md);
+  font-weight: 600;
   margin: 0 0 1rem 0;
-  font-size: 1.25rem;
-  color: #1e1e1e;
   text-align: center;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #1e1e1e;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .featureList {
@@ -120,15 +140,18 @@
 
 .featureCard {
   background: white;
-  border: 2px solid #1e1e1e;
-  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
   padding: 1rem;
-  transition: transform 0.2s;
+  transition: all 0.2s ease;
   cursor: grab;
+  box-shadow: 0 2px 8px rgba(74, 123, 183, 0.05);
 }
 
 .featureCard:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 123, 183, 0.1);
+  border-color: rgba(74, 123, 183, 0.2);
 }
 
 .featureCard:active {
@@ -136,15 +159,17 @@
 }
 
 .featureCard h3 {
+  color: var(--text-primary);
+  font-size: var(--font-md);
+  font-weight: 600;
   margin: 0 0 0.5rem 0;
-  font-size: 1.1rem;
-  color: #1e1e1e;
 }
 
 .featureCard p {
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
   margin: 0 0 1rem 0;
-  color: #666;
-  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .featureFooter {
@@ -155,14 +180,14 @@
 }
 
 .priority {
-  font-size: 0.9rem;
-  color: #666;
-  padding: 0.25rem 0.5rem;
-  background: #f0f0f0;
-  border-radius: 4px;
+  font-size: var(--font-xs);
+  color: var(--text-secondary);
+  padding: 0.25rem 0.75rem;
+  background: var(--background-light);
+  border-radius: 999px;
+  font-weight: 500;
 }
 
-/* Responsive adjustments */
 @media (max-width: 1024px) {
   .featureBoards {
     grid-template-columns: 1fr;
@@ -170,5 +195,10 @@
 
   .sprintStats {
     grid-template-columns: 1fr;
+  }
+
+  .sprintDetailsContainer {
+    margin: 0;
+    padding: 20px;
   }
 }

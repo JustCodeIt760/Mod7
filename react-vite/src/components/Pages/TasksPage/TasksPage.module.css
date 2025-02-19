@@ -1,15 +1,30 @@
 .tasksPage {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 32px;
+  margin: 0 55px;
+  min-height: calc(100vh - 70px);
+
+  position: relative;
 }
 
 .pageHeader {
-  margin-bottom: 2rem;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding: 28px 32px;
+  background: linear-gradient(135deg, #3a6491, #4875a5);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(58, 100, 145, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
 }
 
 .pageHeader h1 {
-  font-size: 1.875rem;
-  font-weight: 600;
-  color: #111827;
+  color: #ffffff;
+  font-size: var(--font-xl);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+  position: relative;
 }

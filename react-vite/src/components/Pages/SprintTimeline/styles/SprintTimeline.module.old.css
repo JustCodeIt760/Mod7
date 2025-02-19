@@ -33,7 +33,7 @@
 
 .projectInfo h1 {
   font-size: 1.5rem;
-  color: var(--text-primary);
+  color: #111827;
   margin: 0;
 }
 
@@ -45,39 +45,13 @@
 
 .sprintInfo h2 {
   font-size: 1.25rem;
-  color: var(--primary-blue);
+  color: #4361ee;
   margin: 0;
 }
 
 .sprintDates {
-  color: var(--text-secondary);
+  color: #6b7280;
   font-size: 0.875rem;
-}
-
-.backButton {
-  text-decoration: none;
-  color: var(--background-light);
-  padding: 12px 16px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  width: fit-content;
-  text-align: center;
-  font-weight: 500;
-  background: var(--primary-blue);
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.backButton:hover {
-  background: #3a6491ec;
-  color: #ffffff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(74, 123, 183, 0.15);
-  cursor: pointer;
 }
 
 /* Timeline Grid & Header */
@@ -131,9 +105,9 @@
 .sectionHeader {
   padding: 12px 16px;
   font-weight: 500;
-  color: var(--primary-blue);
-  background: var(--background-light);
-  border-bottom: 1px solid var(--border-color);
+  color: #4361ee;
+  background: #f8f9fd;
+  border-bottom: 1px solid #e5e7eb;
   position: sticky;
   left: 0;
   z-index: 2;
@@ -152,7 +126,7 @@
 .taskBar {
   position: absolute;
   height: 36px;
-  background: linear-gradient(135deg, var(--primary-blue), #4875a5);
+  background-color: #4361ee;
   border-radius: 6px;
   padding: 0 8px;
   display: flex;
@@ -173,8 +147,8 @@
 }
 
 .userTask {
-  background: linear-gradient(135deg, var(--accent-green), #66b088);
-  border: 1px solid rgba(102, 176, 136, 0.2);
+  background-color: #3b82f6;
+  border: 2px solid #2563eb;
   z-index: 2;
 }
 
@@ -253,7 +227,7 @@
   margin: 0 0 12px 0;
   font-size: 1rem;
   font-weight: 600;
-  color: rgb(74, 123, 183);
+  color: #4361ee;
 }
 
 .hoverCardContent {
@@ -272,184 +246,110 @@
 .modalOverlay {
   position: fixed;
   top: 0;
-  right: 0;
   left: 0;
+  right: 0;
   bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
-}
-.modalOverlay::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  z-index: 1100;
 }
 
 .modalContent {
-  position: relative;
-  background-color: white;
+  background: white;
   border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(74, 123, 183, 0.1),
-    0 10px 10px -5px rgba(74, 123, 183, 0.05);
-  padding: 2rem;
+  padding: 24px;
   width: 90%;
   max-width: 500px;
-  animation: modalFadeIn 0.2s ease forwards;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .modalHeader {
-  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .modalHeader h3 {
-  color: var(--primary-blue);
-  font-size: var(--font-lg);
-  font-weight: 600;
-  text-align: center;
+  margin: 0;
+  font-size: 1.25rem;
+  color: #4361ee;
 }
 
 /* Form Styles */
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 4px;
 }
 
 .formGroup label {
-  color: var(--text-secondary);
-  font-size: var(--font-sm);
   font-weight: 500;
+  color: #4b5563;
+  font-size: 0.875rem;
 }
 
 .formGroup input,
 .formGroup select,
 .formGroup textarea {
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background: var(--background-light);
-  color: var(--text-primary);
-  font-size: var(--font-sm);
-  transition: all 0.2s ease;
-  appearance: none;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #111827;
+  transition: border-color 0.2s;
 }
-.formGroup select {
-  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%234A5568' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  padding-right: 2.5rem;
-}
-.formGroup select option {
-  background: white;
-  color: var(--text-primary);
-  padding: 0.5rem;
-}
+
 .formGroup input:focus,
 .formGroup select:focus,
 .formGroup textarea:focus {
   outline: none;
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(74, 123, 183, 0.15);
-}
-
-.dateInputs {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.dateInputs input[type='date'] {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background: var(--background-light);
-  color: var(--text-primary);
-  font-size: var(--font-sm);
-  transition: all 0.2s ease;
-}
-
-.dateInputs input[type='date']:focus {
-  outline: none;
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(74, 123, 183, 0.15);
-}
-
-.dateInputs span {
-  color: var(--text-secondary);
-  font-size: var(--font-sm);
-  margin: 0 0.5rem;
+  border-color: #4361ee;
+  box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.1);
 }
 
 /* Button Styles */
-.modalActions {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.modalActions button {
-  flex: 1;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: var(--font-sm);
-  font-weight: 600;
+.backButton,
+.editButton,
+.saveButton,
+.cancelButton {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.saveButton {
-  background: linear-gradient(135deg, var(--primary-blue), #4875a5);
-  color: white;
+  transition: all 0.2s;
   border: none;
-  box-shadow: 0 4px 12px rgba(74, 123, 183, 0.15);
 }
 
+.backButton {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.editButton,
+.saveButton {
+  background-color: #4361ee;
+  color: white;
+}
+
+.editButton:hover,
 .saveButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(74, 123, 183, 0.25);
+  background-color: #3b55d9;
 }
 
 .cancelButton {
-  background: white;
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
+  background-color: #f3f4f6;
+  color: #4b5563;
 }
 
 .cancelButton:hover {
-  background: var(--background-light);
-  color: var(--text-primary);
-}
-
-.editButton {
-  background: linear-gradient(135deg, var(--primary-blue), #4875a5);
-  color: white;
-  border: none;
-  box-shadow: 0 4px 12px rgba(74, 123, 183, 0.15);
-}
-
-.editButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(74, 123, 183, 0.25);
-}
-
-.closeButton {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: var(--text-secondary);
-  cursor: pointer;
+  background-color: #e5e7eb;
 }
 
 /* Status & Priority Indicators */
@@ -462,18 +362,18 @@
 }
 
 .not-started {
-  background: var(--background-light);
-  color: var(--text-secondary);
+  background-color: #f3f4f6;
+  color: #4b5563;
 }
 
 .in-progress {
-  background: var(--primary-light);
-  color: var(--primary-blue);
+  background-color: #dbeafe;
+  color: #2563eb;
 }
 
 .completed {
-  background: #d1fae5;
-  color: #065f46;
+  background-color: #dcfce7;
+  color: #16a34a;
 }
 
 /* Utility Classes */
@@ -490,9 +390,9 @@
 
 /* Error & Loading States */
 .errorMessage {
-  color: var(--overdue-color);
-  background: #fde8e8;
+  background-color: #fee2e2;
   border: 1px solid #fca5a5;
+  color: #991b1b;
   padding: 8px 12px;
   border-radius: 6px;
   margin-bottom: 16px;
@@ -532,14 +432,4 @@
 
 p {
   color: #858686;
-}
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }

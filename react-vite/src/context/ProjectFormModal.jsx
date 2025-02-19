@@ -97,7 +97,7 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
   };
 
   return (
-    <div className="project-form-modal">
+    <div>
       <h2>{type === 'create' ? 'Create New Project' : 'Edit Project'}</h2>
       {errors.general && <div className="error-message">{errors.general}</div>}
       <form onSubmit={handleSubmit}>
@@ -133,51 +133,18 @@ const ProjectFormModal = ({ type = 'create', project = null }) => {
             required
           />
           {errors.due_date && <span className="error">{errors.due_date}</span>}
-          {/* <label htmlFor="created_at">Created At</label>
-          <input
-            id="created_at"
-            type="date"
-            value={createdAt}
-            onChange={e => setCreatedAt(e.target.value)}
-            required
-          />
-          {errors.created_at && (
-            <span className="error">{errors.created_at}</span>
-          )}
-          <label htmlFor="updated_at">Updated At</label>
-          <input
-            id="updated_at"
-            type="date"
-            value={updatedAt}
-            onChange={e => setUpdatedAt(e.target.value)}
-            required
-          />
-          {errors.updated_at && (
-            <span className="error">{errors.updated_at}</span>
-          )} */}
         </div>
 
         <div className="form-actions">
-          <button type="submit">
-            {type === 'create' ? 'Create Project' : 'Save Changes'}
-          </button>
+          <button type="submit">Create Project</button>
           <button type="button" onClick={closeModal}>
             Cancel
           </button>
-          {type === 'update' && (
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="delete-button"
-            >
-              Delete Project
-            </button>
-          )}
         </div>
         {errors.delete && <div className="error-message">{errors.delete}</div>}
       </form>
     </div>
   );
-};
+}; // Added closing brace and semicolon
 
 export default ProjectFormModal;

@@ -45,8 +45,8 @@ function LoginFormModal() {
 
     const serverResponse = await dispatch(
       thunkLogin({
-        email: "demo@aa.io",
-        password: "password"
+        email: 'demo@aa.io',
+        password: 'password',
       })
     );
 
@@ -61,7 +61,7 @@ function LoginFormModal() {
 
   return (
     <>
-      <h1>Log In</h1>
+      <h1 className="loginHeader">Log In</h1>
       <form onSubmit={handleSubmit}>
         <label>
           Email
@@ -86,7 +86,6 @@ function LoginFormModal() {
         <button type="submit">Log In</button>
 
         <button type="button" onClick={handleDemoLogin} className="demo-button">
-
           Demo User Login
         </button>
       </form>
