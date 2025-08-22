@@ -12,3 +12,7 @@ init.sh
 **/*.md
 /README.md
 systemPrompt.md
+.cursorindexingignore
+.specstory
+node_modules
+.claude
