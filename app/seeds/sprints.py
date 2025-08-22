@@ -1,4 +1,4 @@
-from models import db, Sprint, Project, environment, SCHEMA
+from models import db, Sprint, Project
 from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 
@@ -89,10 +89,5 @@ def seed_sprints():
 
 
 def undo_sprints():
-    if environment == "production":
-        db.session.execute(
-            f"TRUNCATE table {SCHEMA}.sprints RESTART IDENTITY CASCADE;"
-        )
-    else:
-        db.session.execute(text("DELETE FROM sprints"))
+    db.session.execute(text("TRUNCATE TABLE sprints RESTART IDENTITY CASCADE;"))
     db.session.commit()

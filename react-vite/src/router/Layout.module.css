@@ -1,9 +1,44 @@
 .layout {
   min-height: 100vh;
+  background-color: var(--background-light);
+  position: relative; /* Add this to establish positioning context */
 }
 
 .mainContent {
-  margin-left: 250px;
-  margin-top: 60px;
-  padding: 20px;
+  margin-top: 70px;
+  padding: 30px;
+  background-color: var(--background-light);
+  min-height: calc(100vh - 70px);
+  transition: margin-left 0.3s ease;
+}
+
+/* When user is logged in */
+.withSideNav {
+  margin-left: 250px; /* Match the width of your SideNav */
+}
+
+/* Custom scrollbar for the main content */
+.mainContent::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mainContent::-webkit-scrollbar-track {
+  background: var(--background-light);
+}
+
+.mainContent::-webkit-scrollbar-thumb {
+  background: rgba(58, 100, 145, 0.2);
+  border-radius: 4px;
+}
+
+.mainContent::-webkit-scrollbar-thumb:hover {
+  background: rgba(58, 100, 145, 0.3);
+}
+
+@media (max-width: 768px) {
+  .mainContent,
+  .withSideNav {
+    margin-left: 0;
+    padding: 20px;
+  }
 }

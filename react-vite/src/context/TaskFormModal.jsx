@@ -93,14 +93,14 @@ function TaskFormModal({ projectId, sprintId }) {
   };
 
   return (
-    <div className={styles.formContainer}>
+    <div>
       <h2>Create New Task</h2>
-      <form onSubmit={handleSubmit} className={styles.form}>
+      <form onSubmit={handleSubmit}>
         {validationErrors.submit && hasSubmitted && (
-          <div className={styles.errorMessage}>{validationErrors.submit}</div>
+          <div className="error-message">{validationErrors.submit}</div>
         )}
 
-        <div className={styles.formGroup}>
+        <div className="form-group">
           <label htmlFor="name">Task Name</label>
           <input
             type="text"
@@ -111,11 +111,11 @@ function TaskFormModal({ projectId, sprintId }) {
             required
           />
           {validationErrors.name && hasSubmitted && (
-            <span className={styles.error}>{validationErrors.name}</span>
+            <span className="error">{validationErrors.name}</span>
           )}
         </div>
 
-        <div className={styles.formGroup}>
+        <div className="form-group">
           <label htmlFor="description">Description</label>
           <textarea
             id="description"
@@ -125,29 +125,28 @@ function TaskFormModal({ projectId, sprintId }) {
             required
           />
           {validationErrors.description && hasSubmitted && (
-            <span className={styles.error}>{validationErrors.description}</span>
+            <span className="error">{validationErrors.description}</span>
           )}
         </div>
 
-        <div className={styles.formGroup}>
+        <div className="form-group">
+          <label htmlFor="feature">Feature</label>
           <select
-            value={featureId} // value is the ID
+            id="feature"
+            value={featureId}
             onChange={(e) => setFeatureId(parseInt(e.target.value, 10))}
             required
           >
             <option value="">Select a feature</option>
             {features.map((feature) => (
-              <option
-                key={feature.id}
-                value={feature.id} // value is the ID
-              >
+              <option key={feature.id} value={feature.id}>
                 {feature.name}
               </option>
             ))}
           </select>
         </div>
 
-        <div className={styles.formGroup}>
+        <div className="form-group">
           <label htmlFor="assignedTo">Assign to</label>
           <select
             id="assignedTo"
@@ -170,10 +169,11 @@ function TaskFormModal({ projectId, sprintId }) {
             )}
           </select>
           {validationErrors.assignedTo && hasSubmitted && (
-            <span className={styles.error}>{validationErrors.assignedTo}</span>
+            <span className="error">{validationErrors.assignedTo}</span>
           )}
         </div>
-        <div className={styles.formGroup}>
+
+        <div className="form-group">
           <label htmlFor="status">Status</label>
           <select
             id="status"
@@ -185,14 +185,13 @@ function TaskFormModal({ projectId, sprintId }) {
             <option value="Completed">Completed</option>
           </select>
         </div>
-        <div className={styles.formGroup}>
+
+        <div className="form-group">
           <label htmlFor="priority">Priority</label>
           <select
             id="priority"
             value={priority}
             onChange={(e) => setPriority(parseInt(e.target.value, 10))}
-            // or
-            // onChange={(e) => setPriority(Number(e.target.value))}
           >
             <option value="0">Low</option>
             <option value="1">Medium</option>
@@ -200,7 +199,7 @@ function TaskFormModal({ projectId, sprintId }) {
           </select>
         </div>
 
-        <div className={styles.formGroup}>
+        <div className="form-group">
           <label htmlFor="startDate">Start Date</label>
           <input
             type="date"
@@ -210,11 +209,11 @@ function TaskFormModal({ projectId, sprintId }) {
             required
           />
           {validationErrors.startDate && hasSubmitted && (
-            <span className={styles.error}>{validationErrors.startDate}</span>
+            <span className="error">{validationErrors.startDate}</span>
           )}
         </div>
 
-        <div className={styles.formGroup}>
+        <div className="form-group">
           <label htmlFor="dueDate">Due Date</label>
           <input
             type="date"
@@ -224,15 +223,15 @@ function TaskFormModal({ projectId, sprintId }) {
             required
           />
           {validationErrors.dueDate && hasSubmitted && (
-            <span className={styles.error}>{validationErrors.dueDate}</span>
+            <span className="error">{validationErrors.dueDate}</span>
           )}
         </div>
 
-        <div className={styles.formActions}>
+        <div className="form-actions">
+          <button type="submit">Create Task</button>
           <button type="button" onClick={closeModal}>
             Cancel
           </button>
-          <button type="submit">Create Task</button>
         </div>
       </form>
     </div>

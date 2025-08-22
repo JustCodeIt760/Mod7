@@ -6,8 +6,8 @@ from flask_wtf.csrf import CSRFProtect, generate_csrf
 from flask_login import LoginManager
 from models import db, User
 from api import api
-from seeds import seed_commands  # Remove the .
-from config import Config  # Remove the .
+from seeds import seed_commands
+from config import Config
 
 
 app = Flask(__name__)
@@ -34,20 +34,6 @@ app.register_blueprint(api, url_prefix="/api")
 
 # Tell flask about our seed commands
 app.cli.add_command(seed_commands)
-
-
-# Since we are deploying with Docker and Flask,
-# we won't be using a buildpack when we deploy to Heroku.
-# Therefore, we need to make sure that in production any
-# request made over http is redirected to https.
-# Well.........
-@app.before_request
-def https_redirect():
-    if os.environ.get("FLASK_ENV") == "production":
-        if request.headers.get("X-Forwarded-Proto") == "http":
-            url = request.url.replace("http://", "https://", 1)
-            code = 301
-            return redirect(url, code=code)
 
 
 @app.after_request

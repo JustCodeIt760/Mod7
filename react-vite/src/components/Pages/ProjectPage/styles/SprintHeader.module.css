@@ -2,64 +2,185 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
   position: relative;
-  overflow: visible; /* Add this */
+  overflow: visible;
+  background: var(--card-background);
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 4px 16px rgba(74, 123, 183, 0.06);
 }
+
 .sprintNavigation {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  overflow: visible; /* Add this */
+  gap: 1.5rem;
+  overflow: visible;
 }
 
 .carouselButton {
-  padding: 0.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  background: white;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--background-light);
   cursor: pointer;
-  color: #4b5563;
+  color: var(--text-secondary);
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .carouselButton:hover:not(:disabled) {
-  background: #f3f4f6;
+  background: var(--primary-light);
+  color: var(--primary-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 123, 183, 0.15);
+  border-color: var(--primary-blue);
 }
 
 .carouselButton:disabled {
-  color: #d1d5db;
+  color: var(--border-color);
   cursor: not-allowed;
+  border-color: var(--border-color);
+  opacity: 0.6;
 }
 
 .sprintInfo {
   text-align: center;
-  min-width: 200px;
+  min-width: 300px;
+  padding: 0.5rem 1rem;
 }
 
 .sprintName {
-  color: #111827;
-  font-size: 1.25rem;
-  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--font-lg);
+  font-weight: 700;
   margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.sprintContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.datesContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
 }
 
 .sprintDate {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.sprintDate.editable {
+  cursor: pointer;
+  background: var(--background-light);
+  border: 1px solid var(--border-color);
+}
+
+.sprintDate.editable:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-blue);
+}
+
+.calendarIcon {
+  color: var(--primary-blue);
+  font-size: 14px;
 }
 
 .dateWrapper {
   display: inline-block;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding: 0 5px;
   overflow: visible;
-  position: relative; /* Try adding this */
+  position: relative;
 }
 
 .datePickerWrapper {
   position: absolute;
   z-index: 1000;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card-background);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(74, 123, 183, 0.15);
+  border: 1px solid var(--border-color);
+  padding: 1rem;
+}
+
+/* Custom styles for the DatePicker */
+:global(.react-datepicker) {
+  font-family: inherit;
+  border-color: var(--border-color);
+  border-radius: 8px;
+}
+
+:global(.react-datepicker__header) {
+  background: var(--background-light);
+  border-bottom: 1px solid var(--border-color);
+}
+
+:global(.react-datepicker__day--selected) {
+  background: var(--primary-blue);
+}
+
+:global(.react-datepicker__day:hover) {
+  background: var(--primary-light);
+  color: var(--primary-blue);
+}
+
+/* Animation for date picker */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) translateX(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%);
+  }
+}
+
+.datePickerWrapper {
+  animation: fadeIn 0.2s ease forwards;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sprintHeader {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .sprintNavigation {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sprintInfo {
+    min-width: 200px;
+  }
+
+  .datesContainer {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }

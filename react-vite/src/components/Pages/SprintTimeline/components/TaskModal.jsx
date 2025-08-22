@@ -267,15 +267,16 @@ const TaskModal = ({ task, onClose, projectId, users }) => {
           <div className={styles.modalActions}>
             {isEditing ? (
               <>
+                {' '}
+                <button type="submit" className={styles.saveButton}>
+                  Save Changes
+                </button>
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
                   className={styles.cancelButton}
                 >
                   Cancel
-                </button>
-                <button type="submit" className={styles.saveButton}>
-                  Save Changes
                 </button>
               </>
             ) : (

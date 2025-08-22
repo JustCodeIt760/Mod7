@@ -1,6 +1,8 @@
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../redux/session';
+import { FaListCheck, FaUserGroup, FaChartLine } from 'react-icons/fa6';
+
 import './LandingPage.css';
 
 function LandingPage() {
@@ -9,7 +11,7 @@ function LandingPage() {
 
   const handleSignUp = () => {
     //Redirect to signup page
-      navigate('/signup');
+    navigate('/signup');
   };
 
   const handleLearnMore = () => {
@@ -24,7 +26,7 @@ function LandingPage() {
     <div className="landing-page">
       <section className="hero-section">
         <div className="hero-content">
-          <h1>Organize Your Work</h1>
+          <h1 className="hero-title">Transform Your Workflow</h1>
           <p className="hero-subtitle">
             A powerful tool for managing tasks, projects, & teamwork
             effortlessly
@@ -75,17 +77,23 @@ function LandingPage() {
         <h2>Why Choose TaskFlow?</h2>
         <div className="features-grid">
           <div className="feature-card">
-            <i className="fas fa-tasks"></i>
+            <div className="feature-icon">
+              <FaListCheck />
+            </div>
             <h3>Intuitive Task Management</h3>
             <p>Organize tasks with our drag-and-drop interface</p>
           </div>
           <div className="feature-card">
-            <i className="fas fa-users"></i>
+            <div className="feature-icon">
+              <FaUserGroup />
+            </div>
             <h3>Team Collaboration</h3>
             <p>Work together seamlessly with real-time updates</p>
           </div>
           <div className="feature-card">
-            <i className="fas fa-chart-line"></i>
+            <div className="feature-icon">
+              <FaChartLine />
+            </div>
             <h3>Progress Tracking</h3>
             <p>Monitor project progress with visual analytics</p>
           </div>

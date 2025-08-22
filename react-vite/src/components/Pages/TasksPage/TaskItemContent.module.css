@@ -62,46 +62,45 @@
 }
 
 .priority {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
+  font-size: var(--font-xs);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
   font-weight: 500;
 }
 
 .priorityHigh {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background: #fde8e8;
+  color: var(--overdue-color);
 }
 
 .priorityMedium {
-  background-color: #fef3c7;
-  color: #92400e;
+  background: var(--primary-light);
+  color: var(--primary-blue);
 }
-
 .priorityLow {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background: var(--background-light);
+  color: var(--text-secondary);
 }
 
 .status {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
+  font-size: var(--font-xs);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
   font-weight: 500;
 }
 
 .NotStarted {
-  background-color: #f3f4f6;
-  color: #374151;
+  background: var(--background-light);
+  color: var(--text-secondary);
 }
 
 .InProgress {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background: var(--primary-light);
+  color: var(--primary-blue);
 }
 
 .Completed {
-  background-color: #d1fae5;
+  background: #d1fae5;
   color: #065f46;
 }
 
@@ -184,25 +183,29 @@
 }
 
 .editIcon {
-  color: #aaa;
-  cursor: pointer;
-  font-size: 14px;
-  transition: color 0.2s ease;
-}
-
-.editIcon:hover {
-  color: #666;
-}
-
-.deleteIcon {
-  color: rgba(239, 68, 68, 0.6);
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s ease;
+  opacity: 0.8;
+}
+
+.editIcon:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.deleteIcon {
+  color: var(--overdue-color);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  opacity: 0.8;
 }
 
 .deleteIcon:hover {
-  color: rgb(239, 68, 68);
+  opacity: 1;
+  transform: translateY(-1px);
 }
 .taskContainer {
   width: 100%;

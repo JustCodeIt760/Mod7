@@ -1,42 +1,48 @@
 .filterContainer {
   display: flex;
-  gap: 1rem;
-  padding: 1rem;
-  background-color: #f9fafb;
-  border-radius: 0.5rem;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
   margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px rgba(74, 123, 183, 0.06);
 }
 
 .filterGroup {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .filterLabel {
-  font-size: 0.875rem;
+  font-size: var(--font-sm);
   font-weight: 500;
-  color: #374151;
+  color: var(--text-secondary);
 }
 
 .select {
-  padding: 0.375rem 2.25rem 0.375rem 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: #1f2937;
-  background-color: white;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--background-light);
+  color: var(--text-primary);
+  font-size: var(--font-sm);
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%234A5568' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
   cursor: pointer;
-  outline: none;
-  transition: all 0.2s;
-}
-
-.select:hover {
-  border-color: #9ca3af;
 }
 
 .select:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(74, 123, 183, 0.15);
+}
+
+.select:hover {
+  border-color: var(--primary-blue);
+  background-color: white;
 }

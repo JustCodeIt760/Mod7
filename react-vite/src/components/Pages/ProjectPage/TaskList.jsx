@@ -11,6 +11,7 @@ function TaskList({
   normalizeTask,
 }) {
   const [hoveredTaskId, setHoveredTaskId] = useState(null);
+  const [editingTaskId, setEditingTaskId] = useState(null);
 
   return (
     <div className={styles.taskList}>
@@ -22,8 +23,8 @@ function TaskList({
           featureId={featureId}
           isHovered={hoveredTaskId === task.id}
           onHover={setHoveredTaskId}
-          isEditing={isEditing}
-          setIsEditing={setIsEditing}
+          isEditing={editingTaskId === task.id} // Change this
+          setIsEditing={(editing) => setEditingTaskId(editing ? task.id : null)} // Change this
           normalizeTask={normalizeTask}
         />
       ))}

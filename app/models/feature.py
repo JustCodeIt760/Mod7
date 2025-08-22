@@ -1,4 +1,4 @@
-from .db import db, environment, SCHEMA, add_prefix_for_prod
+from .db import db
 from datetime import datetime
 from sqlalchemy.orm import validates
 
@@ -6,8 +6,7 @@ from sqlalchemy.orm import validates
 class Feature(db.Model):
     __tablename__ = "features"
 
-    if environment == "production":
-        __table_args__ = {"schema": SCHEMA}
+
 
     id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(

@@ -29,7 +29,7 @@ function TaskCard({
         onToggleCompletion={handleToggleCompletion}
         isHovered={isHovered}
         onHover={onHover}
-        showAssignment={true} // This is correct
+        showAssignment={true}
         isEditing={isEditing}
         setIsEditing={setIsEditing}
         editable={true}

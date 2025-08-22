@@ -1,4 +1,4 @@
-from models import db, Feature, Project, Sprint, environment, SCHEMA
+from models import db, Feature, Project, Sprint
 from sqlalchemy.sql import text
 
 
@@ -217,10 +217,5 @@ def seed_features():
 
 
 def undo_features():
-    if environment == "production":
-        db.session.execute(
-            f"TRUNCATE table {SCHEMA}.features RESTART IDENTITY CASCADE;"
-        )
-    else:
-        db.session.execute(text("DELETE FROM features"))
+    db.session.execute(text("TRUNCATE TABLE features RESTART IDENTITY CASCADE;"))
     db.session.commit()

@@ -1,39 +1,48 @@
 .sprintControls {
   position: absolute;
-  right: 1rem;
+  right: 1.25rem;
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
   align-items: center;
 }
 
 .controlButton {
-  padding: 0.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  background: white;
+  width: 28px; /* Consistent with other icon sizes */
+  height: 28px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--background-light);
   cursor: pointer;
-  color: #aaa;
+  color: var(--text-secondary);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 14px; /* Consistent icon size */
 }
 
 .controlButton:hover:not(:disabled) {
-  background: #f3f4f6;
-  color: #666;
+  background: var(--primary-light);
+  color: var(--primary-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(74, 123, 183, 0.15);
+  border-color: var(--primary-blue);
 }
 
 .controlButton:disabled {
-  color: #d1d5db;
+  color: var(--border-color);
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .controlButton.deleteButton {
-  color: rgba(239, 68, 68, 0.6);
+  color: var(--overdue-color);
+  opacity: 0.7;
 }
 
 .controlButton.deleteButton:hover {
-  color: rgb(239, 68, 68);
-  background: #fee2e2;
+  color: var(--overdue-color);
+  background: #fde8e8;
+  opacity: 1;
+  border-color: var(--overdue-color);
 }

@@ -30,7 +30,7 @@ export function ModalProvider({ children }) {
     setModalContent, // function to set the React component to render inside modal
     setOnModalClose, // function to set the callback function called when modal is closing
     openModal, // function to open the modal
-    closeModal // function to close the modal
+    closeModal, // function to close the modal
   };
 
   return (
@@ -53,9 +53,7 @@ export function Modal() {
   return ReactDOM.createPortal(
     <div id="modal">
       <div id="modal-background" onClick={closeModal} />
-      <div id="modal-content">
-        {modalContent}
-      </div>
+      <div id="modal-content">{modalContent}</div>
     </div>,
     modalRef.current
   );

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { ModalProvider, Modal } from '../context/Modal';
@@ -12,12 +13,17 @@ export default function Layout() {
   const dispatch = useDispatch();
   const [isLoaded, setIsLoaded] = useState(false);
   const user = useSelector(selectUser);
+  const location = useLocation();
 
   useEffect(() => {
     dispatch(thunkAuthenticate())
       .then(() => dispatch(refreshAllData()))
       .then(() => setIsLoaded(true));
   }, [dispatch]); // Remove user from dependencies
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   return (
     <>
@@ -29,7 +35,11 @@ export default function Layout() {
           ) : (
             <>
               {user && <SideNav />}
-              <main className={styles.mainContent}>
+              <main
+                className={`${styles.mainContent} ${
+                  user ? styles.withSideNav : ''
+                }`}
+              >
                 <Outlet />
               </main>
             </>

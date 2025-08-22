@@ -3,51 +3,31 @@
 # Exit on any error
 set -e
 
-echo "==================================================="
-echo "Starting initialization script at $(date)"
-echo "==================================================="
+echo "Starting initialization script..."
 
 # Wait for database
-echo "[Database] Checking PostgreSQL connection..."
+echo "Waiting for postgres..."
 while ! nc -z db 5432; do
-  echo "[Database] Postgres is unavailable - sleeping"
+  echo "Postgres is unavailable - sleeping"
   sleep 1
 done
-echo "[Database] PostgreSQL connection successful!"
-echo "[Database] Host: db:5432"
+echo "PostgreSQL started successfully!"
 
-# Check if database is already initialized
-echo "[Database] Checking if database is already initialized..."
-if ! flask db current > /dev/null 2>&1; then
-    echo "[Database] Database is not initialized. Starting fresh setup..."
+# Clean start - remove all migration data
+echo "Cleaning old migrations..."
+rm -rf migrations
+flask db init
 
-    # Initialize database
-    echo "[Database] Starting database initialization..."
-    if [ -d "migrations" ]; then
-        echo "[Migrations] Using existing migrations directory"
-    else
-        echo "[Migrations] Initializing Flask-Migrate..."
-        flask db init
-    fi
+# Create and run fresh migrations
+echo "Creating and running migrations..."
+export FLASK_APP=__init__.py
+flask db migrate -m "initial migration"
+flask db upgrade
 
-    echo "[Migrations] Creating initial migration..."
-    flask db migrate -m "initial migration"
-    echo "[Migrations] Applying migrations to database..."
-    flask db upgrade
-    echo "[Database] Database schema created successfully!"
-else
-    echo "[Database] Database is already initialized, skipping setup"
-    echo "[Migrations] Checking for any pending migrations..."
-    flask db upgrade
-fi
+# Run seeds
+echo "Running seeds..."
+flask seed all
+echo "Database refresh completed!"
 
-echo "[Server] Configuration:"
-echo "- FLASK_APP: $FLASK_APP"
-echo "- FLASK_DEBUG: $FLASK_DEBUG"
-echo "- DATABASE_URL: $DATABASE_URL"
-echo "- SCHEMA: $SCHEMA"
-
-# Start the Flask development server
-echo "[Server] Starting Flask development server..."
-echo "[Server] Listening on 0.0.0.0:5000"
-flask run --host=0.0.0.0
+echo "Starting Gunicorn server..."
+exec gunicorn --bind 0.0.0.0:5000 "__init__:app"
