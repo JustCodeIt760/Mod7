@@ -43,6 +43,68 @@ class Project(db.Model):
         secondary="project_users",
         back_populates="projects",
     )
+    
+    # PMI-Enhanced Relationships
+    stakeholders = db.relationship(
+        "Stakeholder", cascade="all, delete-orphan", back_populates="project"
+    )
+    business_objectives = db.relationship(
+        "BusinessObjective", cascade="all, delete-orphan", back_populates="project"
+    )
+    risks = db.relationship(
+        "Risk", cascade="all, delete-orphan", back_populates="project"
+    )
+    work_packages = db.relationship(
+        "WorkPackage", cascade="all, delete-orphan", back_populates="project"
+    )
+    
+    # Integration Management
+    change_requests = db.relationship(
+        "ChangeRequest", cascade="all, delete-orphan", back_populates="project"
+    )
+    lessons_learned = db.relationship(
+        "LessonsLearned", cascade="all, delete-orphan", back_populates="project"
+    )
+    
+    # Cost Management
+    budgets = db.relationship(
+        "Budget", cascade="all, delete-orphan", back_populates="project"
+    )
+    cost_estimates = db.relationship(
+        "CostEstimate", cascade="all, delete-orphan", back_populates="project"
+    )
+    earned_value_performance = db.relationship(
+        "EarnedValueManagement", cascade="all, delete-orphan", back_populates="project"
+    )
+    
+    # Schedule Management
+    activity_dependencies = db.relationship(
+        "ActivityDependency", cascade="all, delete-orphan", back_populates="project"
+    )
+    schedule_performance = db.relationship(
+        "SchedulePerformance", cascade="all, delete-orphan", back_populates="project"
+    )
+    
+    # Quality Management
+    quality_metrics = db.relationship(
+        "QualityMetric", cascade="all, delete-orphan", back_populates="project"
+    )
+    quality_issues = db.relationship(
+        "QualityIssue", cascade="all, delete-orphan", back_populates="project"
+    )
+    
+    # Communications Management
+    communication_activities = db.relationship(
+        "CommunicationActivity", cascade="all, delete-orphan", back_populates="project"
+    )
+    meetings = db.relationship(
+        "ProjectMeeting", cascade="all, delete-orphan", back_populates="project"
+    )
+    
+    # Procurement Management
+    contracts = db.relationship(
+        "Contract", cascade="all, delete-orphan", back_populates="project"
+    )
 
     # Convert Model to Dictionary
     def to_dict(self):
