@@ -24,3 +24,4 @@ werkzeug==2.2.2; python_version >= '3.7'
 wtforms==3.0.1; python_version >= '3.7'
 zipp==3.17.0; python_version >= '3.8'
 psycopg2-binary==2.9.7
+requests==2.31.0

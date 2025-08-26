@@ -203,7 +203,7 @@ class EarnedValueManagement(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    project = db.relationship("Project", back_populates="evm_reports")
+    project = db.relationship("Project", back_populates="earned_value_performance")
     work_package = db.relationship("WorkPackage", backref="evm_reports")
 
     def calculate_evm_metrics(self):

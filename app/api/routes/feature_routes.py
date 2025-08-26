@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from functools import wraps
 from models import User, Sprint, Project, Feature, db
 from flask_login import login_required, current_user
+from api.routes.webhook_routes import trigger_parking_lot_webhook
 
 feature_routes = Blueprint("features", __name__)
 
@@ -57,6 +58,11 @@ def create_feature(project_id):
             status=data.get("status", "Not Started"),
             priority=data.get("priority", 0),
         )
+        
+        # Trigger webhook if added to parking lot (sprint_id is None)
+        if new_feature.sprint_id is None:
+            trigger_parking_lot_webhook(new_feature)
+        
         return jsonify(new_feature.to_dict()), 201
     except ValueError as e:
         return {
@@ -86,6 +92,9 @@ def update_feature(project_id, feature_id):
             },
         }, 400
     try:
+        # Check if moving to parking lot
+        old_sprint_id = feature.sprint_id
+        
         updated_feature = feature.update_feature(
             **{
                 "name": data.get("name", feature.name),
@@ -95,6 +104,10 @@ def update_feature(project_id, feature_id):
                 "sprint_id": data.get("sprint_id", feature.sprint_id),
             }
         )
+        
+        # Only trigger AI for newly created features, not moved ones
+        # Moving existing features from sprint to parking lot should NOT generate new tasks
+        
         return jsonify(updated_feature.to_dict())
     except ValueError as e:
         return {

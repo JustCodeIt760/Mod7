@@ -5,6 +5,7 @@ from .routes.feature_routes import feature_routes
 from .routes.sprint_routes import sprint_routes
 from .routes.task_routes import task_routes
 from .routes.user_routes import user_routes
+from .routes.webhook_routes import webhook_routes
 
 api = Blueprint("api", __name__)
 
@@ -15,3 +16,4 @@ api.register_blueprint(feature_routes, url_prefix="")
 api.register_blueprint(sprint_routes, url_prefix="")
 api.register_blueprint(task_routes, url_prefix="")
 api.register_blueprint(user_routes, url_prefix="")
+api.register_blueprint(webhook_routes, url_prefix="")

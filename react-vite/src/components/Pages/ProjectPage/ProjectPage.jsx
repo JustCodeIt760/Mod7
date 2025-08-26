@@ -11,6 +11,7 @@ import ProjectHeader from './ProjectHeader';
 import ParkingLot from './ParkingLot';
 import SprintSection from './SprintSection';
 import ProjectMembers from './ProjectMembers';
+import ProjectVisualizationSimple from './ProjectVisualizationSimple';
 
 import styles from './styles/ProjectPage.module.css';
 
@@ -44,6 +45,16 @@ function ProjectPage() {
     ...enrichedTasksMap[task.id],
   });
 
+  // Collect all features and tasks for visualization
+  const allFeatures = [
+    ...(parkingLot?.features || []),
+    ...(sprints?.flatMap(sprint => sprint.features || []) || [])
+  ];
+  
+  // Get all tasks from the enriched tasks selector (already normalized)
+  const allTasks = enrichedTasks;
+
+
   console.log('project-data:', projectData);
   console.log('project:', project);
   console.log('parking lot:', parkingLot);
@@ -66,6 +77,22 @@ function ProjectPage() {
           normalizeTask={normalizeTask}
         />
       </div>
+      
+      {/* PMI Project Command Center - Test */}
+      <div style={{ background: 'white', padding: '2rem', margin: '2rem 0', border: '1px solid #ccc' }}>
+        <h2>Project Visualization Debug</h2>
+        <p>Project: {project?.name || 'No project'}</p>
+        <p>Sprints: {sprints?.length || 0}</p>
+        <p>Features: {allFeatures?.length || 0}</p>
+        <p>Tasks: {allTasks?.length || 0}</p>
+      </div>
+      
+      <ProjectVisualizationSimple
+        project={project}
+        sprints={sprints || []}
+        features={allFeatures}
+        tasks={allTasks}
+      />
     </div>
   );
 }

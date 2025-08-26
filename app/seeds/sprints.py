@@ -7,85 +7,139 @@ BASE_DATE = datetime(2025, 1, 2)
 
 def seed_sprints():
     projects = Project.query.all()
-    website, mobile_app, marketing = projects
+    ecommerce, mobile_app, marketing, devops, design_system, api_platform = projects
 
-    # Website Redesign Sprints (1 week each)
-    web_sprint1 = Sprint(
-        project_id=website.id,
-        name="Design Phase",
-        start_date=BASE_DATE,
-        end_date=BASE_DATE + timedelta(days=6),
-    )
+    sprints = []
 
-    web_sprint2 = Sprint(
-        project_id=website.id,
-        name="Frontend Development",
-        start_date=BASE_DATE + timedelta(days=7),
-        end_date=BASE_DATE + timedelta(days=13),
-    )
-
-    web_sprint3 = Sprint(
-        project_id=website.id,
-        name="Backend Integration",
-        start_date=BASE_DATE + timedelta(days=14),
-        end_date=BASE_DATE + timedelta(days=20),
-    )
-
-    web_sprint4 = Sprint(
-        project_id=website.id,
-        name="Testing & QA",
-        start_date=BASE_DATE + timedelta(days=21),
-        end_date=BASE_DATE + timedelta(days=27),
-    )
-
-    # Mobile App Sprints (1 week each)
-    app_sprint1 = Sprint(
-        project_id=mobile_app.id,
-        name="MVP Features",
-        start_date=BASE_DATE,
-        end_date=BASE_DATE + timedelta(days=6),
-    )
-
-    app_sprint2 = Sprint(
-        project_id=mobile_app.id,
-        name="User Authentication",
-        start_date=BASE_DATE + timedelta(days=7),
-        end_date=BASE_DATE + timedelta(days=13),
-    )
-
-    app_sprint3 = Sprint(
-        project_id=mobile_app.id,
-        name="Core Functionality",
-        start_date=BASE_DATE + timedelta(days=14),
-        end_date=BASE_DATE + timedelta(days=20),
-    )
-
-    # Marketing Sprints (1 week each)
-    marketing_sprint1 = Sprint(
-        project_id=marketing.id,
-        name="Content Creation",
-        start_date=BASE_DATE,
-        end_date=BASE_DATE + timedelta(days=6),
-    )
-
-    marketing_sprint2 = Sprint(
-        project_id=marketing.id,
-        name="Social Media Strategy",
-        start_date=BASE_DATE + timedelta(days=7),
-        end_date=BASE_DATE + timedelta(days=13),
-    )
-
-    db.session.add_all([
-        web_sprint1, web_sprint2, web_sprint3, web_sprint4,
-        app_sprint1, app_sprint2, app_sprint3,
-        marketing_sprint1, marketing_sprint2
-    ])
-    db.session.commit()
-    return [
-        web_sprint1, web_sprint2, web_sprint3, web_sprint4,
-        app_sprint1, app_sprint2, app_sprint3,
-        marketing_sprint1, marketing_sprint2
+    # E-Commerce Platform Sprints (2-week sprints, 6 sprints total - 3 months)
+    sprint_duration = 14  # 2 weeks
+    
+    ecommerce_sprints = [
+        ("Discovery & Planning", "Requirements gathering, user research, technical architecture planning"),
+        ("User Authentication & Security", "Login system, password management, OAuth integration, security audit"),
+        ("Product Catalog & Search", "Product listing, filtering, search functionality, inventory integration"),
+        ("Shopping Cart & Checkout", "Cart functionality, payment processing, order management"),
+        ("Admin Dashboard", "Inventory management, order processing, analytics dashboard"),
+        ("Testing & Launch", "QA testing, performance optimization, production deployment")
     ]
+    
+    for i, (name, description) in enumerate(ecommerce_sprints):
+        start = BASE_DATE + timedelta(days=i * sprint_duration)
+        end = start + timedelta(days=sprint_duration - 1)
+        sprints.append(Sprint(
+            project_id=ecommerce.id,
+            name=f"Sprint {i+1}: {name}",
+            start_date=start,
+            end_date=end
+        ))
+
+    # Mobile App Sprints (2-week sprints, 5 sprints total - 2.5 months)
+    mobile_sprints = [
+        ("Foundation & Setup", "Project setup, authentication, basic navigation"),
+        ("Core Features", "Task management, project views, team collaboration"),
+        ("Real-time & Offline", "Push notifications, offline sync, real-time updates"),
+        ("Polish & UX", "UI improvements, animations, user onboarding"),
+        ("Beta Testing & Launch", "Testing, App Store submission, production release")
+    ]
+    
+    for i, (name, description) in enumerate(mobile_sprints):
+        start = BASE_DATE + timedelta(days=i * sprint_duration)
+        end = start + timedelta(days=sprint_duration - 1)
+        sprints.append(Sprint(
+            project_id=mobile_app.id,
+            name=f"Sprint {i+1}: {name}",
+            start_date=start,
+            end_date=end
+        ))
+
+    # Marketing Campaign Sprints (1-week sprints, 8 sprints total - 2 months)
+    marketing_duration = 7
+    marketing_sprints = [
+        ("Strategy & Planning", "Market research, competitor analysis, campaign strategy"),
+        ("Content Creation", "Blog posts, social media content, email templates"),
+        ("Brand Assets", "Graphics, videos, photography, brand guidelines"),
+        ("Website Optimization", "SEO, landing pages, conversion optimization"),
+        ("Social Media Launch", "Platform setup, content scheduling, influencer outreach"),
+        ("Paid Advertising", "Google Ads, Facebook Ads, LinkedIn campaigns"),
+        ("Email Marketing", "Newsletter campaigns, automation setup, segmentation"),
+        ("Analytics & Optimization", "Performance tracking, A/B testing, campaign optimization")
+    ]
+    
+    for i, (name, description) in enumerate(marketing_sprints):
+        start = BASE_DATE + timedelta(days=i * marketing_duration)
+        end = start + timedelta(days=marketing_duration - 1)
+        sprints.append(Sprint(
+            project_id=marketing.id,
+            name=f"Week {i+1}: {name}",
+            start_date=start,
+            end_date=end
+        ))
+
+    # DevOps Migration Sprints (2-week sprints, 7 sprints total - 3.5 months)
+    devops_sprints = [
+        ("Infrastructure Assessment", "Current system audit, migration planning, cost analysis"),
+        ("Containerization", "Docker setup, container registry, image optimization"),
+        ("Kubernetes Setup", "Cluster setup, networking, storage configuration"),
+        ("CI/CD Pipeline", "Jenkins/GitHub Actions, automated testing, deployment automation"),
+        ("Monitoring & Logging", "Prometheus, Grafana, ELK stack, alerting systems"),
+        ("Security & Compliance", "Security scanning, compliance checks, access management"),
+        ("Migration & Validation", "Production migration, testing, rollback procedures")
+    ]
+    
+    for i, (name, description) in enumerate(devops_sprints):
+        start = BASE_DATE + timedelta(days=i * sprint_duration)
+        end = start + timedelta(days=sprint_duration - 1)
+        sprints.append(Sprint(
+            project_id=devops.id,
+            name=f"Phase {i+1}: {name}",
+            start_date=start,
+            end_date=end
+        ))
+
+    # Design System Sprints (1-week sprints, 7 sprints total - 7 weeks)
+    design_sprints = [
+        ("Research & Foundation", "Design audit, token system, color palette"),
+        ("Typography & Grid", "Type system, spacing, layout grid"),
+        ("Basic Components", "Buttons, forms, inputs, cards"),
+        ("Complex Components", "Navigation, modals, data tables"),
+        ("Documentation", "Style guide, component library docs"),
+        ("Implementation", "React/Vue components, CSS framework"),
+        ("Testing & Rollout", "Accessibility testing, team training")
+    ]
+    
+    for i, (name, description) in enumerate(design_sprints):
+        start = BASE_DATE + timedelta(days=i * marketing_duration)
+        end = start + timedelta(days=marketing_duration - 1)
+        sprints.append(Sprint(
+            project_id=design_system.id,
+            name=f"Sprint {i+1}: {name}",
+            start_date=start,
+            end_date=end
+        ))
+
+    # API Platform Sprints (2-week sprints, 6 sprints total - ~3 months)
+    api_sprints = [
+        ("API Design & Planning", "OpenAPI specs, database design, architecture planning"),
+        ("Core REST Endpoints", "CRUD operations, authentication, basic functionality"),
+        ("GraphQL Integration", "Schema design, resolvers, query optimization"),
+        ("Advanced Features", "Rate limiting, caching, pagination, webhooks"),
+        ("Documentation & SDK", "Interactive docs, client SDKs, code examples"),
+        ("Testing & Production", "Load testing, security audit, production deployment")
+    ]
+    
+    for i, (name, description) in enumerate(api_sprints):
+        start = BASE_DATE + timedelta(days=i * sprint_duration)
+        end = start + timedelta(days=sprint_duration - 1)
+        sprints.append(Sprint(
+            project_id=api_platform.id,
+            name=f"Sprint {i+1}: {name}",
+            start_date=start,
+            end_date=end
+        ))
+
+    db.session.add_all(sprints)
+    db.session.commit()
+    return sprints
 
 
 def undo_sprints():

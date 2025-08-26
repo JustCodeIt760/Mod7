@@ -1,20 +1,16 @@
+import { useState } from 'react';
 import { FeatureCard } from './';
-import { thunkAddFeature, thunkMoveFeature } from '../../../redux/feature';
+import { thunkMoveFeature } from '../../../redux/feature';
 import { useDispatch } from 'react-redux';
+import AddFeatureModal from './AddFeatureModal';
 import styles from './styles/ParkingLot.module.css';
 
 function ParkingLot({ features = [], projectId }) {
   const dispatch = useDispatch();
+  const [showAddModal, setShowAddModal] = useState(false);
 
-  const handleAddFeature = async () => {
-    const featureData = {
-      name: 'New Feature',
-      description: '',
-      priority: 0,
-      status: 'Not Started',
-    };
-
-    await dispatch(thunkAddFeature(projectId, featureData));
+  const handleAddFeature = () => {
+    setShowAddModal(true);
   };
 
   const handleDragOver = (e) => {
@@ -40,29 +36,37 @@ function ParkingLot({ features = [], projectId }) {
   };
 
   return (
-    <section
-      className={styles.parkingLotSection}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-    >
-      <div className={styles.parkingLotHeader}>
-        <h2>Parking Lot</h2>
-        <button className={styles.addFeatureButton} onClick={handleAddFeature}>
-          +
-        </button>
-      </div>
-      <div className={styles.parkingLotContent}>
-        {features?.map((feature) => (
-          <FeatureCard
-            key={feature.id}
-            feature={feature}
-            projectId={projectId}
-            sourceType="parking"
-          />
-        ))}
-      </div>
-    </section>
+    <>
+      <section
+        className={styles.parkingLotSection}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <div className={styles.parkingLotHeader}>
+          <h2>Parking Lot</h2>
+          <button className={styles.addFeatureButton} onClick={handleAddFeature}>
+            +
+          </button>
+        </div>
+        <div className={styles.parkingLotContent}>
+          {features?.map((feature) => (
+            <FeatureCard
+              key={feature.id}
+              feature={feature}
+              projectId={projectId}
+              sourceType="parking"
+            />
+          ))}
+        </div>
+      </section>
+
+      <AddFeatureModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        projectId={projectId}
+      />
+    </>
   );
 }
 

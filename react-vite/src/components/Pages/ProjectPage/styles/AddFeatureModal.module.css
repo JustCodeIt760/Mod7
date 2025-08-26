@@ -1,0 +1,250 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 8px;
+  padding: 0;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  color: #1a202c;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #718096;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.closeButton:hover {
+  background-color: #e2e8f0;
+  color: #2d3748;
+}
+
+.closeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form {
+  padding: 24px;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.9rem;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.inputError {
+  border-color: #f56565 !important;
+}
+
+.inputError:focus {
+  box-shadow: 0 0 0 3px rgba(245, 101, 101, 0.1) !important;
+}
+
+.error {
+  display: block;
+  color: #f56565;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+.characterCount {
+  text-align: right;
+  font-size: 0.75rem;
+  color: #718096;
+  margin-top: 4px;
+}
+
+.aiHint {
+  background-color: #ebf8ff;
+  border: 1px solid #bee3f8;
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: #2b6cb0;
+}
+
+.submitError {
+  background-color: #fed7d7;
+  border: 1px solid #feb2b2;
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin-bottom: 16px;
+  color: #c53030;
+  font-size: 0.9rem;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.cancelButton,
+.submitButton {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cancelButton {
+  background-color: #f7fafc;
+  color: #4a5568;
+  border: 1px solid #e2e8f0;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: #edf2f7;
+}
+
+.submitButton {
+  background-color: #4299e1;
+  color: white;
+  min-width: 180px;
+  justify-content: center;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #3182ce;
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.aiInfo {
+  background-color: #f0fff4;
+  border: 1px solid #c6f6d5;
+  border-radius: 6px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.aiInfoHeader {
+  font-weight: 600;
+  color: #276749;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.aiSteps {
+  margin: 0;
+  padding-left: 20px;
+  color: #2f855a;
+  font-size: 0.8rem;
+}
+
+.aiSteps li {
+  margin-bottom: 4px;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .modal {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .modalButtons {
+    flex-direction: column;
+  }
+  
+  .cancelButton,
+  .submitButton {
+    width: 100%;
+  }
+}
