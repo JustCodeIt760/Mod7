@@ -1,13 +1,12 @@
 // SignupFormPage.jsx
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { selectErrors, thunkSignup } from '../../redux/session';
 import './SignupForm.css';
 
 function SignupFormPage() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const sessionUser = useSelector((state) => state.session.user);
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -33,7 +32,7 @@ function SignupFormPage() {
 
     setLocalErrors({});
 
-    const serverResponse = await dispatch(
+    await dispatch(
       thunkSignup({
         first_name: firstName,
         last_name: lastName,

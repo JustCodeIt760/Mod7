@@ -14,8 +14,9 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - SCHEMA=${SCHEMA:-public}
       - REFRESH_DB=${REFRESH_DB:-true}
-    expose:
-      - '5000'
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    ports:
+      - '5000:5000'
     volumes:
       - ./app:/app
     depends_on:
@@ -76,6 +77,21 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - default
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: taskflow-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL:-admin@taskflow.com}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD:-admin}
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    ports:
+      - '5050:80'
+    depends_on:
+      - db
     networks:
       - default
     restart: unless-stopped

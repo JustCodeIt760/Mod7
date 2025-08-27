@@ -6,20 +6,10 @@ import {
 } from 'redux';
 import thunk from 'redux-thunk';
 import sessionReducer from './session';
-import projectReducer from './project';
-import taskReducer from './task';
-import sprintReducer from './sprint';
-import featureReducer from './feature';
-import userReducer from './user';
 
 // Create root reducer with reset functionality
 const appReducer = combineReducers({
   session: sessionReducer,
-  projects: projectReducer,
-  features: featureReducer,
-  sprints: sprintReducer,
-  tasks: taskReducer,
-  users: userReducer,
 });
 
 // Root reducer that can handle store reset

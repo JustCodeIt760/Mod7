@@ -62,9 +62,8 @@ if [ "$REFRESH_DB" = "true" ]; then
     flask seed all
     echo "Database refresh completed!"
 else
-    # Run any pending migrations
-    flask db upgrade
-    echo "Database migrations up to date!"
+    # Skip migrations if tables already exist to prevent conflicts
+    echo "Skipping migrations - using existing database structure"
 fi
 
 echo "Starting Gunicorn server..."

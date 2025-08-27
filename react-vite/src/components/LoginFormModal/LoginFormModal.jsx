@@ -3,10 +3,6 @@ import { setErrors, thunkLogin, selectErrors } from '../../redux/session';
 import { useDispatch, useSelector } from 'react-redux';
 import { useModal } from '../../context/Modal';
 import './LoginForm.css';
-import { thunkLoadProjects } from '../../redux/project';
-import { thunkLoadTasks } from '../../redux/task';
-import { thunkLoadFeatures } from '../../redux/feature';
-import { thunkLoadSprints } from '../../redux/sprint';
 
 function LoginFormModal() {
   const dispatch = useDispatch();
@@ -32,10 +28,6 @@ function LoginFormModal() {
     );
 
     if (serverResponse) {
-      dispatch(thunkLoadProjects());
-      dispatch(thunkLoadTasks());
-      dispatch(thunkLoadFeatures());
-      dispatch(thunkLoadSprints());
       closeModal();
     }
   };
@@ -51,10 +43,6 @@ function LoginFormModal() {
     );
 
     if (serverResponse) {
-      dispatch(thunkLoadProjects());
-      dispatch(thunkLoadTasks());
-      dispatch(thunkLoadFeatures());
-      dispatch(thunkLoadSprints());
       closeModal();
     }
   };

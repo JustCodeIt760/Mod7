@@ -1,15 +1,19 @@
 .layout {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background-color: var(--background-light);
   position: relative; /* Add this to establish positioning context */
 }
 
 .mainContent {
+  flex: 1;
   margin-top: 70px;
   padding: 30px;
   background-color: var(--background-light);
   min-height: calc(100vh - 70px);
   transition: margin-left 0.3s ease;
+  overflow: hidden;
 }
 
 /* When user is logged in */

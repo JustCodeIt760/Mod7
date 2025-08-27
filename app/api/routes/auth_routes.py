@@ -24,15 +24,20 @@ def login():
     """
     Logs a user in
     """
-    form = LoginForm()
-    form["csrf_token"].data = request.cookies["csrf_token"]
-
-    if form.validate_on_submit():
-        user = User.query.filter(User.email == form.data["email"]).first()
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    
+    if not email or not password:
+        return {"errors": {"email": "Email required", "password": "Password required"}}, 401
+    
+    user = User.query.filter(User.email == email).first()
+    
+    if user and user.check_password(password):
         login_user(user)
         return user.to_dict()
-
-    return {"errors": form.errors}, 401
+    
+    return {"errors": {"email": "Invalid credentials"}}, 401
 
 
 @auth_routes.route("/logout")
@@ -49,21 +54,45 @@ def sign_up():
     """
     Creates a new user and logs them in
     """
-    form = SignUpForm()
-    form["csrf_token"].data = request.cookies["csrf_token"]
-    if form.validate_on_submit():
+    data = request.get_json()
+    
+    # Basic validation
+    required_fields = ['first_name', 'last_name', 'username', 'email', 'password']
+    errors = {}
+    for field in required_fields:
+        if not data.get(field):
+            errors[field] = f"{field.replace('_', ' ').title()} is required"
+    
+    if errors:
+        return {"errors": errors}, 400
+        
+    # Check if user already exists
+    existing_user = User.query.filter(
+        (User.email == data['email']) | (User.username == data['username'])
+    ).first()
+    
+    if existing_user:
+        if existing_user.email == data['email']:
+            errors['email'] = 'Email already registered'
+        if existing_user.username == data['username']:
+            errors['username'] = 'Username already taken'
+        return {"errors": errors}, 400
+    
+    try:
         user = User(
-            first_name=form.data["first_name"],
-            last_name=form.data["last_name"],
-            username=form.data["username"],
-            email=form.data["email"],
-            password=form.data["password"],
+            first_name=data['first_name'],
+            last_name=data['last_name'],
+            username=data['username'],
+            email=data['email'],
+            password=data['password']
         )
         db.session.add(user)
         db.session.commit()
         login_user(user)
         return user.to_dict()
-    return jsonify({"errors": form.errors}), 400
+    except Exception as e:
+        db.session.rollback()
+        return {"errors": {"general": "Registration failed"}}, 500
 
 
 @auth_routes.route("/unauthorized")

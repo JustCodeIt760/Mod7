@@ -1,8 +1,4 @@
 import { csrfFetch } from '../utils/csrf';
-import { thunkLoadProjects } from './project';
-import { thunkLoadTasks } from './task';
-import { thunkLoadSprints } from './sprint';
-import { thunkLoadFeatures } from './feature';
 
 const SET_USER = 'session/setUser';
 const REMOVE_USER = 'session/removeUser';
@@ -44,10 +40,6 @@ export const thunkAuthenticate = () => async (dispatch) => {
     const userData = await response.json();
     dispatch(setUser(userData));
 
-    if (userData) {
-      // Just load the projects list
-      await dispatch(thunkLoadProjects());
-    }
 
     dispatch(setErrors(null));
     return userData;
