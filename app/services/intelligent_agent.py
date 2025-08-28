@@ -1,5 +1,6 @@
 from models import db, AgentState, Project, Stakeholder, Risk
 from services.project_context_service import ProjectContextService
+from services.change_proposal_service import ChangeProposalService
 from datetime import datetime
 import requests
 import os
@@ -204,11 +205,18 @@ Return JSON analysis:
 
             if response.status_code == 200:
                 ai_response = response.json()['choices'][0]['message']['content']
+                
+                # Generate database change proposals
+                project_context = ProjectContextService.get_active_project_context(self.user_id, message)
+                change_proposals = ChangeProposalService.analyze_and_propose_changes(message, project_context, analysis)
+                
                 return {
                     "content": ai_response,
                     "context_aware": True,
                     "state_version": current_state["metadata"]["version"],
-                    "agent_analysis": analysis
+                    "agent_analysis": analysis,
+                    "change_proposals": change_proposals,
+                    "project_context": project_context
                 }
         except Exception as e:
             print(f"Response generation error: {e}")

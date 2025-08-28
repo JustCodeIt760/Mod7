@@ -1,5 +1,4 @@
 import { useSelector } from 'react-redux';
-import SuperUserAgent from './SuperUserAgent/SuperUserAgent';
 
 const HomePage = () => {
   const user = useSelector(state => state.session.user);
@@ -7,8 +6,8 @@ const HomePage = () => {
   console.log('HomePage - User:', user);
   
   if (user) {
-    console.log('Rendering SuperUserAgent');
-    return <SuperUserAgent />;
+    console.log('User logged in - SuperUserAgent handled by Layout');
+    return null; // SuperUserAgent is now rendered by Layout
   }
   
   console.log('Rendering login message');

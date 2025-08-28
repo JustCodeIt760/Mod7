@@ -17,4 +17,6 @@ systemPrompt.md
 .specstory
 node_modules
 .claude
-react-vite/dist/
+react-vite/dist/*
+dist
+cookies.txt
