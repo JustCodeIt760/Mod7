@@ -1,6 +1,10 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
-from models import db, ChatMessage, Project, Stakeholder, Risk, WorkPackage, BusinessObjective
+from models import (db, ChatMessage, Project, Stakeholder, Risk, WorkPackage, BusinessObjective,
+                    ChangeRequest, LessonsLearned, Budget, CostEstimate, EarnedValueManagement,
+                    ScheduleBaseline, ActivityDependency, SchedulePerformance, QualityPlan, 
+                    QualityMetric, QualityIssue, CommunicationPlan, CommunicationActivity, 
+                    ProjectMeeting, ProcurementPlan, Vendor, Contract)
 from services.intelligent_agent import IntelligentAgent
 from services.change_proposal_service import ChangeProposalService
 from datetime import datetime, timezone
@@ -301,4 +305,254 @@ def clear_chat_data():
         "message": "Chat data cleared successfully",
         "deleted_messages": deleted_messages,
         "deleted_states": deleted_states
+    })
+
+# Direct database shortcuts - no AI API calls
+@chat_routes.route("/quick/status", methods=["GET"])
+@login_required
+def quick_project_status():
+    """Quick project status - direct database query"""
+    project = Project.query.filter_by(owner_id=current_user.id)\
+        .order_by(Project.updated_at.desc()).first()
+    
+    if not project:
+        return jsonify({"status": "No active project"})
+    
+    # Quick counts
+    stakeholder_count = Stakeholder.query.filter_by(project_id=project.id).count()
+    risk_count = Risk.query.filter_by(project_id=project.id).count()
+    wp_count = WorkPackage.query.filter_by(project_id=project.id).count()
+    
+    return jsonify({
+        "project": project.name,
+        "status": getattr(project, 'status', 'Active'),
+        "stakeholders": stakeholder_count,
+        "risks": risk_count,
+        "work_packages": wp_count,
+        "last_updated": project.updated_at.strftime("%Y-%m-%d %H:%M")
+    })
+
+@chat_routes.route("/quick/risks", methods=["GET"])
+@login_required
+def quick_risks():
+    """Quick risk list - direct database query"""
+    project = Project.query.filter_by(owner_id=current_user.id)\
+        .order_by(Project.updated_at.desc()).first()
+    
+    if not project:
+        return jsonify({"message": "No active project"})
+    
+    risks = Risk.query.filter_by(project_id=project.id)\
+        .order_by(Risk.risk_level.desc()).all()
+    
+    return jsonify({
+        "project": project.name,
+        "risks": [r.to_dict() for r in risks]
+    })
+
+@chat_routes.route("/quick/stakeholders", methods=["GET"])
+@login_required
+def quick_stakeholders():
+    """Quick stakeholder list - direct database query"""
+    project = Project.query.filter_by(owner_id=current_user.id)\
+        .order_by(Project.updated_at.desc()).first()
+    
+    if not project:
+        return jsonify({"message": "No active project"})
+    
+    stakeholders = Stakeholder.query.filter_by(project_id=project.id)\
+        .order_by(Stakeholder.power_level.desc()).all()
+    
+    return jsonify({
+        "project": project.name,
+        "stakeholders": [s.to_dict() for s in stakeholders]
+    })
+
+@chat_routes.route("/quick/charter", methods=["GET"])
+@login_required
+def quick_charter():
+    """Quick project charter view - direct database query"""
+    project = Project.query.filter_by(owner_id=current_user.id)\
+        .order_by(Project.updated_at.desc()).first()
+    
+    if not project:
+        return jsonify({"message": "No active project"})
+    
+    return jsonify({
+        "project_charter": {
+            "name": project.name,
+            "description": project.description,
+            "status": getattr(project, 'status', 'Active'),
+            "owner": current_user.email,
+            "created": project.created_at.strftime("%Y-%m-%d"),
+            "due_date": project.due_date.strftime("%Y-%m-%d") if project.due_date else "Not set"
+        }
+    })
+
+@chat_routes.route("/quick/wbs", methods=["GET"])
+@login_required
+def quick_wbs():
+    """Work Breakdown Structure - direct database query"""
+    project = Project.query.filter_by(owner_id=current_user.id)\
+        .order_by(Project.updated_at.desc()).first()
+    
+    if not project:
+        return jsonify({"message": "No active project"})
+    
+    work_packages = WorkPackage.query.filter_by(project_id=project.id)\
+        .order_by(WorkPackage.id).all()
+    
+    return jsonify({
+        "project": project.name,
+        "wbs": [wp.to_dict() for wp in work_packages]
+    })
+
+@chat_routes.route("/quick/schedule", methods=["GET"])
+@login_required
+def quick_schedule():
+    """Project Schedule - direct database query"""
+    project = Project.query.filter_by(owner_id=current_user.id)\
+        .order_by(Project.updated_at.desc()).first()
+    
+    if not project:
+        return jsonify({"message": "No active project"})
+    
+    schedules = ScheduleBaseline.query.filter_by(project_id=project.id).all()
+    dependencies = ActivityDependency.query.filter_by(project_id=project.id).all()
+    
+    return jsonify({
+        "project": project.name,
+        "schedule_baselines": [s.to_dict() for s in schedules],
+        "dependencies": [d.to_dict() for d in dependencies]
+    })
+
+@chat_routes.route("/quick/budget", methods=["GET"])
+@login_required
+def quick_budget():
+    """Cost Management - direct database query"""
+    project = Project.query.filter_by(owner_id=current_user.id)\
+        .order_by(Project.updated_at.desc()).first()
+    
+    if not project:
+        return jsonify({"message": "No active project"})
+    
+    budgets = Budget.query.filter_by(project_id=project.id).all()
+    estimates = CostEstimate.query.filter_by(project_id=project.id).all()
+    
+    return jsonify({
+        "project": project.name,
+        "budgets": [b.to_dict() for b in budgets],
+        "cost_estimates": [e.to_dict() for e in estimates]
+    })
+
+@chat_routes.route("/quick/quality", methods=["GET"])
+@login_required
+def quick_quality():
+    """Quality Management - direct database query"""
+    project = Project.query.filter_by(owner_id=current_user.id)\
+        .order_by(Project.updated_at.desc()).first()
+    
+    if not project:
+        return jsonify({"message": "No active project"})
+    
+    plans = QualityPlan.query.filter_by(project_id=project.id).all()
+    metrics = QualityMetric.query.filter_by(project_id=project.id).all()
+    issues = QualityIssue.query.filter_by(project_id=project.id).all()
+    
+    return jsonify({
+        "project": project.name,
+        "quality_plans": [p.to_dict() for p in plans],
+        "quality_metrics": [m.to_dict() for m in metrics],
+        "quality_issues": [i.to_dict() for i in issues]
+    })
+
+@chat_routes.route("/quick/comms", methods=["GET"])
+@login_required
+def quick_communications():
+    """Communications Management - direct database query"""
+    project = Project.query.filter_by(owner_id=current_user.id)\
+        .order_by(Project.updated_at.desc()).first()
+    
+    if not project:
+        return jsonify({"message": "No active project"})
+    
+    plans = CommunicationPlan.query.filter_by(project_id=project.id).all()
+    activities = CommunicationActivity.query.filter_by(project_id=project.id).all()
+    meetings = ProjectMeeting.query.filter_by(project_id=project.id).all()
+    
+    return jsonify({
+        "project": project.name,
+        "communication_plans": [p.to_dict() for p in plans],
+        "activities": [a.to_dict() for a in activities],
+        "meetings": [m.to_dict() for m in meetings]
+    })
+
+@chat_routes.route("/quick/procurement", methods=["GET"])
+@login_required
+def quick_procurement():
+    """Procurement Management - direct database query"""
+    project = Project.query.filter_by(owner_id=current_user.id)\
+        .order_by(Project.updated_at.desc()).first()
+    
+    if not project:
+        return jsonify({"message": "No active project"})
+    
+    plans = ProcurementPlan.query.filter_by(project_id=project.id).all()
+    vendors = Vendor.query.filter_by(project_id=project.id).all()
+    contracts = Contract.query.filter_by(project_id=project.id).all()
+    
+    return jsonify({
+        "project": project.name,
+        "procurement_plans": [p.to_dict() for p in plans],
+        "vendors": [v.to_dict() for v in vendors],
+        "contracts": [c.to_dict() for c in contracts]
+    })
+
+@chat_routes.route("/quick/changes", methods=["GET"])
+@login_required
+def quick_changes():
+    """Change Management - direct database query"""
+    project = Project.query.filter_by(owner_id=current_user.id)\
+        .order_by(Project.updated_at.desc()).first()
+    
+    if not project:
+        return jsonify({"message": "No active project"})
+    
+    changes = ChangeRequest.query.filter_by(project_id=project.id).all()
+    lessons = LessonsLearned.query.filter_by(project_id=project.id).all()
+    
+    return jsonify({
+        "project": project.name,
+        "change_requests": [c.to_dict() for c in changes],
+        "lessons_learned": [l.to_dict() for l in lessons]
+    })
+
+@chat_routes.route("/quick/gantt", methods=["GET"])
+@login_required
+def quick_gantt():
+    """Gantt Chart Data - direct database query"""
+    project = Project.query.filter_by(owner_id=current_user.id)\
+        .order_by(Project.updated_at.desc()).first()
+    
+    if not project:
+        return jsonify({"message": "No active project"})
+    
+    work_packages = WorkPackage.query.filter_by(project_id=project.id)\
+        .order_by(WorkPackage.planned_start).all()
+    
+    gantt_data = []
+    for wp in work_packages:
+        gantt_data.append({
+            "id": wp.id,
+            "name": wp.name,
+            "start": wp.planned_start.strftime("%Y-%m-%d") if wp.planned_start else None,
+            "end": wp.planned_end.strftime("%Y-%m-%d") if wp.planned_end else None,
+            "progress": wp.progress_percentage or 0,
+            "status": wp.status,
+            "duration": wp.estimated_hours
+        })
+    
+    return jsonify({
+        "project": project.name,
+        "gantt_chart": gantt_data
     })

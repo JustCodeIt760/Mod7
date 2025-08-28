@@ -27,6 +27,13 @@ function SuperUserAgent({ projectData = null, visible = true }) {
   const [showProjectData, setShowProjectData] = useState(false);
   const messagesEndRef = useRef(null);
 
+  // Handle data toggle event from quick commands
+  useEffect(() => {
+    const handleDataToggle = () => setShowProjectData(prev => !prev);
+    document.addEventListener('toggleProjectData', handleDataToggle);
+    return () => document.removeEventListener('toggleProjectData', handleDataToggle);
+  }, []);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -239,6 +246,187 @@ Should I execute these changes?`;
     await dispatch(thunkLogout());
   };
 
+  const handleQuickData = (label, data) => {
+    // Display quick data as formatted terminal output
+    let content = '';
+    
+    if (label === 'status') {
+      content = `📊 **PROJECT STATUS**
+
+Project: ${data.project || 'None'}
+Status: ${data.status}
+Stakeholders: ${data.stakeholders}
+Risks: ${data.risks}  
+Work Packages: ${data.work_packages}
+Last Updated: ${data.last_updated}`;
+
+    } else if (label === 'charter') {
+      const charter = data.project_charter;
+      content = `📋 **PROJECT CHARTER**
+
+Name: ${charter.name}
+Description: ${charter.description}
+Status: ${charter.status}
+Owner: ${charter.owner}
+Created: ${charter.created}
+Due Date: ${charter.due_date}`;
+
+    } else if (label === 'wbs') {
+      content = `🔨 **WORK BREAKDOWN STRUCTURE** (Project: ${data.project})
+
+${data.wbs.map((wp, i) => `${i+1}. ${wp.name} [${wp.status}]
+   Type: ${wp.work_type} | Progress: ${wp.progress_percentage || 0}%
+   Hours: ${wp.estimated_hours || 'TBD'} | Priority: ${wp.priority || 'Normal'}
+   ${wp.planned_start ? `Start: ${new Date(wp.planned_start).toLocaleDateString()}` : ''}
+   ${wp.planned_end ? `End: ${new Date(wp.planned_end).toLocaleDateString()}` : ''}
+`).join('\n')}`;
+
+    } else if (label === 'gantt') {
+      content = `📊 **GANTT CHART** (Project: ${data.project})
+
+${data.gantt_chart.map((item, i) => `${i+1}. ${item.name} [${item.progress}%]
+   ${item.start || 'No start'} → ${item.end || 'No end'}
+   Status: ${item.status} | Duration: ${item.duration}h
+`).join('\n')}
+
+📋 Gantt Chart Timeline View`;
+
+    } else if (label === 'schedule') {
+      content = `📅 **SCHEDULE MANAGEMENT** (Project: ${data.project})
+
+🎯 Schedule Baselines (${data.schedule_baselines.length}):
+${data.schedule_baselines.map((s, i) => `${i+1}. ${s.name || 'Baseline'} 
+   Start: ${s.baseline_start ? new Date(s.baseline_start).toLocaleDateString() : 'TBD'}
+   End: ${s.baseline_end ? new Date(s.baseline_end).toLocaleDateString() : 'TBD'}
+`).join('\n')}
+
+🔗 Dependencies (${data.dependencies.length}):
+${data.dependencies.map((d, i) => `${i+1}. ${d.dependency_type} dependency
+   ${d.predecessor_activity} → ${d.successor_activity}
+`).join('\n')}`;
+
+    } else if (label === 'budget') {
+      content = `💰 **COST MANAGEMENT** (Project: ${data.project})
+
+💼 Budgets (${data.budgets.length}):
+${data.budgets.map((b, i) => `${i+1}. ${b.budget_category}
+   Allocated: $${(b.allocated_amount || 0).toLocaleString()}
+   Spent: $${(b.spent_amount || 0).toLocaleString()}
+   Remaining: $${((b.allocated_amount || 0) - (b.spent_amount || 0)).toLocaleString()}
+`).join('\n')}
+
+📊 Cost Estimates (${data.cost_estimates.length}):
+${data.cost_estimates.map((e, i) => `${i+1}. ${e.estimate_type}
+   Amount: $${(e.estimated_cost || 0).toLocaleString()}
+   Confidence: ${e.confidence_level || 'TBD'}
+`).join('\n')}`;
+
+    } else if (label === 'quality') {
+      content = `✅ **QUALITY MANAGEMENT** (Project: ${data.project})
+
+📋 Quality Plans (${data.quality_plans.length}):
+${data.quality_plans.map((p, i) => `${i+1}. ${p.plan_name}
+   Objective: ${p.quality_objective}
+   Standard: ${p.quality_standard}
+`).join('\n')}
+
+📊 Quality Metrics (${data.quality_metrics.length}):
+${data.quality_metrics.map((m, i) => `${i+1}. ${m.metric_name}
+   Target: ${m.target_value} | Actual: ${m.actual_value || 'TBD'}
+   Status: ${m.status}
+`).join('\n')}
+
+⚠️ Quality Issues (${data.quality_issues.length}):
+${data.quality_issues.map((issue, i) => `${i+1}. ${issue.issue_title} [${issue.severity}]
+   Status: ${issue.status}
+`).join('\n')}`;
+
+    } else if (label === 'comms') {
+      content = `📢 **COMMUNICATIONS MANAGEMENT** (Project: ${data.project})
+
+📋 Communication Plans (${data.communication_plans.length}):
+${data.communication_plans.map((p, i) => `${i+1}. ${p.plan_name}
+   Stakeholder: ${p.stakeholder_group}
+   Method: ${p.communication_method}
+   Frequency: ${p.frequency}
+`).join('\n')}
+
+📝 Activities (${data.activities.length}):
+${data.activities.map((a, i) => `${i+1}. ${a.activity_type}
+   Status: ${a.status}
+   Date: ${a.communication_date ? new Date(a.communication_date).toLocaleDateString() : 'TBD'}
+`).join('\n')}
+
+🤝 Meetings (${data.meetings.length}):
+${data.meetings.map((m, i) => `${i+1}. ${m.meeting_type}
+   Date: ${m.meeting_date ? new Date(m.meeting_date).toLocaleDateString() : 'TBD'}
+   Duration: ${m.duration_minutes || 60}min
+`).join('\n')}`;
+
+    } else if (label === 'procurement') {
+      content = `🛒 **PROCUREMENT MANAGEMENT** (Project: ${data.project})
+
+📋 Procurement Plans (${data.procurement_plans.length}):
+${data.procurement_plans.map((p, i) => `${i+1}. ${p.procurement_type}
+   Method: ${p.procurement_method}
+   Timeline: ${p.procurement_timeline}
+`).join('\n')}
+
+🏢 Vendors (${data.vendors.length}):
+${data.vendors.map((v, i) => `${i+1}. ${v.vendor_name}
+   Type: ${v.vendor_type}
+   Status: ${v.vendor_status}
+`).join('\n')}
+
+📄 Contracts (${data.contracts.length}):
+${data.contracts.map((c, i) => `${i+1}. ${c.contract_type}
+   Value: $${(c.contract_value || 0).toLocaleString()}
+   Status: ${c.contract_status}
+   Start: ${c.contract_start_date ? new Date(c.contract_start_date).toLocaleDateString() : 'TBD'}
+`).join('\n')}`;
+
+    } else if (label === 'changes') {
+      content = `🔄 **CHANGE MANAGEMENT** (Project: ${data.project})
+
+📝 Change Requests (${data.change_requests.length}):
+${data.change_requests.map((cr, i) => `${i+1}. ${cr.change_title} [${cr.priority}]
+   Status: ${cr.status}
+   Impact: ${cr.impact_assessment}
+   Requested: ${cr.request_date ? new Date(cr.request_date).toLocaleDateString() : 'TBD'}
+`).join('\n')}
+
+📚 Lessons Learned (${data.lessons_learned.length}):
+${data.lessons_learned.map((ll, i) => `${i+1}. ${ll.lesson_category}
+   Phase: ${ll.project_phase}
+   Impact: ${ll.impact_description}
+`).join('\n')}`;
+
+    } else if (label === 'risks') {
+      content = `⚠️ **RISK LOG** (Project: ${data.project})
+
+${data.risks.map((r, i) => `${i+1}. ${r.title} [${r.risk_level}]
+   ${r.description}
+   Probability: ${Math.round((r.probability || 0) * 100)}% | Impact: ${Math.round((r.impact || 0) * 100)}%
+   Category: ${r.category} | Status: ${r.status}
+`).join('\n')}`;
+
+    } else if (label === 'team') {
+      content = `👥 **STAKEHOLDERS** (Project: ${data.project})
+
+${data.stakeholders.map((s, i) => `${i+1}. ${s.name} (${s.role})
+   Power: ${s.power_level} | Interest: ${s.interest_level}
+   Strategy: ${s.influence_strategy}
+   Contact: ${s.contact_info || 'No contact info'}
+`).join('\n')}`;
+    }
+
+    addMessage({
+      type: 'system',
+      content: content,
+      timestamp: new Date().toISOString()
+    });
+  };
+
   if (!visible) return null;
 
   return (
@@ -246,8 +434,7 @@ Should I execute these changes?`;
       {/* Top Navigation Bar */}
       <div className={styles.topBar}>
         <div className={styles.logo}>
-          <span>🤖</span>
-          <span>TaskFlow AI Assistant</span>
+          <span>PM Terminal v1.0.0</span>
         </div>
         <div className={styles.topActions}>
           <button 
@@ -255,14 +442,14 @@ Should I execute these changes?`;
             onClick={() => setShowProjectData(!showProjectData)}
             title="View Project Data"
           >
-            📊 Data
+            [DATA]
           </button>
           <button 
             className={styles.logoutBtn}
             onClick={handleLogout}
             title="Logout"
           >
-            Logout
+            [EXIT]
           </button>
         </div>
       </div>
@@ -305,11 +492,11 @@ Should I execute these changes?`;
             onChange={setInputValue}
             onSend={handleSendMessage}
             onKeyDown={handleKeyDown}
-            placeholder="Ask me anything..."
+            placeholder="Enter command..."
             disabled={isTyping}
           />
 
-          <QuickCommands onExecute={executeQuickCommand} />
+          <QuickCommands onExecute={executeQuickCommand} onQuickData={handleQuickData} />
         </>
       )}
       
@@ -458,24 +645,93 @@ function MessageInput({ value, onChange, onSend, onKeyDown, placeholder, disable
   );
 }
 
-function QuickCommands({ onExecute }) {
+function QuickCommands({ onExecute, onQuickData }) {
   const commands = [
-    { label: 'Help', command: '/help' },
-    { label: 'Status', command: '/status' },
-    { label: 'Clear', command: '/clear' }
+    // Core PM Commands
+    { label: 'help', command: 'help', type: 'chat' },
+    { label: 'status', endpoint: '/api/chat/quick/status', type: 'data' },
+    { label: 'charter', endpoint: '/api/chat/quick/charter', type: 'data' },
+    
+    // Project Artifacts (PMI Knowledge Areas)
+    { label: 'wbs', endpoint: '/api/chat/quick/wbs', type: 'data' },
+    { label: 'gantt', endpoint: '/api/chat/quick/gantt', type: 'data' },
+    { label: 'schedule', endpoint: '/api/chat/quick/schedule', type: 'data' },
+    { label: 'budget', endpoint: '/api/chat/quick/budget', type: 'data' },
+    { label: 'quality', endpoint: '/api/chat/quick/quality', type: 'data' },
+    { label: 'comms', endpoint: '/api/chat/quick/comms', type: 'data' },
+    { label: 'procurement', endpoint: '/api/chat/quick/procurement', type: 'data' },
+    { label: 'changes', endpoint: '/api/chat/quick/changes', type: 'data' },
+    
+    // People & Risk
+    { label: 'risks', endpoint: '/api/chat/quick/risks', type: 'data' },
+    { label: 'team', endpoint: '/api/chat/quick/stakeholders', type: 'data' },
+    
+    // Actions
+    { label: 'data', action: 'toggleData', type: 'action' },
+    { label: 'clear', command: 'clear', type: 'chat' }
   ];
+
+  const handleCommand = async (cmd) => {
+    if (cmd.type === 'chat') {
+      onExecute(cmd.command);
+    } else if (cmd.type === 'data') {
+      try {
+        const response = await fetch(cmd.endpoint, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        if (response.ok) {
+          const data = await response.json();
+          onQuickData(cmd.label, data);
+        }
+      } catch (error) {
+        console.error(`Error fetching ${cmd.label}:`, error);
+        onExecute(`Error loading ${cmd.label} data`);
+      }
+    } else if (cmd.type === 'action' && cmd.action === 'toggleData') {
+      // This will be handled by parent component
+      const dataToggleEvent = new CustomEvent('toggleProjectData');
+      document.dispatchEvent(dataToggleEvent);
+    }
+  };
 
   return (
     <div className={styles.quickCommands}>
-      {commands.map(({ label, command }) => (
-        <button 
-          key={label}
-          onClick={() => onExecute(command)}
-          className={styles.quickBtn}
-        >
-          {label}
-        </button>
-      ))}
+      <div className={styles.commandGroup}>
+        <span className={styles.groupLabel}>core:</span>
+        {commands.slice(0, 3).map((cmd) => (
+          <button key={cmd.label} onClick={() => handleCommand(cmd)} className={styles.quickBtn}>
+            {cmd.label}
+          </button>
+        ))}
+      </div>
+      
+      <div className={styles.commandGroup}>
+        <span className={styles.groupLabel}>pmi:</span>
+        {commands.slice(3, 11).map((cmd) => (
+          <button key={cmd.label} onClick={() => handleCommand(cmd)} className={styles.quickBtn}>
+            {cmd.label}
+          </button>
+        ))}
+      </div>
+      
+      <div className={styles.commandGroup}>
+        <span className={styles.groupLabel}>people:</span>
+        {commands.slice(11, 13).map((cmd) => (
+          <button key={cmd.label} onClick={() => handleCommand(cmd)} className={styles.quickBtn}>
+            {cmd.label}
+          </button>
+        ))}
+      </div>
+      
+      <div className={styles.commandGroup}>
+        <span className={styles.groupLabel}>actions:</span>
+        {commands.slice(13).map((cmd) => (
+          <button key={cmd.label} onClick={() => handleCommand(cmd)} className={styles.quickBtn}>
+            {cmd.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
